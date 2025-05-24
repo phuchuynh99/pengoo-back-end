@@ -18,62 +18,78 @@ export class ProductsService {
     private categoriesRepository: Repository<Category>,
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto): Promise<Product> {
-    const { categoryId, ...rest } = createProductDto;
-    const category = await this.categoriesRepository.findOne(categoryId);
-    if (!category) {
-      throw new NotFoundException('Category not found');
-    }
-    const product = this.productsRepository.create({ ...rest, category });
-    return this.productsRepository.save(product);
-  }
-
-  async findAllProducts(): Promise<Product[]> {
+  async findAll(): Promise<Product[]> {
     return this.productsRepository.find({ relations: ['category'] });
   }
 
-  async findProductById(id: number): Promise<Product> {
-    const product = await this.productsRepository.findOne(id, { relations: ['category'] });
+  async findById(id: number): Promise<Product> {
+    const product = await this.productsRepository.findOne({where : {id : id}, relations: ['category']});
     if (!product) {
       throw new NotFoundException('Product not found');
     }
     return product;
   }
 
-  async updateProduct(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
-    const product = await this.findProductById(id);
+  async create(createProductDto: CreateProductDto): Promise<Product> {
+    const category = await this.findCategory(createProductDto.categoryId);    
+    const newProduct = new Product();
+    newProduct.name = createProductDto.name;
+    newProduct.description = createProductDto.description;
+    newProduct.price = createProductDto.price;
+    newProduct.sku = createProductDto.sku;
+    newProduct.quantity = createProductDto.quantity;
+    newProduct.category = category;
+    return this.productsRepository.save(newProduct);
+  }
+
+  async update(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
+    let product = await this.findById(id);
     const { categoryId, ...rest } = updateProductDto;
-    if (categoryId) {
-      const category = await this.categoriesRepository.findOne(categoryId);
-      if (!category) {
-        throw new NotFoundException('Category not found');
-      }
+    const category = categoryId ? await this.findCategory(categoryId) : null;
+    if (category) {
       product.category = category;
     }
-    Object.assign(product, rest);
+    //Option 1
+    // Object.assign(product, rest);
+    //Option 2
+    product.name = updateProductDto.name;
+    product.description = updateProductDto.description;
+    product.price = updateProductDto.price;
+    product.sku = updateProductDto.sku;
+    product.quantity = updateProductDto.quantity;
     return this.productsRepository.save(product);
   }
 
-  async removeProduct(id: number): Promise<void> {
-    const product = await this.findProductById(id);
+  async remove(id: number): Promise<void> {
+    const product = await this.findById(id);
     await this.productsRepository.remove(product);
   }
 
-  async createCategory(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const category = this.categoriesRepository.create(createCategoryDto);
-    return this.categoriesRepository.save(category);
+  async findCategory(categoryId : number): Promise<Category>{
+    const category = await this.categoriesRepository.findOne({where : {id : categoryId}});
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }    
+    return category;
   }
+
+  
 
   async findAllCategories(): Promise<Category[]> {
     return this.categoriesRepository.find({ relations: ['products'] });
   }
 
   async findCategoryById(id: number): Promise<Category> {
-    const category = await this.categoriesRepository.findOne(id, { relations: ['products'] });
+    const category = await this.categoriesRepository.findOne({where: {id : id}, relations: ['product'] });
     if (!category) {
       throw new NotFoundException('Category not found');
     }
     return category;
+  }
+
+  async createCategory(createCategoryDto: CreateCategoryDto): Promise<Category> {
+    const category = this.categoriesRepository.create(createCategoryDto);
+    return this.categoriesRepository.save(category);
   }
 
   async updateCategory(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
