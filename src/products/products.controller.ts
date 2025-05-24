@@ -10,52 +10,52 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  createProduct(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.createProduct(createProductDto);
+  async createProduct(@Body() createProductDto: CreateProductDto) {
+    return this.productsService.create(createProductDto);
   }
 
   @Get()
-  findAllProducts() {
-    return this.productsService.findAllProducts();
+  async findAllProducts() {
+    return this.productsService.findAll();
   }
 
   @Get(':id')
-  findProductById(@Param('id') id: number) {
-    return this.productsService.findProductById(id);
+  async findProductById(@Param('id') id: number) {
+    return this.productsService.findById(id);
   }
 
   @Patch(':id')
-  updateProduct(@Param('id') id: number, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.updateProduct(id, updateProductDto);
+  async updateProduct(@Param('id') id: number, @Body() updateProductDto: UpdateProductDto) {
+    return this.productsService.update(id, updateProductDto);
   }
 
   @Delete(':id')
-  removeProduct(@Param('id') id: number) {
-    return this.productsService.removeProduct(id);
+  async removeProduct(@Param('id') id: number) {
+    return this.productsService.remove(id);
   }
 
   @Post('categories')
-  createCategory(@Body() createCategoryDto: CreateCategoryDto) {
+  async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
     return this.productsService.createCategory(createCategoryDto);
   }
 
   @Get('categories')
-  findAllCategories() {
+  async findAllCategories() {
     return this.productsService.findAllCategories();
   }
 
   @Get('categories/:id')
-  findCategoryById(@Param('id') id: number) {
+  async findCategoryById(@Param('id') id: number) {
     return this.productsService.findCategoryById(id);
   }
 
   @Patch('categories/:id')
-  updateCategory(@Param('id') id: number, @Body() updateCategoryDto: UpdateCategoryDto) {
+  async updateCategory(@Param('id') id: number, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.productsService.updateCategory(id, updateCategoryDto);
   }
 
   @Delete('categories/:id')
-  removeCategory(@Param('id') id: number) {
+  async removeCategory(@Param('id') id: number) {
     return this.productsService.removeCategory(id);
   }
 }
