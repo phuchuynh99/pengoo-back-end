@@ -5,8 +5,10 @@ import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { User } from './users/user.entity';
 import { Product } from './products/product.entity';
-import { Category } from './products/category.entity';
+import { Category } from './categories/category.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import dataSourceOptions from './db/data-source';
+
 
 @Module({
   imports: [
@@ -16,16 +18,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
-        entities: [User, Product, Category],
-        synchronize: true
-      }),
+      useFactory: (configService: ConfigService) => (dataSourceOptions),
     }),
     TypeOrmModule.forFeature([User, Product, Category]),
     UsersModule,

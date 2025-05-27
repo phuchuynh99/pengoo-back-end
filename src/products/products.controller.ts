@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/commo
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './create-product.dto';
 import { UpdateProductDto } from './update-product.dto';
-import { CreateCategoryDto } from './create-category.dto';
+import { CreateCategoryDto } from '../categories/create-category.dto';
 import { UpdateCategoryDto } from './update-category.dto';
 
 @Controller('products')

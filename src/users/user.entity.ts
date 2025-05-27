@@ -11,11 +11,14 @@ export class User {
   @Column({ length: 100, nullable: false })
   full_name: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, select: false })
   password: string;
 
-  @Column({ length: 100, unique: true, nullable: true })
+  @Column({ length: 100, unique: true, nullable: false })
   email: string;
+
+  @Column({ length: 50, nullable: false, default: 'USER' })
+  role: string;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
   phone_number: string;
@@ -29,8 +32,7 @@ export class User {
   @Column({ type: 'text', nullable: true })
   address: string;
 
-  @Column({ length: 50, nullable: false, default: 'USER' })
-  role: string;
+ 
 
   // constructor(userData: Partial<User>) {
   //   this.username = userData.username || '';
