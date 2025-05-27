@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/users/user.entity';
 import { LoginResponseDto } from '../dto/login-response.dto';
+import { TokenPayloadDto } from 'src/dto/token-payload.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +29,7 @@ export class AuthService {
   
       await this.validateUser(user, password);
   
-      const payload = { email: user.email, sub: user.id, role: user.role, username: user.username };
+      const payload : TokenPayloadDto = { email: user.email, sub: user.id, role: user.role, username: user.username };
       return new LoginResponseDto(this.jwtService.sign(payload), user.username, user.role);
     }catch (error) {
       throw new InternalServerErrorException('User not found');
