@@ -1,26 +1,35 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { Category } from './category.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Category } from '../categories/category.entity';
+import { Review } from 'src/reviews/review.entity';
+import { Wishlist } from 'src/wishlist/wishlist.entity';
 
-@Entity()
+@Entity('product')
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: false })
   name: string;
 
-  @Column('text')
+  @Column('text', { nullable: false })
   description: string;
 
-  @Column('decimal')
+  @Column('decimal', { nullable: false })
   price: number;
 
-  @Column()
+  @Column({ nullable: false })
   sku: string;
 
-  @Column()
+  @Column({ nullable: false })
   quantity: number;
 
-  @ManyToOne(() => Category, category => category.products)
+  @ManyToOne(() => Category, (category) => category.products)
   category: Category;
+
+  
+  @OneToMany(() => Review, (review) => review.product)
+  reviews: Review[];
+
+  @OneToMany(() => Wishlist, (wishlist) => wishlist.product)
+  wishlists: Wishlist[];
 }
