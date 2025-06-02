@@ -8,6 +8,7 @@ import { UpdateProductDto } from '../products/update-product.dto';
 import { CreateCategoryDto } from '../categories/create-category.dto';
 import { UpdateCategoryDto } from '../categories/update-category.dto';
 import { CategoriesService } from 'src/categories/categories.service';
+import { CloudinaryService } from 'src/services/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProductsService {
@@ -15,17 +16,25 @@ export class ProductsService {
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
     private readonly categoriesService: CategoriesService,
+    private readonly cloudinaryService: CloudinaryService,
   ) { }
 
-  async create(createProductDto: CreateProductDto): Promise<Product> {
+  async create(createProductDto: CreateProductDto, file): Promise<Product> {
     const category = await this.categoriesService.findById(createProductDto.categoryId);
     const newProduct = new Product();
-    newProduct.name = createProductDto.name;
+    const uploadResult = await this.cloudinaryService.uploadImage(file);
+    newProduct.product_name = createProductDto.product_name;
     newProduct.description = createProductDto.description;
-    newProduct.price = createProductDto.price;
-    newProduct.sku = createProductDto.sku;
-    newProduct.quantity = createProductDto.quantity;
+    newProduct.product_price = createProductDto.product_price;
+    newProduct.slug = createProductDto.slug;
+    newProduct.quantity_sold = createProductDto.quantity_sold;
     newProduct.category = category;
+    newProduct.image_url = uploadResult.secure_url;
+    newProduct.discount = createProductDto.discount;
+    newProduct.meta_description = createProductDto.meta_description;
+    newProduct.meta_title = createProductDto.meta_title;
+    newProduct.status = createProductDto.status;
+    newProduct.created_at = new Date();
     return this.productsRepository.save(newProduct);
   }
 
@@ -51,11 +60,14 @@ export class ProductsService {
     //Option 1
     // Object.assign(product, rest);
     //Option 2
-    product.name = updateProductDto.name;
+    product.product_name = updateProductDto.product_name;
     product.description = updateProductDto.description;
-    product.price = updateProductDto.price;
-    product.sku = updateProductDto.sku;
-    product.quantity = updateProductDto.quantity;
+    product.product_price = updateProductDto.product_price;
+    product.slug = updateProductDto.slug;
+    product.quantity_sold = updateProductDto.quantity_sold;
+    product.discount = updateProductDto.discount;
+    product.meta_description = updateProductDto.meta_description;
+    product.meta_title = updateProductDto.meta_title;
     return this.productsRepository.save(product);
   }
 

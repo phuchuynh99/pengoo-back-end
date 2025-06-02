@@ -19,6 +19,7 @@ import { CategoriesModule } from './categories/categories.module';
 import dataSourceOptions from './db/data-source';
 import { Cart } from './cart/cart.entity';
 import { Wishlist } from './wishlist/wishlist.entity';
+import { CloudinaryModule } from './services/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -34,13 +35,14 @@ import { Wishlist } from './wishlist/wishlist.entity';
     UsersModule,
     AuthModule,
     ProductsModule,
-    OrdersModule,
-    CartModule,
-    ReviewsModule,
-    WishlistModule,
-    CategoriesModule
+    // OrdersModule,
+    // CartModule,
+    // ReviewsModule,
+    // WishlistModule,
+    CategoriesModule,
+    // CloudinaryModule
   ],
   providers: [CategoriesService],
   controllers: [CategoriesController],
 })
-export class AppModule {}
+export class AppModule { }
