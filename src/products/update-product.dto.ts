@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { UpdateDateColumn } from 'typeorm';
 
 export class UpdateProductDto {
   @IsNotEmpty()
@@ -44,7 +44,7 @@ export class UpdateProductDto {
 
   @IsNotEmpty()
   @IsNumber()
-  status: number;
+  status: string;
 
   @UpdateDateColumn({ type: 'timestamp' })
   updated_at: Date;

@@ -44,7 +44,7 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   @IsNumber()
-  status: number;
+  status: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;

@@ -20,6 +20,8 @@ import dataSourceOptions from './db/data-source';
 import { Cart } from './cart/cart.entity';
 import { Wishlist } from './wishlist/wishlist.entity';
 import { CloudinaryModule } from './services/cloudinary/cloudinary.module';
+import { TagsModule } from './tags/tags.module';
+import { PublishersModule } from './publishers/publishers.module';
 
 @Module({
   imports: [
@@ -41,6 +43,8 @@ import { CloudinaryModule } from './services/cloudinary/cloudinary.module';
     // ReviewsModule,
     WishlistModule,
     CategoriesModule,
+    TagsModule,
+    PublishersModule,
 
   ],
   providers: [CategoriesService],
