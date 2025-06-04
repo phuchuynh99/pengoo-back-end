@@ -40,12 +40,16 @@ export class UpdateProductDto {
 
   @IsNotEmpty()
   @IsNumber()
-  categoryId: number;
+  category_ID: number;
 
   @IsNotEmpty()
   @IsNumber()
+  publisher_ID: number;
+
+  @IsNotEmpty()
+  @IsString()
   status: string;
 
-  @UpdateDateColumn({ type: 'timestamp' })
-  updated_at: Date;
+  @IsString()
+  tags: string[];
 }

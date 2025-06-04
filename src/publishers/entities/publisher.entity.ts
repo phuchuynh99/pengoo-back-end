@@ -9,6 +9,6 @@ export class Publisher {
     @Column()
     name: string;
 
-    @OneToMany(() => Product, (product) => product.category)
+    @OneToMany(() => Product, (product) => product.publisher_ID)
     products: Product[];
 }

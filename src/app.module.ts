@@ -41,7 +41,7 @@ import { PublishersModule } from './publishers/publishers.module';
     // OrdersModule,
     // CartModule,
     // ReviewsModule,
-    WishlistModule,
+    // WishlistModule,
     CategoriesModule,
     TagsModule,
     PublishersModule,

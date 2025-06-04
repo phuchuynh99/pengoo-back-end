@@ -44,9 +44,14 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   @IsNumber()
+  publisherID: number;
+
+  @IsNotEmpty()
+  @IsNumber()
   status: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 
+  tags?: string[];
 }
