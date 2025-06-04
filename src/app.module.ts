@@ -26,6 +26,7 @@ import { CloudinaryModule } from './services/cloudinary/cloudinary.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -38,9 +39,9 @@ import { CloudinaryModule } from './services/cloudinary/cloudinary.module';
     // OrdersModule,
     // CartModule,
     // ReviewsModule,
-    // WishlistModule,
+    WishlistModule,
     CategoriesModule,
-    // CloudinaryModule
+
   ],
   providers: [CategoriesService],
   controllers: [CategoriesController],

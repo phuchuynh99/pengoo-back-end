@@ -68,6 +68,7 @@ export class ProductsService {
     product.discount = updateProductDto.discount;
     product.meta_description = updateProductDto.meta_description;
     product.meta_title = updateProductDto.meta_title;
+    product.updated_at = new Date();
     return this.productsRepository.save(product);
   }
 
