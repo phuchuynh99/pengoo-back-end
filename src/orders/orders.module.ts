@@ -25,6 +25,6 @@ import { NotificationsModule } from '../notifications/notifications.module';
     TagsModule,
     NotificationsModule, 
   ],
-  exports: [OrdersService]
+  exports: [OrdersService],
 })
 export class OrdersModule {}

@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn } from 'typeorm';
-import { User } from '../users/user.entity';
-import { Product } from '../products/product.entity';
+import { User } from 'src/users/user.entity';
+import { Product } from 'src/products/product.entity';
 
 @Entity()
 export class Order {
