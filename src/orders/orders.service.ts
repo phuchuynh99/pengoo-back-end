@@ -6,6 +6,7 @@ import { CreateOrderDto } from './create-orders.dto';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class OrdersService {
@@ -16,6 +17,7 @@ export class OrdersService {
     private orderItemsRepository: Repository<OrderItem>,
     private usersService: UsersService,
     private productsService: ProductsService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
@@ -64,7 +66,9 @@ export class OrdersService {
       items: orderItems,
     });
 
-    return this.ordersRepository.save(order);
+    const savedOrder = await this.ordersRepository.save(order);
+    await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id);
+    return savedOrder;
   }
 
   async findAll(): Promise<Order[]> {

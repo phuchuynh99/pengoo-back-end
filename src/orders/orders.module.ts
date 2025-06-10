@@ -13,6 +13,7 @@ import { PublishersModule } from 'src/publishers/publishers.module';
 import { CloudinaryModule } from 'src/services/cloudinary/cloudinary.module';
 import { TagsModule } from 'src/tags/tags.module';
 import { Tag } from '../tags/entities/tag.entity'; // <-- Add this import
+import { NotificationsModule } from '../notifications/notifications.module'; // <-- Add this import
 
 @Module({
   providers: [OrdersService, UsersService, ProductsService, CategoriesService],
@@ -22,6 +23,7 @@ import { Tag } from '../tags/entities/tag.entity'; // <-- Add this import
     PublishersModule,
     CloudinaryModule,
     TagsModule,
+    NotificationsModule, // <-- Add this line
   ],
   exports: [OrdersService]
 })
