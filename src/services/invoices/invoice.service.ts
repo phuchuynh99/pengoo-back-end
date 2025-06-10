@@ -41,7 +41,7 @@ export class InvoicesService {
         email: order.user.email,
       },
       invoiceNumber: order.id.toString(),
-      invoiceDate: order.createdAt.toISOString().split('T')[0],
+      invoiceDate: order.order_date.toISOString().split('T')[0],
       products: order.items.map(item => ({
         quantity: item.quantity.toString(),
         description: item.product.product_name,
