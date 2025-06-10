@@ -22,7 +22,6 @@ import { Wishlist } from './wishlist/wishlist.entity';
 import { CloudinaryModule } from './services/cloudinary/cloudinary.module';
 import { TagsModule } from './tags/tags.module';
 import { PublishersModule } from './publishers/publishers.module';
-import { PaymentModule } from './services/payment/payment.module';
 
 @Module({
   imports: [
@@ -46,7 +45,7 @@ import { PaymentModule } from './services/payment/payment.module';
     CategoriesModule,
     TagsModule,
     PublishersModule,
-    PaymentModule,
+    CloudinaryModule,
   ],
   providers: [CategoriesService],
   controllers: [CategoriesController],
