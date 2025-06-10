@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order, OrderItem } from './order.entity';
@@ -16,19 +16,28 @@ export class OrdersService {
     private orderItemsRepository: Repository<OrderItem>,
     private usersService: UsersService,
     private productsService: ProductsService,
-  ) { }
+  ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
-    const { userId, items } = createOrderDto;
+    const {
+      userId,
+      delivery_id,
+      coupon_id,
+      payment_type,
+      total_price,
+      shipping_address,
+      payment_status,
+      discount,
+      productStatus,
+      items,
+    } = createOrderDto;
 
-    const user = await this.usersService.findById(userId);
-    if (!user) {
+    const userEntity = await this.usersService.findById(userId);
+    if (!userEntity) {
       throw new NotFoundException('User not found');
     }
 
     const orderItems: OrderItem[] = [];
-    let total = 0;
-
     for (const item of items) {
       const product = await this.productsService.findById(item.productId);
       if (!product) {
@@ -37,16 +46,21 @@ export class OrdersService {
       const orderItem = this.orderItemsRepository.create({
         product,
         quantity: item.quantity,
-        price: product.product_price * item.quantity,
+        price: item.price,
       });
       orderItems.push(orderItem);
-      total += orderItem.price;
     }
 
     const order = this.ordersRepository.create({
-      user,
-      status: 'placed',
-      total,
+      user: userEntity,
+      delivery_id,
+      coupon_id,
+      payment_type,
+      total_price,
+      shipping_address,
+      payment_status,
+      discount,
+      productStatus,
       items: orderItems,
     });
 
@@ -58,7 +72,10 @@ export class OrdersService {
   }
 
   async findById(orderId: number): Promise<Order> {
-    const order = await this.ordersRepository.findOne({ where: { id: orderId }, relations: ['user', 'items', 'items.product'] });
+    const order = await this.ordersRepository.findOne({
+      where: { id: orderId },
+      relations: ['user', 'items', 'items.product'],
+    });
     if (!order) {
       throw new NotFoundException('Order not found');
     }
@@ -70,7 +87,7 @@ export class OrdersService {
     if (!order) {
       throw new NotFoundException('Order not found');
     }
-    order.status = updateOrderStatusDto.status;
+    order.productStatus = updateOrderStatusDto.productStatus;
     return this.ordersRepository.save(order);
   }
 

@@ -27,12 +27,12 @@ export class PaymentsService {
     if (!order) {
       throw new BadRequestException('Order not found');
     }
-    if (typeof order.total !== 'number') {
-      throw new BadRequestException('Order total is missing');
+    if (typeof order.total_price !== 'number') {
+      throw new Error('Order total_price is not a number');
     }
 
     const paymentIntent = await this.stripe.paymentIntents.create({
-      amount: Math.round(order.total), 
+      amount: Math.round(order.total_price),
       currency: 'vnd',
       metadata: { orderId: order.id.toString() },
     });
@@ -47,7 +47,7 @@ export class PaymentsService {
 
       const order = await this.ordersRepository.findOne({ where: { id: Number(orderId) } });
       if (order) {
-        order.status = 'paid'; // Use 'status' if that's your payment status field
+        order.payment_status = 'paid';
         await this.ordersRepository.save(order);
       }
     }

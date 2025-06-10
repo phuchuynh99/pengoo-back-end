@@ -26,11 +26,12 @@ export class InvoicesService {
     const invoiceData = {
       documentTitle: 'Invoice',
       sender: {
-        company: 'Your Company Name',
-        address: 'Your Address',
-        zip: 'Your Zip',
-        city: 'Your City',
-        country: 'Your Country',
+        company: 'Pengoo Corpporation',
+        address: '130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City',
+        zip: '700000',
+        city: 'Ho Chi Minh City',
+        country: 'Vietnam',
+        phone: '0937314158',
       },
       client: {
         company: order.user.full_name,
@@ -41,7 +42,7 @@ export class InvoicesService {
         email: order.user.email,
       },
       invoiceNumber: order.id.toString(),
-      invoiceDate: order.createdAt.toISOString().split('T')[0],
+      invoiceDate: order.order_date.toISOString().split('T')[0],
       products: order.items.map(item => ({
         quantity: item.quantity.toString(),
         description: item.product.product_name,
