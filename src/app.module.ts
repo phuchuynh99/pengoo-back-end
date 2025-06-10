@@ -48,7 +48,7 @@ import { InvoicesModule } from './services/invoices/invoices.module';
     PublishersModule,
     PaymentModule,
     InvoicesModule,
-    // CloudinaryModule, 
+    CloudinaryModule, 
   ],
   providers: [CategoriesService],
   controllers: [CategoriesController],
