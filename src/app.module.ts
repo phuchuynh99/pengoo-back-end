@@ -24,6 +24,7 @@ import { TagsModule } from './tags/tags.module';
 import { PublishersModule } from './publishers/publishers.module';
 import { PaymentModule } from './services/payment/payment.module';
 import { InvoicesModule } from './services/invoices/invoices.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { InvoicesModule } from './services/invoices/invoices.module';
     PaymentModule,
     InvoicesModule,
     CloudinaryModule,
+    NotificationsModule,
   ],
   providers: [CategoriesService],
   controllers: [CategoriesController],
