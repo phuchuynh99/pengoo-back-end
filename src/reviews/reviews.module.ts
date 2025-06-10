@@ -9,11 +9,19 @@ import { Product } from 'src/products/product.entity';
 import { CategoriesService } from 'src/categories/categories.service';
 import { Category } from 'src/categories/category.entity';
 import { ProductsService } from 'src/products/products.service';
-
+import { PublishersModule } from 'src/publishers/publishers.module';
+import { CloudinaryModule } from 'src/services/cloudinary/cloudinary.module';
+import { TagsModule } from 'src/tags/tags.module';
+import { Tag } from '../tags/entities/tag.entity'; 
 @Module({
   providers: [ReviewsService, UsersService, ProductsService, CategoriesService],
   controllers: [ReviewsController],
-  imports: [TypeOrmModule.forFeature([Review, User, Product, Category])],
+  imports: [
+    TypeOrmModule.forFeature([Review, User, Product, Category, Tag]),
+    PublishersModule,
+    CloudinaryModule,
+    TagsModule,
+  ],
   exports: [ReviewsService]
 })
 export class ReviewsModule { }
