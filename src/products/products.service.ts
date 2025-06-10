@@ -12,7 +12,13 @@ import { CloudinaryService } from 'src/services/cloudinary/cloudinary.service';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { PublishersService } from 'src/publishers/publishers.service';
 import { TagsService } from 'src/tags/tags.service';
-
+export class FilterProductDto {
+  name?: string;
+  categoryId?: number;
+  tags?: string[];
+  minPrice?: number;
+  maxPrice?: number;
+}
 @Injectable()
 export class ProductsService {
   constructor(
@@ -60,9 +66,35 @@ export class ProductsService {
     return this.productsRepository.save(newProduct);
   }
 
-  async findAll(): Promise<Product[]> {
-    return this.productsRepository.find({ relations: ['category'] });
+  async searchAndFilter(filter: FilterProductDto): Promise<Product[]> {
+    const query = this.productsRepository.createQueryBuilder('product')
+      .leftJoinAndSelect('product.category_ID', 'category')
+      .leftJoinAndSelect('product.publisher_ID', 'publisher')
+      .leftJoinAndSelect('product.tags', 'tags');
+
+    if (filter.name) {
+      query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
+    }
+
+    if (filter.categoryId) {
+      query.andWhere('category.id = :categoryId', { categoryId: filter.categoryId });
+    }
+
+    if (filter.tags && filter.tags.length > 0) {
+      query.andWhere('tags.name IN (:...tags)', { tags: filter.tags });
+    }
+
+    if (filter.minPrice) {
+      query.andWhere('product.product_price >= :minPrice', { minPrice: filter.minPrice });
+    }
+
+    if (filter.maxPrice) {
+      query.andWhere('product.product_price <= :maxPrice', { maxPrice: filter.maxPrice });
+    }
+
+    return query.getMany();
   }
+
 
   async findById(id: number): Promise<Product> {
     const product = await this.productsRepository.findOne({ where: { id: id }, relations: ['category'] });

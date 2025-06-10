@@ -9,6 +9,7 @@ import {
   Put,
   UploadedFile,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './create-product.dto';
@@ -29,10 +30,21 @@ export class ProductsController {
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(
+    @Query('name') name?: string,
+    @Query('category') categoryId?: number,
+    @Query('tags') tags?: string,
+    @Query('minPrice') minPrice?: number,
+    @Query('maxPrice') maxPrice?: number,
+  ) {
+    return this.productsService.searchAndFilter({
+      name,
+      categoryId,
+      tags: tags ? tags.split(',') : undefined,
+      minPrice: minPrice ? Number(minPrice) : undefined,
+      maxPrice: maxPrice ? Number(maxPrice) : undefined,
+    });
   }
-
   @Get(':id')
   findById(@Param('id') id: number) {
     return this.productsService.findById(id);
