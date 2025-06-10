@@ -12,18 +12,18 @@ import { CategoriesService } from 'src/categories/categories.service';
 import { PublishersModule } from 'src/publishers/publishers.module';
 import { CloudinaryModule } from 'src/services/cloudinary/cloudinary.module';
 import { TagsModule } from 'src/tags/tags.module';
-import { Tag } from '../tags/entities/tag.entity'; // <-- Add this import
-import { NotificationsModule } from '../notifications/notifications.module'; // <-- Add this import
+import { Tag } from '../tags/entities/tag.entity'; 
+import { NotificationsModule } from '../notifications/notifications.module'; 
 
 @Module({
   providers: [OrdersService, UsersService, ProductsService, CategoriesService],
   controllers: [OrdersController],
   imports: [
-    TypeOrmModule.forFeature([Order, OrderItem, User, Product, Category, Tag]), // <-- Add Tag here
+    TypeOrmModule.forFeature([Order, OrderItem, User, Product, Category, Tag]), 
     PublishersModule,
     CloudinaryModule,
     TagsModule,
-    NotificationsModule, // <-- Add this line
+    NotificationsModule, 
   ],
   exports: [OrdersService]
 })
