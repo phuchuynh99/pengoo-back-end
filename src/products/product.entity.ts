@@ -4,6 +4,8 @@ import { Review } from 'src/reviews/review.entity';
 import { Wishlist } from 'src/wishlist/wishlist.entity';
 import { Publisher } from 'src/publishers/entities/publisher.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
+import { Image } from './entities/image.entity';
+import { Feature } from './entities/feature.entity';
 
 @Entity('product')
 export class Product {
@@ -56,6 +58,11 @@ export class Product {
 
   // @OneToMany(() => Wishlist, (wishlist) => wishlist.product)
   // wishlists: Wishlist[];
+  @OneToMany(() => Image, (image) => image.product, { cascade: true })
+  images: Image[];
+
+  @OneToMany(() => Feature, (feature) => feature.product, { cascade: true })
+  features: Feature[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

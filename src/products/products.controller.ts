@@ -10,23 +10,42 @@ import {
   UploadedFile,
   UseInterceptors,
   Query,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './create-product.dto';
 import { UpdateProductDto } from '../products/update-product.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'file', maxCount: 1 },
+    { name: 'images', maxCount: 10 },
+    { name: 'featureImages[]', maxCount: 10 },
+  ]))
   create(
-    @Body() createProductDto: CreateProductDto,
-    @UploadedFile() file: Express.Multer.File,
+    @Body() createProductDto: any,
+    @UploadedFiles() files: {
+      file?: Express.Multer.File[],
+      images?: Express.Multer.File[],
+      ['featureImages[]']?: Express.Multer.File[]
+    }
   ) {
-    return this.productsService.create(createProductDto, file);
+    const { features, ...productData } = createProductDto;
+    const parsedFeatures = JSON.parse(features); // [{title, content}, ...]
+    console.log('features:', features);
+    console.log('featureImages:', files?.['featureImages[]']);
+    return this.productsService.create(
+      productData,
+      files?.file?.[0],
+      files?.images || [],
+      parsedFeatures,
+      files?.['featureImages[]'] || []
+    );
   }
 
   @Get()

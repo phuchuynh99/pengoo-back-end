@@ -11,6 +11,10 @@ export class CreateProductDto {
   description: string;
 
   @IsNotEmpty()
+  @IsString()
+  features: string;
+
+  @IsNotEmpty()
   @IsNumber()
   product_price: number;
 
@@ -32,7 +36,11 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   @IsString()
-  image_url: string;
+  mainImage: string;
+
+  @IsNotEmpty()
+  @IsString()
+  detailImages: string;
 
   @IsNotEmpty()
   @IsNumber()
