@@ -13,7 +13,7 @@ import { Tag } from 'src/tags/entities/tag.entity';
 import { PublishersService } from 'src/publishers/publishers.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Image } from './entities/image.entity';
-import { Feature } from './entities/feature.entity';
+import { Feature } from 'src/products/entities/feature.entity';
 export class FilterProductDto {
   name?: string;
   categoryId?: number;
