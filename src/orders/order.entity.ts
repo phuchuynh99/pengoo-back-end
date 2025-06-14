@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, JoinColumn } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Product } from '../products/product.entity';
+import { Delivery } from '../delivery/delivery.entity'; // <-- Add this import
 
 @Entity()
 export class Order {
@@ -10,8 +11,9 @@ export class Order {
   @ManyToOne(() => User, user => user.id, { nullable: false })
   user: User; // User
 
-  @Column({ type: 'int', nullable: false })
-  delivery_id: number; // Delivery ID
+  @ManyToOne(() => Delivery, { nullable: false })
+  @JoinColumn({ name: 'delivery_id' }) // This will use delivery_id as the foreign key
+  delivery: Delivery; // Delivery method
 
   @Column({ type: 'int', nullable: false })
   coupon_id: number; // Coupon ID

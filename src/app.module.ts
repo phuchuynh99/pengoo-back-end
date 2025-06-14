@@ -25,6 +25,9 @@ import { PublishersModule } from './publishers/publishers.module';
 import { PaymentModule } from './services/payment/payment.module';
 import { InvoicesModule } from './services/invoices/invoices.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { PostsModule } from './posts/posts.module';
+import { DeliveryModule } from './delivery/delivery.module';
+import { Delivery } from './delivery/delivery.entity'; // <-- Add this import
 
 @Module({
   imports: [
@@ -36,7 +39,9 @@ import { NotificationsModule } from './notifications/notifications.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => (dataSourceOptions),
     }),
-    TypeOrmModule.forFeature([User, Product, Category, Order, OrderItem, Review, Cart, Wishlist]),
+    TypeOrmModule.forFeature([
+      User, Product, Category, Order, OrderItem, Review, Cart, Wishlist, Delivery // <-- Add Delivery here
+    ]),
     UsersModule,
     AuthModule,
     ProductsModule,
@@ -51,6 +56,8 @@ import { NotificationsModule } from './notifications/notifications.module';
     InvoicesModule,
     CloudinaryModule,
     NotificationsModule,
+    PostsModule,
+    DeliveryModule,
   ],
   providers: [CategoriesService],
   controllers: [CategoriesController],
