@@ -2,7 +2,6 @@ import { Controller, Get, Post, Patch, Delete, Param, Body } from '@nestjs/commo
 import { DeliveryService } from './delivery.service';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { UpdateDeliveryDto } from './dto/update-delivery.dto';
-import { GrabService } from '../services/grab/grab.service';
 
 @Controller('delivery')
 export class DeliveryController {
@@ -31,22 +30,5 @@ export class DeliveryController {
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.deliveryService.remove(id);
-  }
-}
-
-@Controller('delivery/grab')
-export class GrabController {
-  constructor(private readonly grabService: GrabService) {}
-
-  @Post('quote')
-  getQuote(@Body() body: any) {
-    // body: { pickup: {...}, dropoff: {...}, packageDetails: {...} }
-    return this.grabService.getQuote(body.pickup, body.dropoff, body.packageDetails);
-  }
-
-  @Post('order')
-  createOrder(@Body() body: any) {
-    // body: { ...orderDetails }
-    return this.grabService.createOrder(body);
   }
 }

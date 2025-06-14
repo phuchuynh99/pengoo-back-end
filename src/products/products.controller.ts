@@ -15,36 +15,46 @@ import {
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './create-product.dto';
 import { UpdateProductDto } from '../products/update-product.dto';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { diskStorage } from 'multer';
+import { editFileName, imageFileFilter } from 'src/utils/file-upload.utils';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: CreateProductDto })
   @Post()
-  @UseInterceptors(FileFieldsInterceptor([
-    { name: 'file', maxCount: 1 },
-    { name: 'images', maxCount: 10 },
-    { name: 'featureImages[]', maxCount: 10 },
-  ]))
-  create(
-    @Body() createProductDto: any,
-    @UploadedFiles() files: {
-      file?: Express.Multer.File[],
-      images?: Express.Multer.File[],
-      ['featureImages[]']?: Express.Multer.File[]
-    }
+  @UseInterceptors(
+    FilesInterceptor('featureImages', 10, {
+      storage: diskStorage({
+        destination: './uploads/features',
+        filename: editFileName,
+      }),
+      fileFilter: imageFileFilter,
+    }),
+  )
+  async create(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFile() mainImage: Express.Multer.File,
+    @UploadedFiles() detailImages: Express.Multer.File[],
+    @UploadedFiles() featureImages: Express.Multer.File[], // <-- Add this
   ) {
-    const { features, ...productData } = createProductDto;
-    const parsedFeatures = JSON.parse(features); // [{title, content}, ...]
+    const { features } = createProductDto;
+    const parsedFeatures = typeof createProductDto.features === 'string'
+      ? JSON.parse(createProductDto.features)
+      : createProductDto.features; 
     console.log('features:', features);
-    console.log('featureImages:', files?.['featureImages[]']);
+    console.log('featureImages:', detailImages);
+
     return this.productsService.create(
-      productData,
-      files?.file?.[0],
-      files?.images || [],
-      parsedFeatures,
-      files?.['featureImages[]'] || []
+      createProductDto,
+      mainImage,
+      detailImages,
+      features,
+      featureImages, // <-- Pass here
     );
   }
 
