@@ -1,6 +1,7 @@
 export class CreateDeliveryDto {
   name: string;
-  apiKey?: string;
-  apiSecret?: string;
   description?: string;
+  fee?: number;
+  estimatedTime?: string;
+  isAvailable?: boolean;
 }

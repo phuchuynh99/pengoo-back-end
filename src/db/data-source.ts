@@ -3,7 +3,7 @@ import { Category } from '../categories/category.entity';
 import { Product } from '../products/product.entity';
 import { User } from '../users/user.entity';
 import { DataSourceOptions } from 'typeorm';
-import { Order, OrderItem } from '../orders/order.entity';
+import { Order, OrderDetail } from '../orders/order.entity';
 import { Review } from '../reviews/review.entity';
 import { Cart, CartItem } from 'src/cart/cart.entity';
 import { Wishlist } from 'src/wishlist/wishlist.entity';
@@ -22,7 +22,7 @@ const dataSourceOptions: DataSourceOptions = {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    entities: [User, Product, Category, Order, OrderItem, Review, Cart, Wishlist, Delivery, CartItem, Publisher, Tag, Image, Feature],
+    entities: [User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, CartItem, Publisher, Tag, Image, Feature],
     synchronize: true
 };
 

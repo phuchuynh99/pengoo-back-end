@@ -7,6 +7,7 @@ import {
   Param,
   Body,
   Req,
+  BadRequestException, // <-- Add this import
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './create-review.dto';
@@ -26,12 +27,13 @@ export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Post(':productId')
-  addReview(
+  async addReview(
     @Req() req: AuthenticatedRequest,
     @Param('productId') productId: number,
     @Body() createReviewDto: CreateReviewDto,
   ) {
     const userId = req.user.id;
+    // Remove order check from controller, let service handle it
     return this.reviewsService.addReview(userId, productId, createReviewDto);
   }
 

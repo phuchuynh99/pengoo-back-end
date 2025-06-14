@@ -9,11 +9,14 @@ export class Delivery {
   name: string; // e.g. 'Grab VN'
 
   @Column({ nullable: true })
-  apiKey?: string;
-
-  @Column({ nullable: true })
-  apiSecret?: string;
-
-  @Column({ nullable: true })
   description?: string;
+
+  @Column({ type: 'decimal', nullable: true })
+  fee?: number;
+
+  @Column({ nullable: true })
+  estimatedTime?: string; // e.g. '30-45 mins'
+
+  @Column({ default: true })
+  isAvailable: boolean;
 }

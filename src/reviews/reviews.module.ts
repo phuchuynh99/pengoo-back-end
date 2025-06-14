@@ -13,6 +13,7 @@ import { CloudinaryModule } from 'src/services/cloudinary/cloudinary.module';
 import { TagsModule } from 'src/tags/tags.module';
 import { UsersModule } from 'src/users/users.module';
 import { OrdersModule } from 'src/orders/orders.module';
+import { Order } from 'src/orders/order.entity';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { OrdersModule } from 'src/orders/orders.module';
       Review,
       User,
       Product,
+      Order,
       Category,
       Tag,
       Feature,
