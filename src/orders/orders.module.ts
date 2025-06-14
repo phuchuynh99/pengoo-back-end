@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
-import { Order, OrderItem } from './order.entity';
+import { Order, OrderDetail } from './order.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersService } from 'src/users/users.service';
 import { ProductsService } from 'src/products/products.service';
@@ -23,7 +23,7 @@ import { Delivery } from '../delivery/delivery.entity';
   imports: [
     TypeOrmModule.forFeature([
       Order,
-      OrderItem,
+      OrderDetail,
       User,
       Product,
       Category,

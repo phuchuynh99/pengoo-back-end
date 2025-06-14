@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsArray, ArrayNotEmpty, IsString, IsOptional } from 'class-validator';
 
-class OrderItemDto {
+class CreateOrderDetailDto {
   @IsNotEmpty()
   @IsNumber()
   productId: number;
@@ -21,7 +21,7 @@ export class CreateOrderDto {
 
   @IsNotEmpty()
   @IsNumber()
-  delivery_Id: number;
+  delivery_id: number;
 
   @IsNotEmpty()
   @IsNumber()
@@ -54,5 +54,5 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @IsArray()
   @ArrayNotEmpty()
-  items: OrderItemDto[];
+  details: CreateOrderDetailDto[];
 }

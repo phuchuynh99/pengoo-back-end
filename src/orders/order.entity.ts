@@ -1,7 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, JoinColumn } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Product } from '../products/product.entity';
-import { Delivery } from '../delivery/delivery.entity'; // <-- Add this import
+import { Delivery } from '../delivery/delivery.entity';
+import { Review } from '../reviews/review.entity';
 
 @Entity()
 export class Order {
@@ -39,16 +40,19 @@ export class Order {
   @Column({ type: 'varchar', nullable: true })
   productStatus: string; // Product availability status
 
-  @OneToMany(() => OrderItem, orderItem => orderItem.order, { cascade: true })
-  items: OrderItem[];
+  @OneToMany(() => OrderDetail, orderDetail => orderDetail.order, { cascade: true })
+  details: OrderDetail[];
+
+  @OneToMany(() => Review, review => review.order)
+  reviews: Review[];
 }
 
 @Entity()
-export class OrderItem {
+export class OrderDetail {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Order, order => order.items)
+  @ManyToOne(() => Order, order => order.details)
   order: Order;
 
   @ManyToOne(() => Product, product => product.id)
@@ -58,5 +62,10 @@ export class OrderItem {
   quantity: number;
 
   @Column('decimal')
-  price: number;
+  price: number; // price per unit at the time of order
+
+  // Optional: computed getter for total price of this item
+  get total(): number {
+    return Number(this.price) * this.quantity;
+  }
 }

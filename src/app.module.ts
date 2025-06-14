@@ -7,7 +7,7 @@ import { User } from './users/user.entity';
 import { Product } from './products/product.entity';
 import { Category } from './categories/category.entity';
 import { OrdersModule } from './orders/orders.module';
-import { Order, OrderItem } from './orders/order.entity';
+import { Order, OrderDetail } from './orders/order.entity';
 import { CartModule } from './cart/cart.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { Review } from './reviews/review.entity';
@@ -40,7 +40,7 @@ import { Delivery } from './delivery/delivery.entity'; // <-- Add this import
       useFactory: (configService: ConfigService) => (dataSourceOptions),
     }),
     TypeOrmModule.forFeature([
-      User, Product, Category, Order, OrderItem, Review, Cart, Wishlist, Delivery // <-- Add Delivery here
+      User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery // <-- Add Delivery here
     ]),
     UsersModule,
     AuthModule,

@@ -53,7 +53,7 @@ export class Product {
   @JoinTable()
   tags: Tag[];
 
-  @OneToMany(() => Review, (review) => review.product)
+  @OneToMany(() => Review, review => review.product)
   reviews: Review[];
 
   // @OneToMany(() => Wishlist, (wishlist) => wishlist.product)
