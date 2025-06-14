@@ -12,12 +12,22 @@ import { CloudinaryService } from 'src/services/cloudinary/cloudinary.service';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { PublishersService } from 'src/publishers/publishers.service';
 import { TagsService } from 'src/tags/tags.service';
-
+import { Image } from './entities/image.entity';
+import { Feature } from 'src/products/entities/feature.entity';
+export class FilterProductDto {
+  name?: string;
+  categoryId?: number;
+  tags?: string[];
+  minPrice?: number;
+  maxPrice?: number;
+}
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
+    @InjectRepository(Feature)
+    private featuresRepository: Repository<Feature>,
     private readonly publishersService: PublishersService,
     private readonly categoriesService: CategoriesService,
     private readonly cloudinaryService: CloudinaryService,
@@ -26,24 +36,36 @@ export class ProductsService {
     private tagRepo: Repository<Tag>,
   ) { }
 
-  async create(createProductDto: CreateProductDto, file): Promise<Product> {
+  async create(
+    createProductDto: CreateProductDto,
+    mainImage, detailImages, features, featureImages
+  ): Promise<Product> {
     const category_ID = await this.categoriesService.findById(createProductDto.categoryId);
     const publisher_ID = await this.publishersService.findOne(createProductDto.publisherID);
     const newProduct = new Product();
-    const uploadResult = await this.cloudinaryService.uploadImage(file);
-    let tags: any = [];
-    if (createProductDto.tags && createProductDto.tags.length > 0) {
-      tags = await Promise.all(
-        createProductDto.tags.map(async (tagName) => {
-          let tag = await this.tagsService.findOneByName(tagName);
-          if (!tag) {
-            tag = this.tagRepo.create({ name: tagName });
-            await this.tagRepo.save(tag);
-          }
-          return tag;
-        })
-      );
-    }
+
+    const uploadResult = await this.cloudinaryService.uploadImage(mainImage);
+    const imageEntities = await Promise.all(
+      detailImages.map(async (file) => {
+        const result = await this.cloudinaryService.uploadImage(file);
+        const image = new Image();
+        image.url = result.secure_url;
+        return image;
+      })
+    );
+    let tags: any = ['new'];
+    // if (createProductDto.tags && createProductDto.tags.length > 0) {
+    //   tags = await Promise.all(
+    //     createProductDto.tags.map(async (tagName) => {
+    //       let tag = await this.tagsService.findOneByName(tagName);
+    //       if (!tag) {
+    //         tag = this.tagRepo.create({ name: tagName });
+    //         await this.tagRepo.save(tag);
+    //       }
+    //       return tag;
+    //     })
+    //   );
+    // }
     newProduct.product_name = createProductDto.product_name;
     newProduct.description = createProductDto.description;
     newProduct.product_price = createProductDto.product_price;
@@ -57,12 +79,56 @@ export class ProductsService {
     newProduct.meta_title = createProductDto.meta_title;
     newProduct.status = createProductDto.status;
     newProduct.tags = tags;
-    return this.productsRepository.save(newProduct);
+    newProduct.images = imageEntities;
+    const savedProduct = this.productsRepository.save(newProduct);
+    const featureEntities = await Promise.all(
+      features.map(async (f, i) => {
+        const uploaded = await this.cloudinaryService.uploadImage(featureImages[i]);
+        return this.featuresRepository.create({
+          title: f.title,
+          content: f.content,
+          image: uploaded.secure_url,
+          product: newProduct,
+        });
+      })
+    );
+
+    await this.featuresRepository.save(featureEntities);
+
+    return savedProduct;
   }
 
-  async findAll(): Promise<Product[]> {
-    return this.productsRepository.find({ relations: ['category'] });
+  async searchAndFilter(filter: FilterProductDto): Promise<Product[]> {
+    const query = this.productsRepository.createQueryBuilder('product')
+      .leftJoinAndSelect('product.category_ID', 'category')
+      .leftJoinAndSelect('product.publisher_ID', 'publisher')
+      .leftJoinAndSelect('product.tags', 'tags')
+      .leftJoinAndSelect('product.images', 'images')
+      .leftJoinAndSelect('product.features', 'feature');
+
+    if (filter.name) {
+      query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
+    }
+
+    if (filter.categoryId) {
+      query.andWhere('category.id = :categoryId', { categoryId: filter.categoryId });
+    }
+
+    if (filter.tags && filter.tags.length > 0) {
+      query.andWhere('tags.name IN (:...tags)', { tags: filter.tags });
+    }
+
+    if (filter.minPrice) {
+      query.andWhere('product.product_price >= :minPrice', { minPrice: filter.minPrice });
+    }
+
+    if (filter.maxPrice) {
+      query.andWhere('product.product_price <= :maxPrice', { maxPrice: filter.maxPrice });
+    }
+
+    return query.getMany();
   }
+
 
   async findById(id: number): Promise<Product> {
     const product = await this.productsRepository.findOne({ where: { id: id }, relations: ['category'] });

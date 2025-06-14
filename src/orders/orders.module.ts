@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
-import { Order, OrderItem } from './order.entity';
+import { Order, OrderDetail } from './order.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersService } from 'src/users/users.service';
 import { ProductsService } from 'src/products/products.service';
@@ -13,18 +13,31 @@ import { PublishersModule } from 'src/publishers/publishers.module';
 import { CloudinaryModule } from 'src/services/cloudinary/cloudinary.module';
 import { TagsModule } from 'src/tags/tags.module';
 import { Tag } from '../tags/entities/tag.entity'; 
-import { NotificationsModule } from '../notifications/notifications.module'; 
+import { NotificationsModule } from '../notifications/notifications.module';
+import { Feature } from 'src/products/entities/feature.entity'; 
+import { Delivery } from '../delivery/delivery.entity';
 
 @Module({
   providers: [OrdersService, UsersService, ProductsService, CategoriesService],
   controllers: [OrdersController],
   imports: [
-    TypeOrmModule.forFeature([Order, OrderItem, User, Product, Category, Tag]), 
+    TypeOrmModule.forFeature([
+      Order,
+      OrderDetail,
+      User,
+      Product,
+      Category,
+      Tag,
+      Feature,
+      Delivery, 
+    ]), 
     PublishersModule,
     CloudinaryModule,
     TagsModule,
-    NotificationsModule, 
+    NotificationsModule,
+     
   ],
-  exports: [OrdersService],
+  exports: [OrdersService, ProductsService] 
 })
 export class OrdersModule {}
+

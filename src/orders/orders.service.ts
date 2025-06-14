@@ -1,20 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Order, OrderItem } from './order.entity';
+import { Order, OrderDetail } from './order.entity';
 import { CreateOrderDto } from './create-orders.dto';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { Delivery } from '../delivery/delivery.entity';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
-    @InjectRepository(OrderItem)
-    private orderItemsRepository: Repository<OrderItem>,
+    @InjectRepository(OrderDetail)
+    private orderDetailsRepository: Repository<OrderDetail>,
+    @InjectRepository(Delivery)
+    private deliveryRepository: Repository<Delivery>,
     private usersService: UsersService,
     private productsService: ProductsService,
     private notificationsService: NotificationsService,
@@ -23,7 +26,7 @@ export class OrdersService {
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const {
       userId,
-      delivery_id,
+      delivery_id, // <-- Use delivery_id as in your DTO
       coupon_id,
       payment_type,
       total_price,
@@ -31,7 +34,7 @@ export class OrdersService {
       payment_status,
       discount,
       productStatus,
-      items,
+      details, // <-- Use details, not items
     } = createOrderDto;
 
     const userEntity = await this.usersService.findById(userId);
@@ -39,23 +42,26 @@ export class OrdersService {
       throw new NotFoundException('User not found');
     }
 
-    const orderItems: OrderItem[] = [];
-    for (const item of items) {
+    const delivery = await this.deliveryRepository.findOne({ where: { id: delivery_id } });
+    if (!delivery) throw new NotFoundException('Delivery method not found');
+
+    const orderDetails: OrderDetail[] = [];
+    for (const item of details) {
       const product = await this.productsService.findById(item.productId);
       if (!product) {
         throw new NotFoundException(`Product with ID ${item.productId} not found`);
       }
-      const orderItem = this.orderItemsRepository.create({
+      const orderDetail = this.orderDetailsRepository.create({
         product,
         quantity: item.quantity,
         price: item.price,
       });
-      orderItems.push(orderItem);
+      orderDetails.push(orderDetail);
     }
 
     const order = this.ordersRepository.create({
       user: userEntity,
-      delivery_id,
+      delivery,
       coupon_id,
       payment_type,
       total_price,
@@ -63,7 +69,7 @@ export class OrdersService {
       payment_status,
       discount,
       productStatus,
-      items: orderItems,
+      details: orderDetails, // <-- Use details
     });
 
     const savedOrder = await this.ordersRepository.save(order);
@@ -72,13 +78,13 @@ export class OrdersService {
   }
 
   async findAll(): Promise<Order[]> {
-    return this.ordersRepository.find({ relations: ['user', 'items', 'items.product'] });
+    return this.ordersRepository.find({ relations: ['user', 'details', 'details.product', 'delivery'] });
   }
 
   async findById(orderId: number): Promise<Order> {
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
-      relations: ['user', 'items', 'items.product'],
+      relations: ['user', 'details', 'details.product', 'delivery'],
     });
     if (!order) {
       throw new NotFoundException('Order not found');

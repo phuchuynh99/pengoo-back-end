@@ -17,7 +17,7 @@ export class InvoicesService {
   async generateInvoice(orderId: number): Promise<string> {
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
-      relations: ['user', 'items', 'items.product'],
+      relations: ['user', 'details', 'details.product'],
     });
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -43,10 +43,10 @@ export class InvoicesService {
       },
       invoiceNumber: order.id.toString(),
       invoiceDate: order.order_date.toISOString().split('T')[0],
-      products: order.items.map(item => ({
-        quantity: item.quantity.toString(),
-        description: item.product.product_name,
-        price: item.price,
+      products: order.details.map(detail => ({
+        quantity: detail.quantity.toString(),
+        description: detail.product.product_name,
+        price: detail.price,
         tax: 0,
       })),
       bottomNotice: 'Thank you for your purchase!',
