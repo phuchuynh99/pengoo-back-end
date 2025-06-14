@@ -7,6 +7,7 @@ import { UpdateOrderStatusDto } from './update-orders-status.dto';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { Delivery } from '../delivery/delivery.entity'; // <-- Add this import
 
 @Injectable()
 export class OrdersService {
@@ -15,6 +16,8 @@ export class OrdersService {
     private ordersRepository: Repository<Order>,
     @InjectRepository(OrderItem)
     private orderItemsRepository: Repository<OrderItem>,
+    @InjectRepository(Delivery) // <-- Inject Delivery repository
+    private deliveryRepository: Repository<Delivery>,
     private usersService: UsersService,
     private productsService: ProductsService,
     private notificationsService: NotificationsService,
@@ -23,7 +26,7 @@ export class OrdersService {
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const {
       userId,
-      delivery_id,
+      delivery_Id, // <-- Use deliveryId, not delivery_id
       coupon_id,
       payment_type,
       total_price,
@@ -38,6 +41,9 @@ export class OrdersService {
     if (!userEntity) {
       throw new NotFoundException('User not found');
     }
+
+    const delivery = await this.deliveryRepository.findOne({ where: { id: delivery_Id } });
+    if (!delivery) throw new NotFoundException('Delivery method not found');
 
     const orderItems: OrderItem[] = [];
     for (const item of items) {
@@ -55,7 +61,7 @@ export class OrdersService {
 
     const order = this.ordersRepository.create({
       user: userEntity,
-      delivery_id,
+      delivery, // <-- Use delivery relation
       coupon_id,
       payment_type,
       total_price,
@@ -72,13 +78,13 @@ export class OrdersService {
   }
 
   async findAll(): Promise<Order[]> {
-    return this.ordersRepository.find({ relations: ['user', 'items', 'items.product'] });
+    return this.ordersRepository.find({ relations: ['user', 'items', 'items.product', 'delivery'] });
   }
 
   async findById(orderId: number): Promise<Order> {
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
-      relations: ['user', 'items', 'items.product'],
+      relations: ['user', 'items', 'items.product', 'delivery'],
     });
     if (!order) {
       throw new NotFoundException('Order not found');

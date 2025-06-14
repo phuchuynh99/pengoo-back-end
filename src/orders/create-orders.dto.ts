@@ -21,7 +21,7 @@ export class CreateOrderDto {
 
   @IsNotEmpty()
   @IsNumber()
-  delivery_id: number;
+  delivery_Id: number;
 
   @IsNotEmpty()
   @IsNumber()

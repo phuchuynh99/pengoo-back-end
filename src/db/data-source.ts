@@ -11,6 +11,7 @@ import { Publisher } from 'src/publishers/entities/publisher.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Image } from 'src/products/entities/image.entity';
 import { Feature } from 'src/products/entities/feature.entity';
+import { Delivery } from '../delivery/delivery.entity';
 
 config();
 
@@ -21,7 +22,7 @@ const dataSourceOptions: DataSourceOptions = {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    entities: [User, Product, Category, Order, OrderItem, Review, Cart, Wishlist, CartItem, Publisher, Tag, Image, Feature],
+    entities: [User, Product, Category, Order, OrderItem, Review, Cart, Wishlist, Delivery, CartItem, Publisher, Tag, Image, Feature],
     synchronize: true
 };
 

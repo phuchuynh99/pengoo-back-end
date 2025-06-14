@@ -15,6 +15,7 @@ import { TagsModule } from 'src/tags/tags.module';
 import { Tag } from '../tags/entities/tag.entity'; 
 import { NotificationsModule } from '../notifications/notifications.module';
 import { Feature } from 'src/products/entities/feature.entity'; 
+import { Delivery } from '../delivery/delivery.entity';
 
 @Module({
   providers: [OrdersService, UsersService, ProductsService, CategoriesService],
@@ -27,13 +28,16 @@ import { Feature } from 'src/products/entities/feature.entity';
       Product,
       Category,
       Tag,
-      Feature, 
+      Feature,
+      Delivery, 
     ]), 
     PublishersModule,
     CloudinaryModule,
     TagsModule,
-    NotificationsModule, 
+    NotificationsModule,
+     
   ],
   exports: [OrdersService, ProductsService] 
 })
 export class OrdersModule {}
+
