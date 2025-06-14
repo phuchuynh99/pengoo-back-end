@@ -4,6 +4,19 @@ import { Product } from '../products/product.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { Review } from '../reviews/review.entity';
 
+export enum PaymentStatus {
+  Pending = 'pending',
+  Paid = 'paid',
+  Refunded = 'refunded',
+}
+
+export enum ProductStatus {
+  Pending = 'pending',
+  Cancelled = 'cancelled',
+  Shipped = 'shipped',
+  Delivered = 'delivered',
+}
+
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn()
@@ -31,14 +44,11 @@ export class Order {
   @Column({ type: 'varchar', nullable: false })
   shipping_address: string; // Shipping address
 
-  @Column({ type: 'varchar', nullable: true })
-  payment_status: string; // Payment status
+  @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.Pending })
+  payment_status: PaymentStatus;
 
-  @Column({ type: 'varchar', nullable: true })
-  discount: string; // Discount code
-
-  @Column({ type: 'varchar', nullable: true })
-  productStatus: string; // Product availability status
+  @Column({ type: 'enum', enum: ProductStatus, default: ProductStatus.Pending })
+  productStatus: ProductStatus; // Product availability status
 
   @OneToMany(() => OrderDetail, orderDetail => orderDetail.order, { cascade: true })
   details: OrderDetail[];
@@ -64,7 +74,6 @@ export class OrderDetail {
   @Column('decimal')
   price: number; // price per unit at the time of order
 
-  // Optional: computed getter for total price of this item
   get total(): number {
     return Number(this.price) * this.quantity;
   }
