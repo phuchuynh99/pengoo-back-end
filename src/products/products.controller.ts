@@ -37,6 +37,7 @@ export class ProductsController {
   ) {
     const { features, ...productData } = createProductDto;
     const parsedFeatures = JSON.parse(features); // [{title, content}, ...]
+    console.log('amin:', files.file,);
     console.log('features:', features);
     console.log('featureImages:', files?.['featureImages[]']);
     return this.productsService.create(

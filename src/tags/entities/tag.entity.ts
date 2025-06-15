@@ -7,6 +7,8 @@ export class Tag {
       id: number;
       @Column()
       name: string;
+      @Column()
+      type: string;
 
       @ManyToMany(() => Product, (product) => product.tags)
       products: Product[];

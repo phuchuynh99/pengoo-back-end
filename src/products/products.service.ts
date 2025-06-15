@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './product.entity';
@@ -14,6 +14,7 @@ import { PublishersService } from 'src/publishers/publishers.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Image } from './entities/image.entity';
 import { Feature } from './entities/feature.entity';
+import slugify from 'slugify';
 export class FilterProductDto {
   name?: string;
   categoryId?: number;
@@ -32,67 +33,101 @@ export class ProductsService {
     private readonly categoriesService: CategoriesService,
     private readonly cloudinaryService: CloudinaryService,
     private tagsService: TagsService,
-    @InjectRepository(Tag)
-    private tagRepo: Repository<Tag>,
   ) { }
 
   async create(
     createProductDto: CreateProductDto,
-    mainImage, detailImages, features, featureImages
+    mainImage,
+    detailImages,
+    features,
+    featureImages
   ): Promise<Product> {
     const category_ID = await this.categoriesService.findById(createProductDto.categoryId);
     const publisher_ID = await this.publishersService.findOne(createProductDto.publisherID);
-    const newProduct = new Product();
 
-    const uploadResult = await this.cloudinaryService.uploadImage(mainImage);
-    const imageEntities = await Promise.all(
+    const newProduct = new Product();
+    const images: Image[] = [];
+
+    // 1. Upload main image
+    const uploadMain = await this.cloudinaryService.uploadImage(mainImage);
+    const mainImg = new Image();
+    mainImg.url = uploadMain.secure_url;
+    mainImg.name = 'main';
+    images.push(mainImg);
+
+    // 2. Upload detail images
+    const detailImageEntities = await Promise.all(
       detailImages.map(async (file) => {
         const result = await this.cloudinaryService.uploadImage(file);
-        const image = new Image();
-        image.url = result.secure_url;
-        return image;
+        const img = new Image();
+        img.url = result.secure_url;
+        img.name = 'detail';
+        return img;
       })
     );
-    let tags: any = ['new'];
-    // if (createProductDto.tags && createProductDto.tags.length > 0) {
-    //   tags = await Promise.all(
-    //     createProductDto.tags.map(async (tagName) => {
-    //       let tag = await this.tagsService.findOneByName(tagName);
-    //       if (!tag) {
-    //         tag = this.tagRepo.create({ name: tagName });
-    //         await this.tagRepo.save(tag);
-    //       }
-    //       return tag;
-    //     })
-    //   );
-    // }
+    images.push(...detailImageEntities);
+
+    // 3. Upload featured images
+    const featuredImageEntities = await Promise.all(
+      features.map(async (f, i) => {
+        const imageFile = featureImages[i];
+        if (!imageFile?.buffer) {
+          throw new BadRequestException(`Missing feature image for feature ${i}`);
+        }
+        const uploaded = await this.cloudinaryService.uploadImage(imageFile);
+        const img = new Image();
+        img.url = uploaded.secure_url;
+        img.name = 'featured';
+        img.ord = f.ord;
+        return img;
+      })
+    );
+    images.push(...featuredImageEntities);
+
+    // 4. Handle tags
+    let tags: any = [];
+    if (createProductDto.tags && typeof createProductDto.tags === 'string') {
+      const tag_ID = createProductDto.tags
+        .split(' ')
+        .map(tag => tag.trim())
+        .filter(tag => tag !== '');
+
+      if (tag_ID.length > 0) {
+
+        tags = await Promise.all(tag_ID.map(async (id) => {
+          let tag = await this.tagsService.findOne(+(id));
+          return tag;
+        }));
+      }
+    }
+
+    // 5. Gán các trường cơ bản cho product
     newProduct.product_name = createProductDto.product_name;
     newProduct.description = createProductDto.description;
     newProduct.product_price = createProductDto.product_price;
-    newProduct.slug = createProductDto.slug;
+    newProduct.slug = slugify(createProductDto.product_name);
     newProduct.quantity_sold = createProductDto.quantity_sold;
+    newProduct.quantity_stock = createProductDto.quantity_stock;
     newProduct.category_ID = category_ID;
     newProduct.publisher_ID = publisher_ID;
-    newProduct.image_url = uploadResult.secure_url;
     newProduct.discount = createProductDto.discount;
     newProduct.meta_description = createProductDto.meta_description;
     newProduct.meta_title = createProductDto.meta_title;
     newProduct.status = createProductDto.status;
     newProduct.tags = tags;
-    newProduct.images = imageEntities;
-    const savedProduct = this.productsRepository.save(newProduct);
-    const featureEntities = await Promise.all(
-      features.map(async (f, i) => {
-        const uploaded = await this.cloudinaryService.uploadImage(featureImages[i]);
-        return this.featuresRepository.create({
-          title: f.title,
-          content: f.content,
-          image: uploaded.secure_url,
-          product: newProduct,
-        });
+    newProduct.images = images;
+
+    // 6. Lưu product trước
+    const savedProduct = await this.productsRepository.save(newProduct);
+
+    // 7. Lưu features (gắn product đã lưu)
+    const featureEntities = features.map((f) =>
+      this.featuresRepository.create({
+        title: f.title,
+        content: f.content,
+        product: savedProduct,
       })
     );
-
     await this.featuresRepository.save(featureEntities);
 
     return savedProduct;
@@ -104,7 +139,7 @@ export class ProductsService {
       .leftJoinAndSelect('product.publisher_ID', 'publisher')
       .leftJoinAndSelect('product.tags', 'tags')
       .leftJoinAndSelect('product.images', 'images')
-      .leftJoinAndSelect('product.features', 'feature');
+      .leftJoinAndSelect('product.features', 'feature')
 
     if (filter.name) {
       query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
@@ -158,17 +193,12 @@ export class ProductsService {
 
     if (file) {
       const uploadResult = await this.cloudinaryService.uploadImage(file);
-      product.image_url = uploadResult.secure_url;
     }
 
     if (updateProductDto.tags && updateProductDto.tags.length > 0) {
       const tags = await Promise.all(
         updateProductDto.tags.map(async (tagName) => {
-          let tag = await this.tagsService.findOneByName(tagName);
-          if (!tag) {
-            tag = this.tagRepo.create({ name: tagName });
-            await this.tagRepo.save(tag);
-          }
+          let tag = await this.tagsService.findOneByName(tagName)
           return tag;
         })
       );

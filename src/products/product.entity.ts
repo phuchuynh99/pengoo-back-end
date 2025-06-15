@@ -28,8 +28,6 @@ export class Product {
   @Column({ nullable: false })
   status: string;
 
-  @Column({ nullable: false })
-  image_url: string;
 
   @Column({ nullable: false })
   discount: number;
@@ -42,6 +40,9 @@ export class Product {
 
   @Column({ nullable: false })
   quantity_sold: number;
+
+  @Column({ nullable: false })
+  quantity_stock: number;
 
   @ManyToOne(() => Category, (category) => category.products)
   category_ID: Category;

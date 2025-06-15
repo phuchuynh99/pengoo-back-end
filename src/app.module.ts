@@ -25,6 +25,10 @@ import { PublishersModule } from './publishers/publishers.module';
 import { PaymentModule } from './services/payment/payment.module';
 import { InvoicesModule } from './services/invoices/invoices.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { Tag } from './tags/entities/tag.entity';
+import { Publisher } from './publishers/entities/publisher.entity';
+import { Image } from './products/entities/image.entity';
+import { Feature } from './products/entities/feature.entity';
 
 @Module({
   imports: [
@@ -36,13 +40,13 @@ import { NotificationsModule } from './notifications/notifications.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => (dataSourceOptions),
     }),
-    TypeOrmModule.forFeature([User, Product, Category, Order, OrderItem, Review, Cart, Wishlist]),
+    TypeOrmModule.forFeature([User, Product, Category, Order, OrderItem, Review, Cart, Wishlist, Tag, Publisher, Image, Feature]),
     UsersModule,
     AuthModule,
     ProductsModule,
     OrdersModule,
     // CartModule,
-    ReviewsModule,
+    // ReviewsModule,
     // WishlistModule,
     CategoriesModule,
     TagsModule,

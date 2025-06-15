@@ -8,9 +8,6 @@ export class Feature {
     id: number;
 
     @Column()
-    image: string;
-
-    @Column()
     title: string;
 
     @Column('text')

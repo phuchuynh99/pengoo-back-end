@@ -24,10 +24,6 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   @IsString()
-  slug: string;
-
-  @IsNotEmpty()
-  @IsString()
   meta_title: string;
 
   @IsNotEmpty()
@@ -48,6 +44,10 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   @IsNumber()
+  quantity_stock: number;
+
+  @IsNotEmpty()
+  @IsNumber()
   categoryId: number;
 
   @IsNotEmpty()
@@ -61,5 +61,5 @@ export class CreateProductDto {
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 
-  tags?: string[];
+  tags?: string[] | string;
 }
