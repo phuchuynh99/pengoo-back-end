@@ -16,6 +16,7 @@ import { Tag } from '../tags/entities/tag.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { Feature } from 'src/products/entities/feature.entity'; 
 import { Delivery } from '../delivery/delivery.entity';
+import { CouponsModule } from '../coupons/coupons.module'; 
 
 @Module({
   providers: [OrdersService, UsersService, ProductsService, CategoriesService],
@@ -35,7 +36,7 @@ import { Delivery } from '../delivery/delivery.entity';
     CloudinaryModule,
     TagsModule,
     NotificationsModule,
-     
+    CouponsModule, 
   ],
   exports: [OrdersService, ProductsService] 
 })

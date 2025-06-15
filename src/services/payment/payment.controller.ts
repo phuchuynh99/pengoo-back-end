@@ -26,4 +26,14 @@ export class PaymentsController {
     await this.paymentsService.handleWebhook(stripeEvent);
     return { received: true };
   }
+
+  @Post('refund/:orderId')
+  async refundOrder(@Param('orderId') orderId: number) {
+    return this.paymentsService.refundOrder(orderId);
+  }
+
+  @Post('cancel/:orderId')
+  async cancelOrder(@Param('orderId') orderId: number) {
+    return this.paymentsService.cancelOrder(orderId);
+  }
 }
