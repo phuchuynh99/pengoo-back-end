@@ -1,7 +1,9 @@
 import { Cart } from 'src/cart/cart.entity';
 import { Review } from 'src/reviews/review.entity';
 import { Wishlist } from 'src/wishlist/wishlist.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { Coupon } from '../coupons/coupon.entity';
+import { TicketEarningLog } from '../minigame/ticket-earning-log.entity';
 
 @Entity('user')
 export class User {
@@ -35,6 +37,12 @@ export class User {
   @Column({ type: 'text', nullable: true })
   address: string;
 
+  @Column({ type: 'int', default: 0 })
+  points: number;
+
+  @Column({ type: 'int', default: 3 }) // Default starting tickets
+  minigame_tickets: number;
+
   @OneToMany(() => Review, review => review.user)
   reviews: Review[];
 
@@ -43,4 +51,11 @@ export class User {
 
   @OneToMany(() => Cart, cart => cart.user)
   carts: Cart[];
+
+  @ManyToMany(() => Coupon, coupon => coupon.users)
+  @JoinTable()
+  coupons: Coupon[];
+
+  @OneToMany(() => TicketEarningLog, log => log.user)
+  ticketEarningLogs: TicketEarningLog[];
 }
