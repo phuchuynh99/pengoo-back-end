@@ -5,9 +5,9 @@ import { Delivery } from '../delivery/delivery.entity';
 import { Review } from '../reviews/review.entity';
 
 export enum PaymentStatus {
-  Pending = 'pending',
   Paid = 'paid',
-  Refunded = 'refunded',
+  PendingOnDelivery = 'pending_on_delivery',
+  Pending = "Pending",
 }
 
 export enum ProductStatus {

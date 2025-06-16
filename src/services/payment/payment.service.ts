@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Order } from '../../orders/order.entity';
+import { Order, PaymentStatus } from '../../orders/order.entity';
 import { PaymentMethod } from './payment.types';
 import { PaypalService } from '../paypal/paypal.service';
 
@@ -23,11 +23,21 @@ export class PaymentsService {
         return this.paypalService.createOrder(orderId);
       case PaymentMethod.ON_DELIVERY:
         // Mark order as "payment pending" or similar
-        order.payment_status = 'pending_on_delivery';
+        order.payment_status = PaymentStatus.PendingOnDelivery; // Use enum value
         await this.ordersRepository.save(order);
         return { message: 'Order placed. Pay on delivery.' };
       default:
         throw new BadRequestException('Unsupported payment method');
     }
+  }
+
+  async refundOrder(orderId: number) {
+    // Implement refund logic or throw if not supported
+    return { message: `Refund for order ${orderId} is not implemented.` };
+  }
+
+  async cancelOrder(orderId: number) {
+    // Implement cancel logic or throw if not supported
+    return { message: `Cancel for order ${orderId} is not implemented.` };
   }
 }
