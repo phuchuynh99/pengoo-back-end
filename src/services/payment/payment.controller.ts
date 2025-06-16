@@ -1,29 +1,16 @@
-import { Controller, Post, Param, Req, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Param, Body } from '@nestjs/common';
 import { PaymentsService } from './payment.service';
-import { Request } from 'express';
+import { PaymentMethod } from './payment.types';
 
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  @Post('create-payment-intent/:orderId')
-  createPaymentIntent(@Param('orderId') orderId: number) {
-    return this.paymentsService.createPaymentIntent(orderId);
-  }
-
-  @Post('webhook')
-  async handleWebhook(@Req() request: Request) {
-    const sig = request.headers['stripe-signature'];
-    if (!sig || typeof sig !== 'string') {
-      throw new BadRequestException('Missing Stripe signature');
-    }
-    const stripeEvent = this.paymentsService.getStripe().webhooks.constructEvent(
-      request.body,
-      sig,
-      'YOUR_STRIPE_WEBHOOK_SECRET'
-    );
-
-    await this.paymentsService.handleWebhook(stripeEvent);
-    return { received: true };
+  @Post('pay/:orderId')
+  pay(
+    @Param('orderId') orderId: number,
+    @Body('method') method: PaymentMethod,
+  ) {
+    return this.paymentsService.pay(orderId, method);
   }
 }
