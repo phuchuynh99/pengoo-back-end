@@ -13,4 +13,14 @@ export class PaymentsController {
   ) {
     return this.paymentsService.pay(orderId, method);
   }
+
+  @Post('refund/:orderId')
+  async refundOrder(@Param('orderId') orderId: number) {
+    return this.paymentsService.refundOrder(orderId);
+  }
+
+  @Post('cancel/:orderId')
+  async cancelOrder(@Param('orderId') orderId: number) {
+    return this.paymentsService.cancelOrder(orderId);
+  }
 }

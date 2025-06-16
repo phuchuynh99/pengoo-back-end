@@ -6,7 +6,7 @@ import { CreateReviewDto } from './create-review.dto';
 import { UpdateReviewDto } from './update-review.dto';  
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
-import { Order } from '../orders/order.entity';
+import { Order, ProductStatus } from '../orders/order.entity';
 
 @Injectable()
 export class ReviewsService {
@@ -33,8 +33,8 @@ export class ReviewsService {
     let order: Order | undefined;
     if (createReviewDto.orderId) {
       const foundOrder = await this.ordersRepository.findOne({ where: { id: createReviewDto.orderId } });
-      if (!foundOrder || foundOrder.productStatus !== 'completed') {
-        throw new BadRequestException('You can leave a review after the order is completed.');
+      if (!foundOrder || foundOrder.productStatus !== ProductStatus.Delivered) {
+        throw new BadRequestException('You can leave a review after the order is delivered.');
       }
       order = foundOrder;
     }
