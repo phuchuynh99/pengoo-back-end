@@ -10,7 +10,7 @@ export class AuthController {
 
     @Post('signin')
     async signin(@Body() body: SignInRequestDto) {
-        return this.authService.signin(body.username, body.password);
+        return this.authService.signin(body.email, body.password);
     }
 
     @Post('verify')
