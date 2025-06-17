@@ -1,5 +1,6 @@
 import { Body, Controller, Post, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { ApiBody } from '@nestjs/swagger';
 import { SignInRequestDto } from 'src/dto/signin-request.dto';
 import { VerifyRequestDto } from 'src/dto/verify-request.dto';
 import { UsersService } from '../users/users.service';
@@ -14,6 +15,18 @@ export class AuthController {
   ) {}
 
   @Post('signin')
+  @ApiBody({
+    type: SignInRequestDto,
+    examples: {
+      default: {
+        summary: 'Sign in with email and password',
+        value: {
+          email: 'user@example.com',
+          password: 'yourPassword123',
+        },
+      },
+    },
+  })
   async signin(@Body() body: SignInRequestDto) {
     if (body.email) {
       return this.authService.signin(body.email, body.password);
@@ -23,6 +36,17 @@ export class AuthController {
   }
 
   @Post('verify')
+  @ApiBody({
+    type: VerifyRequestDto,
+    examples: {
+      default: {
+        summary: 'Verify JWT token',
+        value: {
+          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        },
+      },
+    },
+  })
   async verify(@Body() body: VerifyRequestDto) {
     try {
       const decoded = await this.authService.verify(body.token);
@@ -33,6 +57,13 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @ApiBody({
+    schema: {
+      example: {
+        email: 'user@example.com',
+      },
+    },
+  })
   async forgotPassword(@Body('email') email: string) {
     const user = await this.usersService.setResetToken(email);
     if (user) {
@@ -43,6 +74,14 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  @ApiBody({
+    schema: {
+      example: {
+        token: 'reset-token-from-email',
+        newPassword: 'newSecurePassword123',
+      },
+    },
+  })
   async resetPassword(@Body() body: { token: string; newPassword: string }) {
     const success = await this.usersService.resetPassword(body.token, body.newPassword);
     if (!success) throw new BadRequestException('Invalid or expired token');
