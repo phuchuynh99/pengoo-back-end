@@ -1,39 +1,42 @@
-import { Controller, Post, Param, Req, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Param, Body, Req, UseGuards } from '@nestjs/common';
 import { PaymentsService } from './payment.service';
-import { Request } from 'express';
+import { PaymentMethod } from './payment.types';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard'; 
 
 @Controller('payments')
+@UseGuards(JwtAuthGuard) 
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  @Post('create-payment-intent/:orderId')
-  createPaymentIntent(@Param('orderId') orderId: number) {
-    return this.paymentsService.createPaymentIntent(orderId);
-  }
-
-  @Post('webhook')
-  async handleWebhook(@Req() request: Request) {
-    const sig = request.headers['stripe-signature'];
-    if (!sig || typeof sig !== 'string') {
-      throw new BadRequestException('Missing Stripe signature');
-    }
-    const stripeEvent = this.paymentsService.getStripe().webhooks.constructEvent(
-      request.body,
-      sig,
-      'YOUR_STRIPE_WEBHOOK_SECRET'
-    );
-
-    await this.paymentsService.handleWebhook(stripeEvent);
-    return { received: true };
+  @Post('pay/:orderId')
+  async pay(
+    @Param('orderId') orderId: number,
+    @Body('method') method: PaymentMethod,
+    @Req() req,
+  ) {
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+    return this.paymentsService.pay(orderId, method, userId, userRole);
   }
 
   @Post('refund/:orderId')
-  async refundOrder(@Param('orderId') orderId: number) {
-    return this.paymentsService.refundOrder(orderId);
+  async refundOrder(@Param('orderId') orderId: number, @Req() req) {
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+    return this.paymentsService.refundOrder(orderId, userId, userRole);
   }
 
   @Post('cancel/:orderId')
-  async cancelOrder(@Param('orderId') orderId: number) {
-    return this.paymentsService.cancelOrder(orderId);
+  async cancelOrder(@Param('orderId') orderId: number, @Req() req) {
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+    return this.paymentsService.cancelOrder(orderId, userId, userRole);
+  }
+
+  @Post('paypal/capture/:orderId')
+  async capturePaypal(@Param('orderId') orderId: number, @Req() req) {
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+    return this.paymentsService.handlePaypalCapture(orderId, userId, userRole);
   }
 }

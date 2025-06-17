@@ -1,6 +1,6 @@
 import { Cart } from 'src/cart/cart.entity';
 import { Review } from 'src/reviews/review.entity';
-import { Wishlist } from 'src/wishlist/wishlist.entity';
+import { Wishlist } from '../wishlist/wishlist.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity('user')
@@ -34,6 +34,12 @@ export class User {
 
   @Column({ type: 'text', nullable: true })
   address: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  resetPasswordToken: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetPasswordExpires: Date | null;
 
   @OneToMany(() => Review, review => review.user)
   reviews: Review[];

@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsNumber, IsArray, ArrayNotEmpty, IsString, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsArray, ArrayNotEmpty, IsString, IsOptional, IsEnum } from 'class-validator';
+import { PaymentMethod } from '../services/payment/payment.types';
 
 class CreateOrderDetailDto {
   @IsNotEmpty()
@@ -22,14 +23,10 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @IsNumber()
   delivery_id: number;
-
+  
   @IsNotEmpty()
-  @IsNumber()
-  coupon_id: number;
-
-  @IsNotEmpty()
-  @IsString()
-  payment_type: string;
+  @IsEnum(PaymentMethod)
+  payment_type: PaymentMethod;
 
   @IsNotEmpty()
   @IsNumber()
@@ -42,10 +39,6 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   payment_status?: string;
-
-  @IsOptional()
-  @IsString()
-  discount?: string;
 
   @IsOptional()
   @IsString()

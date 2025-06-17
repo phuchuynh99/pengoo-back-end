@@ -3,10 +3,12 @@ import { User } from '../users/user.entity';
 import { Product } from '../products/product.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { Review } from '../reviews/review.entity';
+import { Wishlist } from '../wishlist/wishlist.entity';
 
 export enum PaymentStatus {
-  Pending = 'pending',
   Paid = 'paid',
+  Pending = 'pending', // <-- Add this line
+  PendingOnDelivery = 'pending_on_delivery',
   Refunded = 'refunded',
 }
 
@@ -29,8 +31,12 @@ export class Order {
   @JoinColumn({ name: 'delivery_id' }) // This will use delivery_id as the foreign key
   delivery: Delivery; // Delivery method
 
-  @Column({ type: 'int', nullable: false })
-  coupon_id: number; // Coupon ID
+  @Column({ type: 'int', nullable: true })
+  coupon_id: number | null; // Coupon ID
+
+  // Optionally, keep the code for history:
+  @Column({ type: 'varchar', nullable: true })
+  coupon_code: string | null;
 
   @Column({ type: 'varchar', nullable: false })
   payment_type: string; // Payment method
@@ -44,17 +50,20 @@ export class Order {
   @Column({ type: 'varchar', nullable: false })
   shipping_address: string; // Shipping address
 
-  @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.Pending })
-  payment_status: PaymentStatus;
+  @Column({ type: 'varchar', nullable: true })
+  payment_status: PaymentStatus; // Payment status
 
-  @Column({ type: 'enum', enum: ProductStatus, default: ProductStatus.Pending })
-  productStatus: ProductStatus; // Product availability status
+  @Column({ type: 'varchar', nullable: true })
+  productStatus: string; // Product availability status
 
   @OneToMany(() => OrderDetail, orderDetail => orderDetail.order, { cascade: true })
   details: OrderDetail[];
 
   @OneToMany(() => Review, review => review.order)
   reviews: Review[];
+
+  @OneToMany(() => Wishlist, wishlist => wishlist.movedToOrder)
+  wishlistItems: Wishlist[];
 }
 
 @Entity()

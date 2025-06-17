@@ -22,24 +22,22 @@ export class OrdersService {
     private usersService: UsersService,
     private productsService: ProductsService,
     private notificationsService: NotificationsService,
-    private couponsService: CouponsService, // <-- Add this line
+    private couponsService: CouponsService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const {
       userId,
       delivery_id,
-      coupon_id,
       payment_type,
       shipping_address,
       payment_status,
-      discount,
       productStatus,
       details,
-      couponCode, // <-- Add this to destructure
+      couponCode,
     } = createOrderDto;
 
-    let total_price = createOrderDto.total_price; // <-- Use let, not const
+    let total_price = createOrderDto.total_price;
 
     const userEntity = await this.usersService.findById(userId);
     if (!userEntity) {
@@ -63,20 +61,26 @@ export class OrdersService {
       orderDetails.push(orderDetail);
     }
 
+    let coupon_id: number | null = null;
+    let coupon_code: string | null = null;
+
     if (couponCode) {
-      const { discount } = await this.couponsService.validateAndApply(
+      const { coupon, discount } = await this.couponsService.validateAndApply(
         couponCode,
         total_price,
         userId,
         details.map(d => d.productId)
       );
-      total_price = total_price - discount; // <-- Now this works
+      total_price = total_price - discount;
+      coupon_id = coupon.id;
+      coupon_code = coupon.code;
     }
 
     const order = this.ordersRepository.create({
-      user: userEntity, // <-- Set user here
+      user: userEntity,
       delivery,
       coupon_id,
+      coupon_code,
       payment_type,
       total_price,
       shipping_address,
@@ -84,12 +88,6 @@ export class OrdersService {
       productStatus: productStatus as ProductStatus,
       details: orderDetails,
     });
-
-    // Set relations if needed
-    (order as any).user = userEntity;
-    if ('discount' in order) {
-      (order as any).discount = discount;
-    }
 
     const savedOrder = await this.ordersRepository.save(order);
     await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id); 
@@ -100,15 +98,8 @@ export class OrdersService {
     return this.ordersRepository.find({ relations: ['user', 'details', 'details.product', 'delivery'] });
   }
 
-  async findById(orderId: number): Promise<Order> {
-    const order = await this.ordersRepository.findOne({
-      where: { id: orderId },
-      relations: ['user', 'details', 'details.product', 'delivery'],
-    });
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
-    return order;
+  async findById(orderId: number): Promise<Order | null> {
+    return this.ordersRepository.findOne({ where: { id: orderId } });
   }
 
   async updateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto): Promise<Order> {

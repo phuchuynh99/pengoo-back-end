@@ -49,6 +49,17 @@ export class InvoicesService {
         price: detail.price,
         tax: 0,
       })),
+      // Add payment info to the invoice
+      custom: [
+        {
+          title: "Payment Method",
+          value: order.payment_type,
+        },
+        {
+          title: "Payment Status",
+          value: order.payment_status,
+        }
+      ],
       bottomNotice: 'Thank you for your purchase!',
     };
 

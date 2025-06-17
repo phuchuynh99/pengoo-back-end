@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { Wishlist } from './wishlist.entity';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
+import { OrdersService } from '../orders/orders.service';
+import { Order } from '../orders/order.entity';
 
 @Injectable()
 export class WishlistService {
@@ -12,18 +14,20 @@ export class WishlistService {
     private wishlistRepository: Repository<Wishlist>,
     private usersService: UsersService,
     private productsService: ProductsService,
+    private ordersService: OrdersService,
   ) {}
 
   async addToWishlist(userId: number, productId: number): Promise<Wishlist> {
     const user = await this.usersService.findById(userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    if (!user) throw new NotFoundException('User not found');
 
     const product = await this.productsService.findById(productId);
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
+    if (!product) throw new NotFoundException('Product not found');
+
+    const existing = await this.wishlistRepository.findOne({
+      where: { user: { id: userId }, product: { id: productId }, movedToOrder: IsNull() },
+    });
+    if (existing) throw new BadRequestException('Product already in wishlist');
 
     const wishlistItem = this.wishlistRepository.create({ user, product });
     return this.wishlistRepository.save(wishlistItem);
@@ -31,19 +35,34 @@ export class WishlistService {
 
   async removeFromWishlist(userId: number, productId: number): Promise<void> {
     const wishlistItem = await this.wishlistRepository.findOne({
-      where: { user: { id: userId }, product: { id: productId } },
+      where: { user: { id: userId }, product: { id: productId }, movedToOrder: IsNull() },
     });
-    if (!wishlistItem) {
-      throw new NotFoundException('Wishlist item not found');
-    }
-
+    if (!wishlistItem) throw new NotFoundException('Wishlist item not found');
     await this.wishlistRepository.remove(wishlistItem);
   }
 
   async viewWishlist(userId: number): Promise<Wishlist[]> {
     return this.wishlistRepository.find({
-      where: { user: { id: userId } },
+      where: { user: { id: userId }, movedToOrder: IsNull() },
+      relations: ['product'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async moveWishlistToOrder(userId: number, orderId: number): Promise<{ moved: number }> {
+    const order = await this.ordersService.findById(orderId);
+    if (!order) throw new NotFoundException('Order not found');
+
+    const wishlistItems = await this.wishlistRepository.find({
+      where: { user: { id: userId }, movedToOrder: IsNull() },
       relations: ['product'],
     });
+
+    for (const item of wishlistItems) {
+      item.movedToOrder = order;
+      await this.wishlistRepository.save(item);
+    }
+
+    return { moved: wishlistItems.length };
   }
 }

@@ -5,13 +5,15 @@ import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthController } from './auth.controller';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
+    NotificationsModule,
     JwtModule.register({
-      secret: 'secretKey', // Change this to an environment variable
+      secret: 'secretKey',
       signOptions: { expiresIn: '60m' },
     }),
   ],
