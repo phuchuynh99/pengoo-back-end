@@ -7,7 +7,7 @@ import { Review } from '../reviews/review.entity';
 export enum PaymentStatus {
   Paid = 'paid',
   PendingOnDelivery = 'pending_on_delivery',
-  Pending = "Pending",
+  Refunded = 'refunded',
 }
 
 export enum ProductStatus {
@@ -44,11 +44,14 @@ export class Order {
   @Column({ type: 'varchar', nullable: false })
   shipping_address: string; // Shipping address
 
-  @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.Pending })
-  payment_status: PaymentStatus;
+  @Column({ type: 'varchar', nullable: true })
+  payment_status: PaymentStatus; // Payment status
 
-  @Column({ type: 'enum', enum: ProductStatus, default: ProductStatus.Pending })
-  productStatus: ProductStatus; // Product availability status
+  @Column({ type: 'varchar', nullable: true })
+  discount: string; // Discount code
+
+  @Column({ type: 'varchar', nullable: true })
+  productStatus: string; // Product availability status
 
   @OneToMany(() => OrderDetail, orderDetail => orderDetail.order, { cascade: true })
   details: OrderDetail[];
