@@ -40,4 +40,14 @@ export class PaymentsController {
     const userRole = req.user?.role;
     return this.paymentsService.handlePaypalCapture(orderId, userId, userRole);
   }
+
+  @Post('refund/:orderId')
+  async refundOrder(@Param('orderId') orderId: number) {
+    return this.paymentsService.refundOrder(orderId);
+  }
+
+  @Post('cancel/:orderId')
+  async cancelOrder(@Param('orderId') orderId: number) {
+    return this.paymentsService.cancelOrder(orderId);
+  }
 }

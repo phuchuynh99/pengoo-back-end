@@ -52,6 +52,10 @@ export class CreateOrderDto {
   @IsString()
   productStatus?: string;
 
+  @IsOptional()
+  @IsString()
+  couponCode?: string;
+
   @IsNotEmpty()
   @IsArray()
   @ArrayNotEmpty()

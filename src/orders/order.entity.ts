@@ -78,7 +78,6 @@ export class OrderDetail {
   @Column('decimal')
   price: number; // price per unit at the time of order
 
-  // Optional: computed getter for total price of this item
   get total(): number {
     return Number(this.price) * this.quantity;
   }

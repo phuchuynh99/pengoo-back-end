@@ -1,13 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Order, OrderDetail, PaymentStatus } from './order.entity';
+import { Order, OrderDetail, PaymentStatus, ProductStatus } from './order.entity'; // Import PaymentStatus and ProductStatus
 import { CreateOrderDto } from './create-orders.dto';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Delivery } from '../delivery/delivery.entity';
+import { CouponsService } from '../coupons/coupons.service'; // <-- Add this import
 
 @Injectable()
 export class OrdersService {
@@ -21,6 +22,7 @@ export class OrdersService {
     private usersService: UsersService,
     private productsService: ProductsService,
     private notificationsService: NotificationsService,
+    private couponsService: CouponsService, // <-- Add this line
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
@@ -29,13 +31,15 @@ export class OrdersService {
       delivery_id,
       coupon_id,
       payment_type,
-      total_price,
       shipping_address,
       payment_status,
       discount,
       productStatus,
       details,
+      couponCode, // <-- Add this to destructure
     } = createOrderDto;
+
+    let total_price = createOrderDto.total_price; // <-- Use let, not const
 
     const userEntity = await this.usersService.findById(userId);
     if (!userEntity) {
@@ -59,22 +63,37 @@ export class OrdersService {
       orderDetails.push(orderDetail);
     }
 
+    if (couponCode) {
+      const { discount } = await this.couponsService.validateAndApply(
+        couponCode,
+        total_price,
+        userId,
+        details.map(d => d.productId)
+      );
+      total_price = total_price - discount; // <-- Now this works
+    }
+
     const order = this.ordersRepository.create({
-      user: userEntity,
+      user: userEntity, // <-- Set user here
       delivery,
       coupon_id,
       payment_type,
       total_price,
       shipping_address,
-      payment_status: payment_status as PaymentStatus || PaymentStatus.Pending,
-      discount,
-      productStatus,
+      payment_status: payment_status as PaymentStatus,
+      productStatus: productStatus as ProductStatus,
       details: orderDetails,
     });
 
+    // Set relations if needed
+    (order as any).user = userEntity;
+    if ('discount' in order) {
+      (order as any).discount = discount;
+    }
+
     const savedOrder = await this.ordersRepository.save(order);
-    await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id);
-    return savedOrder;
+    await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id); 
+    return savedOrder; 
   }
 
   async findAll(): Promise<Order[]> {
@@ -97,7 +116,7 @@ export class OrdersService {
     if (!order) {
       throw new NotFoundException('Order not found');
     }
-    order.productStatus = updateOrderStatusDto.productStatus;
+    order.productStatus = updateOrderStatusDto.productStatus as ProductStatus; 
     return this.ordersRepository.save(order);
   }
 

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './product.entity';
 import { Category } from '../categories/category.entity';
-import { CreateProductDto } from './create-product.dto';
+import { CreateProductDto, FeatureDto } from './create-product.dto';
 import { UpdateProductDto } from '../products/update-product.dto';
 import { CreateCategoryDto } from '../categories/create-category.dto';
 import { UpdateCategoryDto } from '../categories/update-category.dto';
@@ -38,7 +38,10 @@ export class ProductsService {
 
   async create(
     createProductDto: CreateProductDto,
-    mainImage, detailImages, features, featureImages
+    mainImage: Express.Multer.File,
+    detailImages: Express.Multer.File[],
+    features: FeatureDto[],
+    featureImages: Express.Multer.File[],
   ): Promise<Product> {
     const category_ID = await this.categoriesService.findById(createProductDto.categoryId);
     const publisher_ID = await this.publishersService.findOne(createProductDto.publisherID);
@@ -53,19 +56,26 @@ export class ProductsService {
         return image;
       })
     );
-    let tags: any = ['new'];
-    // if (createProductDto.tags && createProductDto.tags.length > 0) {
-    //   tags = await Promise.all(
-    //     createProductDto.tags.map(async (tagName) => {
-    //       let tag = await this.tagsService.findOneByName(tagName);
-    //       if (!tag) {
-    //         tag = this.tagRepo.create({ name: tagName });
-    //         await this.tagRepo.save(tag);
-    //       }
-    //       return tag;
-    //     })
-    //   );
-    // }
+    let tags: Tag[] = [];
+    if (createProductDto.tags && createProductDto.tags.length > 0) {
+      tags = await Promise.all(
+        createProductDto.tags.map(async (tagName: string) => {
+          let tag = await this.tagsService.findOneByName(tagName);
+          if (!tag) {
+            tag = this.tagRepo.create({ name: tagName });
+            await this.tagRepo.save(tag);
+          }
+          return tag;
+        })
+      );
+    } else {
+      let tag = await this.tagsService.findOneByName('new');
+      if (!tag) {
+        tag = this.tagRepo.create({ name: 'new' });
+        await this.tagRepo.save(tag);
+      }
+      tags = [tag];
+    }
     newProduct.product_name = createProductDto.product_name;
     newProduct.description = createProductDto.description;
     newProduct.product_price = createProductDto.product_price;
