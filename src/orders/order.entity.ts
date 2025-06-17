@@ -31,8 +31,12 @@ export class Order {
   @JoinColumn({ name: 'delivery_id' }) // This will use delivery_id as the foreign key
   delivery: Delivery; // Delivery method
 
-  @Column({ type: 'int', nullable: false })
-  coupon_id: number; // Coupon ID
+  @Column({ type: 'int', nullable: true })
+  coupon_id: number | null; // Coupon ID
+
+  // Optionally, keep the code for history:
+  @Column({ type: 'varchar', nullable: true })
+  coupon_code: string | null;
 
   @Column({ type: 'varchar', nullable: false })
   payment_type: string; // Payment method
@@ -48,9 +52,6 @@ export class Order {
 
   @Column({ type: 'varchar', nullable: true })
   payment_status: PaymentStatus; // Payment status
-
-  @Column({ type: 'varchar', nullable: true })
-  discount: string; // Discount code
 
   @Column({ type: 'varchar', nullable: true })
   productStatus: string; // Product availability status

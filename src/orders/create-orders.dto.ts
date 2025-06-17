@@ -23,11 +23,7 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @IsNumber()
   delivery_id: number;
-
-  @IsNotEmpty()
-  @IsNumber()
-  coupon_id: number;
-
+  
   @IsNotEmpty()
   @IsEnum(PaymentMethod)
   payment_type: PaymentMethod;
@@ -43,10 +39,6 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   payment_status?: string;
-
-  @IsOptional()
-  @IsString()
-  discount?: string;
 
   @IsOptional()
   @IsString()
