@@ -3,6 +3,7 @@ import { User } from '../users/user.entity';
 import { Product } from '../products/product.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { Review } from '../reviews/review.entity';
+import { Wishlist } from '../wishlist/wishlist.entity';
 
 export enum PaymentStatus {
   Paid = 'paid',
@@ -58,6 +59,9 @@ export class Order {
 
   @OneToMany(() => Review, review => review.order)
   reviews: Review[];
+
+  @OneToMany(() => Wishlist, wishlist => wishlist.movedToOrder)
+  wishlistItems: Wishlist[];
 }
 
 @Entity()

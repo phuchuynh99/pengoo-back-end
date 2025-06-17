@@ -1,6 +1,6 @@
 import { Cart } from 'src/cart/cart.entity';
 import { Review } from 'src/reviews/review.entity';
-import { Wishlist } from 'src/wishlist/wishlist.entity';
+import { Wishlist } from '../wishlist/wishlist.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity('user')

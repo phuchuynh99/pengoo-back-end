@@ -1,15 +1,22 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Product } from '../products/product.entity';
+import { Order } from '../orders/order.entity';
 
 @Entity()
 export class Wishlist {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, user => user.id)
+  @ManyToOne(() => User, user => user.wishlists, { onDelete: 'CASCADE' })
   user: User;
 
-  @ManyToOne(() => Product, product => product.id)
+  @ManyToOne(() => Product, product => product.wishlists, { eager: true, onDelete: 'CASCADE' })
   product: Product;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @ManyToOne(() => Order, order => order.wishlistItems, { nullable: true })
+  movedToOrder: Order | null;
 }
