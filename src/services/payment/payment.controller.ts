@@ -14,7 +14,6 @@ export class PaymentsController {
     @Body('method') method: PaymentMethod,
     @Req() req,
   ) {
-    // Assume req.user is populated by auth guard
     const userId = req.user?.id;
     const userRole = req.user?.role;
     return this.paymentsService.pay(orderId, method, userId, userRole);
@@ -39,15 +38,5 @@ export class PaymentsController {
     const userId = req.user?.id;
     const userRole = req.user?.role;
     return this.paymentsService.handlePaypalCapture(orderId, userId, userRole);
-  }
-
-  @Post('refund/:orderId')
-  async refundOrder(@Param('orderId') orderId: number) {
-    return this.paymentsService.refundOrder(orderId);
-  }
-
-  @Post('cancel/:orderId')
-  async cancelOrder(@Param('orderId') orderId: number) {
-    return this.paymentsService.cancelOrder(orderId);
   }
 }

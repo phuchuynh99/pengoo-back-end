@@ -7,6 +7,7 @@ import { Wishlist } from '../wishlist/wishlist.entity';
 
 export enum PaymentStatus {
   Paid = 'paid',
+  Pending = 'pending', // <-- Add this line
   PendingOnDelivery = 'pending_on_delivery',
   Refunded = 'refunded',
 }
