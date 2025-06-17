@@ -15,7 +15,14 @@ export class AuthController {
 
   @Post('signin')
   async signin(@Body() body: SignInRequestDto) {
-    return this.authService.signin(body.username, body.password);
+    // Allow sign-in by username or email
+    if (body.username) {
+      return this.authService.signin(body.username, body.password);
+    } else if (body.email) {
+      return this.authService.signin(body.email, body.password);
+    } else {
+      throw new BadRequestException('Username or email is required');
+    }
   }
 
   @Post('verify')

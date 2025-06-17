@@ -11,29 +11,29 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async validateUser(validatedUser: User, pass: string) {
     const isPasswordMatched = await bcrypt.compare(pass, validatedUser.password);
-    if(!isPasswordMatched){
+    if (!isPasswordMatched) {
       throw new UnauthorizedException('Wrong username or password');
     }
   }
 
-  async signin(username: string, password: string) : Promise<SignInResponseDto> {
-    try{
-      const user = await this.usersService.findByUsername(username);
-      if(!user){
+  async signin(email: string, password: string): Promise<SignInResponseDto> {
+    try {
+      const user = await this.usersService.findByEmail(email);
+      if (!user) {
         throw new UnauthorizedException('User not found');
       }
-  
+
       await this.validateUser(user, password);
-  
-      const payload : TokenPayloadDto = { email: user.email, sub: user.id, role: user.role, username: user.username };
+
+      const payload: TokenPayloadDto = { email: user.email, sub: user.id, role: user.role, username: user.username };
       return new SignInResponseDto(this.jwtService.sign(payload), user.username, user.role);
-    }catch (error) {
+    } catch (error) {
       throw new InternalServerErrorException('User not found');
-    }    
+    }
   }
 
   async verify(token: string): Promise<any> {
