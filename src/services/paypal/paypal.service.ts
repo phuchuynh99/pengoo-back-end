@@ -45,4 +45,11 @@ export class PaypalService {
     const response = await this.client.execute(request);
     return response.result;
   }
+
+  async refundOrder(orderId: number) {
+    // Implement PayPal refund logic here
+    // You may need to store PayPal order/capture IDs in your Order entity for this
+    // For now, just return a stub
+    return { message: `Refund for PayPal order ${orderId} is not implemented.` };
+  }
 }

@@ -4,6 +4,20 @@ import { Product } from '../products/product.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { Review } from '../reviews/review.entity';
 
+export enum PaymentStatus {
+  Pending = 'pending',
+  Paid = 'paid',
+  PendingOnDelivery = 'pending_on_delivery',
+  Refunded = 'refunded',
+}
+
+export enum ProductStatus {
+  Pending = 'pending',
+  Cancelled = 'cancelled',
+  Shipped = 'shipped',
+  Delivered = 'delivered',
+}
+
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn()
@@ -32,7 +46,7 @@ export class Order {
   shipping_address: string; // Shipping address
 
   @Column({ type: 'varchar', nullable: true })
-  payment_status: string; // Payment status
+  payment_status: PaymentStatus; // Payment status
 
   @Column({ type: 'varchar', nullable: true })
   discount: string; // Discount code

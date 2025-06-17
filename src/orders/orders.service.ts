@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Order, OrderDetail } from './order.entity';
+import { Order, OrderDetail, PaymentStatus } from './order.entity';
 import { CreateOrderDto } from './create-orders.dto';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
 import { UsersService } from '../users/users.service';
@@ -26,7 +26,7 @@ export class OrdersService {
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const {
       userId,
-      delivery_id, // <-- Use delivery_id as in your DTO
+      delivery_id,
       coupon_id,
       payment_type,
       total_price,
@@ -34,7 +34,7 @@ export class OrdersService {
       payment_status,
       discount,
       productStatus,
-      details, // <-- Use details, not items
+      details,
     } = createOrderDto;
 
     const userEntity = await this.usersService.findById(userId);
@@ -66,10 +66,10 @@ export class OrdersService {
       payment_type,
       total_price,
       shipping_address,
-      payment_status,
+      payment_status: payment_status as PaymentStatus || PaymentStatus.Pending,
       discount,
       productStatus,
-      details: orderDetails, // <-- Use details
+      details: orderDetails,
     });
 
     const savedOrder = await this.ordersRepository.save(order);
