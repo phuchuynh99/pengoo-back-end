@@ -35,6 +35,12 @@ export class User {
   @Column({ type: 'text', nullable: true })
   address: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  resetPasswordToken: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetPasswordExpires: Date | null;
+
   @OneToMany(() => Review, review => review.user)
   reviews: Review[];
 
