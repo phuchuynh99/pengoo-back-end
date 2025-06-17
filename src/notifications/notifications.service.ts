@@ -46,4 +46,15 @@ export class NotificationsService {
     };
     await this.transporter.sendMail(mailOptions);
   }
+
+  async sendPasswordReset(email: string, token: string) {
+    const resetUrl = `https://your-frontend-domain.com/reset-password?token=${token}`;
+    const mailOptions = {
+      from: this.from,
+      to: email,
+      subject: 'Password Reset Request',
+      text: `You requested a password reset. Click the link to reset your password: ${resetUrl}`,
+    };
+    await this.transporter.sendMail(mailOptions);
+  }
 }
