@@ -53,7 +53,6 @@ export class PaymentsService {
         throw new BadRequestException('Unsupported payment method');
     }
   }
-
   async handlePaypalCapture(orderId: number, userId: number, userRole: string) {
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
