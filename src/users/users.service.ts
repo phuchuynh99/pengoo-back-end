@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './create-user.dto';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class UsersService {
@@ -35,23 +36,42 @@ export class UsersService {
   async findByUsername(accountUsername: string): Promise<User | null> {
     return await this.usersRepository.findOne({ where: { username: accountUsername } });
   }
+  async findByEmail(accountUsername: string): Promise<User | null> {
+    return await this.usersRepository.findOne({ where: { email: accountUsername } });
+  }
 
   async findById(userId: number): Promise<User | null> {
     return await this.usersRepository.findOne({ where: { id: userId } });
   }
 
-  // async update(id: number, updateUserDto: UpdateUserDto): Promise<void> {
-  //   const { password, profile } = updateUserDto;
-  //   const hashedPassword = password
-  //     ? await bcrypt.hash(password, 10)
-  //     : undefined;
-  //   await this.usersRepository.update(id, {
-  //     ...(password && { password: hashedPassword }),
-  //     ...(profile && { profile }),
-  //   });
-  // }
+  async setResetToken(email: string): Promise<User | null> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) return null;
+    user.resetPasswordToken = randomBytes(32).toString('hex');
+    user.resetPasswordExpires = new Date(Date.now() + 1000 * 60 * 30); // 30 minutes
+    await this.usersRepository.save(user);
+    return user;
+  }
 
-  // async remove(id: number): Promise<void> {
-  //   await this.usersRepository.delete(id);
-  // }
+  async findByResetToken(token: string): Promise<User | null> {
+    const user = await this.usersRepository.findOne({ where: { resetPasswordToken: token } });
+    if (
+      !user ||
+      !user.resetPasswordExpires ||
+      user.resetPasswordExpires.getTime() < Date.now()
+    ) {
+      return null;
+    }
+    return user;
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<boolean> {
+    const user = await this.findByResetToken(token);
+    if (!user) return false;
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    await this.usersRepository.save(user);
+    return true;
+  }
 }

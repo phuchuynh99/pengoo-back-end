@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import { CreateOrderDto } from '../orders/create-orders.dto'; 
 
 @Injectable()
 export class NotificationsService {
@@ -23,27 +22,32 @@ export class NotificationsService {
     });
   }
 
-  async createOrder(userEmail: string, orderId: number) {
-    await this.sendOrderConfirmation(userEmail, orderId);
+  async sendEmail(to: string, subject: string, message: string) {
+    const mailOptions = {
+      from: this.from,
+      to,
+      subject,
+      text: message,
+    };
+    await this.transporter.sendMail(mailOptions);
   }
 
   async sendOrderConfirmation(email: string, orderId: number) {
-    const mailOptions = {
-      from: this.from,
-      to: email,
-      subject: 'Order Confirmation',
-      text: `Your order with ID ${orderId} has been confirmed.`,
-    };
-    await this.transporter.sendMail(mailOptions);
+    const subject = 'Order Confirmation';
+    const message = `Your order with ID ${orderId} has been confirmed.`;
+    await this.sendEmail(email, subject, message);
   }
 
   async sendShippingUpdate(email: string, orderId: number, status: string) {
-    const mailOptions = {
-      from: this.from,
-      to: email,
-      subject: 'Shipping Update',
-      text: `Your order with ID ${orderId} is now ${status}.`,
-    };
-    await this.transporter.sendMail(mailOptions);
+    const subject = 'Shipping Update';
+    const message = `Your order with ID ${orderId} is now ${status}.`;
+    await this.sendEmail(email, subject, message);
+  }
+
+  async sendPasswordReset(email: string, token: string) {
+    const resetUrl = `https://your-frontend-domain.com/reset-password?token=${token}`;
+    const subject = 'Password Reset Request';
+    const message = `You requested a password reset. Click the link to reset your password: ${resetUrl}`;
+    await this.sendEmail(email, subject, message);
   }
 }

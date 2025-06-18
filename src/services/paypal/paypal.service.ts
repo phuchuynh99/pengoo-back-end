@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as paypal from '@paypal/checkout-server-sdk';
 import { OrdersService } from '../../orders/orders.service';
 import { ConfigService } from '@nestjs/config';
@@ -21,6 +21,7 @@ export class PaypalService {
 
   async createOrder(orderId: number) {
     const order = await this.ordersService.findById(orderId);
+    if (!order) throw new NotFoundException('Order not found');
 
     const request = new paypal.orders.OrdersCreateRequest();
     request.prefer("return=representation");
@@ -44,5 +45,12 @@ export class PaypalService {
 
     const response = await this.client.execute(request);
     return response.result;
+  }
+
+  async refundOrder(orderId: number) {
+    // Implement PayPal refund logic here
+    // You may need to store PayPal order/capture IDs in your Order entity for this
+    // For now, just return a stub
+    return { message: `Refund for PayPal order ${orderId} is not implemented.` };
   }
 }

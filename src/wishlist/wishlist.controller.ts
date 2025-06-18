@@ -1,13 +1,9 @@
-import { Controller, Post, Delete, Get, Param, Req } from '@nestjs/common';
+import { Controller, Post, Delete, Get, Param, Req, Body } from '@nestjs/common';
 import { WishlistService } from './wishlist.service';
 import { Request } from 'express';
 
-// Extend Express Request interface to include user property
 interface AuthenticatedRequest extends Request {
-  user: {
-    id: number;
-    [key: string]: any;
-  };
+  user: { id: number; [key: string]: any };
 }
 
 @Controller('wishlist')
@@ -30,5 +26,11 @@ export class WishlistController {
   viewWishlist(@Req() req: AuthenticatedRequest) {
     const userId = req.user.id;
     return this.wishlistService.viewWishlist(userId);
+  }
+
+  @Post('move-to-order/:orderId')
+  async moveToOrder(@Req() req: AuthenticatedRequest, @Param('orderId') orderId: string) {
+    const userId = req.user.id;
+    return this.wishlistService.moveWishlistToOrder(userId, Number(orderId));
   }
 }
