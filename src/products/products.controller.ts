@@ -19,7 +19,7 @@ import { ApiConsumes, ApiBody } from '@nestjs/swagger';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -61,10 +61,10 @@ export class ProductsController {
     const featureImages = files.filter(f => f.fieldname === 'featureImages');
 
     // Parse features if sent as string
-    const features = typeof createProductDto.features === 'string'
-      ? JSON.parse(createProductDto.features)
-      : createProductDto.features;
-
+    const features = typeof createProductDto.featured === 'string'
+      ? JSON.parse(createProductDto.featured)
+      : createProductDto.featured;
+    console.log(featureImages)
     if (!mainImage) {
       throw new Error('Main image is required');
     }

@@ -12,15 +12,16 @@ import { CategoriesService } from 'src/categories/categories.service';
 import { PublishersModule } from 'src/publishers/publishers.module';
 import { CloudinaryModule } from 'src/services/cloudinary/cloudinary.module';
 import { TagsModule } from 'src/tags/tags.module';
-import { Tag } from '../tags/entities/tag.entity'; 
+import { Tag } from '../tags/entities/tag.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
-import { Featured } from 'src/products/entities/featured.entity'; 
+import { Featured } from 'src/products/entities/featured.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { CouponsModule } from '../coupons/coupons.module';
 import { Image } from 'src/products/entities/image.entity';
+import { PayosService } from 'src/payos/payos.service';
 
 @Module({
-  providers: [OrdersService, UsersService, ProductsService, CategoriesService],
+  providers: [OrdersService, UsersService, ProductsService, CategoriesService, PayosService],
   controllers: [OrdersController],
   imports: [
     TypeOrmModule.forFeature([
@@ -31,15 +32,15 @@ import { Image } from 'src/products/entities/image.entity';
       Category,
       Tag,
       Featured,
-      Delivery, 
+      Delivery,
       Image,
-    ]), 
+    ]),
     PublishersModule,
     CloudinaryModule,
     TagsModule,
     NotificationsModule,
-    CouponsModule, 
+    CouponsModule,
   ],
-  exports: [OrdersService, ProductsService] 
+  exports: [OrdersService, ProductsService]
 })
-export class OrdersModule {}
+export class OrdersModule { }

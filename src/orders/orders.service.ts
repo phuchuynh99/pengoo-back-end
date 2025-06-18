@@ -9,10 +9,12 @@ import { ProductsService } from '../products/products.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Delivery } from '../delivery/delivery.entity';
 import { CouponsService } from '../coupons/coupons.service'; // <-- Add this import
+import { PayosService } from 'src/payos/payos.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
+    private readonly payosService: PayosService,
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
     @InjectRepository(OrderDetail)
@@ -23,7 +25,7 @@ export class OrdersService {
     private productsService: ProductsService,
     private notificationsService: NotificationsService,
     private couponsService: CouponsService,
-  ) {}
+  ) { }
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const {
@@ -88,12 +90,32 @@ export class OrdersService {
       productStatus: productStatus as ProductStatus,
       details: orderDetails,
     });
-
     const savedOrder = await this.ordersRepository.save(order);
-    await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id); 
-    return savedOrder; 
+    if (payment_type === "payos") {
+      const checkout_url = this.createOrderPayOS(2000)
+      return checkout_url
+    }
+    // await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id); 
+    return savedOrder;
   }
+  generateSafeOrderCode = (): number => {
+    const min = 1000000000000;
+    const max = 9007199254740991;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  async createOrderPayOS(amount: number) {
 
+    const checkout = {
+      orderCode: +(this.generateSafeOrderCode()),
+      amount: 2000,
+      description: "VQRIO123",
+      cancelUrl: "https://your-cancel-url.com",
+      returnUrl: "https://your-success-url.com"
+    }
+    const result = await this.payosService.createInvoice(checkout);
+    return result.data.checkoutUrl;
+
+  }
   async findAll(): Promise<Order[]> {
     return this.ordersRepository.find({ relations: ['user', 'details', 'details.product', 'delivery'] });
   }
@@ -107,7 +129,7 @@ export class OrdersService {
     if (!order) {
       throw new NotFoundException('Order not found');
     }
-    order.productStatus = updateOrderStatusDto.productStatus as ProductStatus; 
+    order.productStatus = updateOrderStatusDto.productStatus as ProductStatus;
     return this.ordersRepository.save(order);
   }
 
