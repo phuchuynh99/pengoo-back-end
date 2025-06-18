@@ -5,6 +5,7 @@ import { Coupon, CouponStatus } from './coupon.entity';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { Product } from '../products/product.entity';
 import { User } from '../users/user.entity';
+import { UserCoupon } from './user-coupon.entity';
 
 @Injectable()
 export class CouponsService {
@@ -15,6 +16,8 @@ export class CouponsService {
     private productsRepository: Repository<Product>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(UserCoupon)
+    private userCouponRepo: Repository<UserCoupon>,
   ) {}
 
   async create(dto: CreateCouponDto): Promise<Coupon> {
@@ -92,5 +95,18 @@ export class CouponsService {
       order: { id: 'ASC' },
     });
     return coupon ?? undefined;
+  }
+
+  async validateUserCoupon(userId: number, couponCode: string) {
+    const userCoupon = await this.userCouponRepo.findOne({
+      where: {
+        user: { id: userId },
+        coupon: { code: couponCode },
+        redeemed: true,
+      },
+      relations: ['coupon'],
+    });
+    if (!userCoupon) throw new BadRequestException('Coupon not redeemed or not assigned to user');
+    return userCoupon.coupon;
   }
 }

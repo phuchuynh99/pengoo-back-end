@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 import { Product } from '../products/product.entity';
 import { User } from '../users/user.entity';
+import { UserCoupon } from './user-coupon.entity';
 
 export enum CouponStatus {
   Active = 'active',
@@ -49,4 +50,7 @@ export class Coupon {
   @ManyToMany(() => User)
   @JoinTable()
   users: User[];
+
+  @OneToMany(() => UserCoupon, uc => uc.coupon)
+  userCoupons: UserCoupon[];
 }

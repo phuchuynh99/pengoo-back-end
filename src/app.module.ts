@@ -50,7 +50,7 @@ import { Coupon } from './coupons/coupon.entity'; // <-- Add this import
     OrdersModule,
     // CartModule,
     ReviewsModule,
-    // WishlistModule,
+    WishlistModule,
     CategoriesModule,
     TagsModule,
     PublishersModule,

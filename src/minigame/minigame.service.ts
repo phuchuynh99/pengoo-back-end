@@ -3,8 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThanOrEqual, LessThan, Between } from 'typeorm';
 import { User } from '../users/user.entity';
 import { CouponsService } from '../coupons/coupons.service';
-import { CouponStatus } from '../coupons/coupon.entity';
 import { TicketEarningLog, TicketEarningType } from './ticket-earning-log.entity';
+import { NotificationsService } from '../notifications/notifications.service';
+import { randomBytes } from 'crypto';
+import { UserCoupon } from '../coupons/user-coupon.entity';
 
 @Injectable()
 export class MinigameService {
@@ -17,6 +19,9 @@ export class MinigameService {
     @InjectRepository(TicketEarningLog)
     private ticketEarningLogRepository: Repository<TicketEarningLog>,
     private couponsService: CouponsService,
+    @InjectRepository(UserCoupon)
+    private userCouponRepo: Repository<UserCoupon>,
+    private notificationsService: NotificationsService,
   ) {}
 
   async submitScore(userId: number, score: number) {
@@ -31,19 +36,34 @@ export class MinigameService {
     user.points += score;
     await this.usersRepository.save(user);
 
+    // After user qualifies for coupon:
     const activeCoupon = await this.couponsService.findActiveCoupon();
-    if (!activeCoupon) {
-      return { message: 'No active coupons available at this time.', points: user.points, tickets: user.minigame_tickets };
-    }
+    if (!activeCoupon) return { message: 'No active coupons available.' };
 
-    const hasCoupon = user.coupons.some(c => c.id === activeCoupon.id);
+    const hasCoupon = await this.userCouponRepo.findOne({
+      where: { user: { id: userId }, coupon: { id: activeCoupon.id } }
+    });
 
     if (user.points >= this.COUPON_POINT_THRESHOLD && !hasCoupon) {
-      await this.couponsService.assignCouponToUser(activeCoupon.id, user.id);
+      const redeemToken = randomBytes(32).toString('hex');
+      const userCoupon = this.userCouponRepo.create({
+        user,
+        coupon: activeCoupon,
+        redeemed: false,
+        redeemToken,
+      });
+      await this.userCouponRepo.save(userCoupon);
+
+      const redeemUrl = `https://your-frontend-domain.com/redeem-coupon?token=${redeemToken}`;
+      await this.notificationsService.sendEmail(
+        user.email,
+        'Redeem your coupon!',
+        `Congratulations! You earned a coupon. Click here to redeem: ${redeemUrl}`
+      );
+
       return {
-        message: `Congratulations! You earned a coupon: ${activeCoupon.code}`,
+        message: `Congratulations! You earned a coupon. Check your email to redeem it.`,
         points: user.points,
-        coupon: activeCoupon.code,
         tickets: user.minigame_tickets,
       };
     }

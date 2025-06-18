@@ -14,6 +14,7 @@ import { Feature } from 'src/products/entities/feature.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { Coupon } from '../coupons/coupon.entity';
 import { TicketEarningLog } from '../minigame/ticket-earning-log.entity';
+import { UserCoupon } from '../coupons/user-coupon.entity';
 
 config();
 
@@ -26,7 +27,7 @@ const dataSourceOptions: DataSourceOptions = {
     database: process.env.DB_NAME,
     entities: [
         User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, CartItem, Publisher, Tag, Image, Feature,
-        Coupon, TicketEarningLog
+        Coupon, TicketEarningLog, UserCoupon
     ],
     synchronize: true
 };

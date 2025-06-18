@@ -4,6 +4,7 @@ import { Wishlist } from '../wishlist/wishlist.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Coupon } from '../coupons/coupon.entity';
 import { TicketEarningLog } from '../minigame/ticket-earning-log.entity';
+import { UserCoupon } from '../coupons/user-coupon.entity';
 
 @Entity('user')
 export class User {
@@ -66,3 +67,7 @@ export class User {
 
   @OneToMany(() => TicketEarningLog, log => log.user)
   ticketEarningLogs: TicketEarningLog[];
+
+  @OneToMany(() => UserCoupon, uc => uc.user)
+  userCoupons: UserCoupon[];
+}
