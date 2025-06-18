@@ -12,6 +12,11 @@ export class FeatureDto {
   @IsNotEmpty()
   @IsString()
   content: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  ord: number;
 }
 
 export class CreateProductDto {
@@ -29,7 +34,7 @@ export class CreateProductDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => FeatureDto)
-  features: FeatureDto[];
+  featured: FeatureDto[];
 
   @ApiProperty()
   @IsNotEmpty()
@@ -89,8 +94,8 @@ export class CreateProductDto {
   @IsString()
   status: string;
 
-    @ApiProperty({ type: [String], required: false })
-    @IsOptional()
-    @IsArray()
-    tags?: string[];
-  }
+  @ApiProperty({ type: [String], required: false })
+  @IsOptional()
+  @IsArray()
+  tags?: string[] | string;
+}

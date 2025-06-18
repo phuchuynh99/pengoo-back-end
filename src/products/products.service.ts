@@ -74,27 +74,36 @@ export class ProductsService {
       );
       images.push(...detailImageEntities);
     }
-
+    const featuredImageEntities = await Promise.all(
+      features.map(async (f, i) => {
+        const imageFile = featureImages[i];
+        if (!imageFile?.buffer) {
+          throw new BadRequestException(`Missing feature image for feature ${i}`);
+        }
+        const uploaded = await this.cloudinaryService.uploadImage(imageFile);
+        const img = new Image();
+        img.url = uploaded.secure_url;
+        img.name = 'featured';
+        img.ord = f.ord;
+        return img;
+      })
+    );
+    images.push(...featuredImageEntities);
     // 3. Handle tags
-    let tags: Tag[] = [];
-    if (createProductDto.tags && createProductDto.tags.length > 0) {
-      tags = await Promise.all(
-        createProductDto.tags.map(async (tagName: string) => {
-          let tag = await this.tagsService.findOneByName(tagName);
-          if (!tag) {
-            tag = this.tagRepo.create({ name: tagName });
-            await this.tagRepo.save(tag);
-          }
+    let tags: any = [];
+    if (createProductDto.tags && typeof createProductDto.tags === 'string') {
+      const tag_ID = createProductDto.tags
+        .split(' ')
+        .map(tag => tag.trim())
+        .filter(tag => tag !== '');
+
+      if (tag_ID.length > 0) {
+
+        tags = await Promise.all(tag_ID.map(async (id) => {
+          let tag = await this.tagsService.findOne(+(id));
           return tag;
-        })
-      );
-    } else {
-      let tag = await this.tagsService.findOneByName('new');
-      if (!tag) {
-        tag = this.tagRepo.create({ name: 'new' });
-        await this.tagRepo.save(tag);
+        }));
       }
-      tags = [tag];
     }
 
     // 4. Assign product fields
@@ -117,25 +126,14 @@ export class ProductsService {
     const savedProduct = await this.productsRepository.save(newProduct);
 
     // 6. Save features (with optional feature images)
-    if (features && features.length > 0) {
-      const featureEntities = await Promise.all(
-        features.map(async (f, i) => {
-          let imageUrl: string | undefined;
-          if (featureImages && featureImages[i]) {
-            const uploaded = await this.cloudinaryService.uploadImage(featureImages[i]);
-            imageUrl = uploaded.secure_url;
-          }
-          return this.featuresRepository.create({
-            title: f.title,
-            content: f.content,
-            image: imageUrl,
-            product: savedProduct,
-          });
-        })
-      );
-      await this.featuresRepository.save(featureEntities);
-    }
-
+    const featureEntities = features.map((f) =>
+      this.featuresRepository.create({
+        title: f.title,
+        content: f.content,
+        product: savedProduct,
+      })
+    );
+    await this.featuresRepository.save(featureEntities);
     return savedProduct;
   }
 
@@ -145,7 +143,7 @@ export class ProductsService {
       .leftJoinAndSelect('product.publisher_ID', 'publisher')
       .leftJoinAndSelect('product.tags', 'tags')
       .leftJoinAndSelect('product.images', 'images')
-      .leftJoinAndSelect('product.features', 'features');
+      .leftJoinAndSelect('product.featured', 'featured');
 
     if (filter.name) {
       query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
@@ -171,7 +169,7 @@ export class ProductsService {
   }
 
   async findById(id: number): Promise<Product> {
-    const product = await this.productsRepository.findOne({ where: { id: id }, relations: ['category_ID', 'publisher_ID', 'tags', 'images', 'features'] });
+    const product = await this.productsRepository.findOne({ where: { id: id }, relations: ['category_ID', 'publisher_ID', 'tags', 'images', 'featured'] });
     if (!product) {
       throw new NotFoundException('Product not found');
     }

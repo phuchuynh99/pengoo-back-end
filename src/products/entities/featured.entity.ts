@@ -13,9 +13,6 @@ export class Featured {
   @Column()
   content: string;
 
-  @Column({ nullable: true })
-  image?: string;
-
   @ManyToOne(() => Product, (product) => product.featured)
   product: Product;
 }
