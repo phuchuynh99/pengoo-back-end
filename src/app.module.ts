@@ -30,6 +30,8 @@ import { DeliveryModule } from './delivery/delivery.module';
 import { Delivery } from './delivery/delivery.entity'; // <-- Add this import
 import { MinigameModule } from './minigame/minigame.module';
 import { Coupon } from './coupons/coupon.entity'; // <-- Add this import
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './auth/roles.guard';
 
 @Module({
   imports: [
@@ -62,7 +64,13 @@ import { Coupon } from './coupons/coupon.entity'; // <-- Add this import
     DeliveryModule,
     MinigameModule,
   ],
-  providers: [CategoriesService],
+  providers: [
+    CategoriesService,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
   controllers: [CategoriesController],
 })
 export class AppModule { }

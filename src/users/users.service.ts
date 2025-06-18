@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './create-user.dto';
+import { UpdateUserDto } from './update-user.dto';
 import { randomBytes } from 'crypto';
 
 @Injectable()
@@ -73,5 +74,41 @@ export class UsersService {
     user.resetPasswordExpires = null;
     await this.usersRepository.save(user);
     return true;
+  }
+
+  async findAll(): Promise<User[]> {
+    return this.usersRepository.find();
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) throw new Error('User not found');
+    Object.assign(user, updateUserDto);
+    return this.usersRepository.save(user);
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.usersRepository.delete(id);
+  }
+
+  async setStatus(id: number, status: boolean): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) throw new Error('User not found');
+    user.status = status;
+    return this.usersRepository.save(user);
+  }
+
+  async adminResetPassword(id: number, newPassword: string): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) throw new Error('User not found');
+    user.password = await bcrypt.hash(newPassword, 10);
+    return this.usersRepository.save(user);
+  }
+
+  async updateRole(id: number, role: string) {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) throw new Error('User not found');
+    user.role = role;
+    return this.usersRepository.save(user);
   }
 }
