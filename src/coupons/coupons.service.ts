@@ -65,4 +65,32 @@ export class CouponsService {
 
     return { coupon, discount };
   }
+
+  async assignCouponToUser(couponId: number, userId: number): Promise<Coupon> {
+    const coupon = await this.couponsRepository.findOne({
+      where: { id: couponId },
+      relations: ['users'],
+    });
+    if (!coupon) throw new NotFoundException('Coupon not found');
+
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    // Prevent duplicate assignment
+    if (coupon.users.some(u => u.id === userId)) {
+      return coupon;
+    }
+
+    coupon.users.push(user);
+    return this.couponsRepository.save(coupon);
+  }
+
+  public async findActiveCoupon(): Promise<Coupon | undefined> {
+    const coupon = await this.couponsRepository.findOne({
+      where: { status: CouponStatus.Active },
+      relations: ['users'],
+      order: { id: 'ASC' },
+    });
+    return coupon ?? undefined;
+  }
 }

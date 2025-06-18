@@ -28,6 +28,8 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { PostsModule } from './posts/posts.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { Delivery } from './delivery/delivery.entity'; // <-- Add this import
+import { MinigameModule } from './minigame/minigame.module';
+import { Coupon } from './coupons/coupon.entity'; // <-- Add this import
 
 @Module({
   imports: [
@@ -40,7 +42,7 @@ import { Delivery } from './delivery/delivery.entity'; // <-- Add this import
       useFactory: (configService: ConfigService) => (dataSourceOptions),
     }),
     TypeOrmModule.forFeature([
-      User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery // <-- Add Delivery here
+      User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, Coupon // <-- Add Coupon here
     ]),
     UsersModule,
     AuthModule,
@@ -58,6 +60,7 @@ import { Delivery } from './delivery/delivery.entity'; // <-- Add this import
     NotificationsModule,
     PostsModule,
     DeliveryModule,
+    MinigameModule,
   ],
   providers: [CategoriesService],
   controllers: [CategoriesController],

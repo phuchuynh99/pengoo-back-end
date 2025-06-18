@@ -1,7 +1,9 @@
 import { Cart } from 'src/cart/cart.entity';
 import { Review } from 'src/reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { Coupon } from '../coupons/coupon.entity';
+import { TicketEarningLog } from '../minigame/ticket-earning-log.entity';
 
 @Entity('user')
 export class User {
@@ -35,6 +37,14 @@ export class User {
   @Column({ type: 'text', nullable: true })
   address: string;
 
+  // Mini_game-Intergration fields
+  @Column({ type: 'int', default: 0 })
+  points: number;
+
+  @Column({ type: 'int', default: 3 }) // Default starting tickets
+  minigame_tickets: number;
+
+  // Password reset fields
   @Column({ type: 'varchar', length: 255, nullable: true })
   resetPasswordToken: string | null;
 
@@ -49,4 +59,10 @@ export class User {
 
   @OneToMany(() => Cart, cart => cart.user)
   carts: Cart[];
-}
+
+  @ManyToMany(() => Coupon, coupon => coupon.users)
+  @JoinTable()
+  coupons: Coupon[];
+
+  @OneToMany(() => TicketEarningLog, log => log.user)
+  ticketEarningLogs: TicketEarningLog[];
