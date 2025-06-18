@@ -14,9 +14,10 @@ import { CloudinaryModule } from 'src/services/cloudinary/cloudinary.module';
 import { TagsModule } from 'src/tags/tags.module';
 import { Tag } from '../tags/entities/tag.entity'; 
 import { NotificationsModule } from '../notifications/notifications.module';
-import { Feature } from 'src/products/entities/feature.entity'; 
+import { Featured } from 'src/products/entities/featured.entity'; 
 import { Delivery } from '../delivery/delivery.entity';
-import { CouponsModule } from '../coupons/coupons.module'; 
+import { CouponsModule } from '../coupons/coupons.module';
+import { Image } from 'src/products/entities/image.entity';
 
 @Module({
   providers: [OrdersService, UsersService, ProductsService, CategoriesService],
@@ -29,8 +30,9 @@ import { CouponsModule } from '../coupons/coupons.module';
       Product,
       Category,
       Tag,
-      Feature,
+      Featured,
       Delivery, 
+      Image,
     ]), 
     PublishersModule,
     CloudinaryModule,

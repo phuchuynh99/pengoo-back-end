@@ -11,7 +11,7 @@ import { Tag } from 'src/tags/entities/tag.entity';
 import { PublishersService } from 'src/publishers/publishers.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Image } from './entities/image.entity';
-import { Feature } from 'src/products/entities/feature.entity';
+import { Featured } from './entities/featured.entity';
 import slugify from 'slugify';
 
 export class FilterProductDto {
@@ -27,8 +27,8 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
-    @InjectRepository(Feature)
-    private featuresRepository: Repository<Feature>,
+    @InjectRepository(Featured)
+    private featuresRepository: Repository<Featured>,
     private readonly publishersService: PublishersService,
     private readonly categoriesService: CategoriesService,
     private readonly cloudinaryService: CloudinaryService,
@@ -196,10 +196,42 @@ export class ProductsService {
       product.publisher_ID = await this.publishersService.findOne(updateProductDto.publisher_ID);
     }
 
+    // If you want to update the main image, update the images array instead.
     if (file) {
       const uploadResult = await this.cloudinaryService.uploadImage(file);
-      product.image_url = uploadResult.secure_url;
+      // Update images array here if needed
     }
 
     if (updateProductDto.tags && updateProductDto.tags.length > 0) {
-      const tags
+      const tags = await Promise.all(
+        updateProductDto.tags.map(async (tagName) => {
+          let tag = await this.tagsService.findOneByName(tagName);
+          if (!tag) {
+            tag = this.tagRepo.create({ name: tagName });
+            await this.tagRepo.save(tag);
+          }
+          return tag;
+        })
+      );
+      product.tags = tags;
+    }
+    product.product_name = updateProductDto.product_name ?? product.product_name;
+    product.description = updateProductDto.description ?? product.description;
+    product.product_price = updateProductDto.product_price ?? product.product_price;
+    product.slug = updateProductDto.slug ?? product.slug;
+    product.quantity_sold = updateProductDto.quantity_sold ?? product.quantity_sold;
+    product.discount = updateProductDto.discount ?? product.discount;
+    product.meta_description = updateProductDto.meta_description ?? product.meta_description;
+    product.meta_title = updateProductDto.meta_title ?? product.meta_title;
+    product.status = updateProductDto.status ?? product.status;
+    const updatedProduct = await this.productsRepository.save(product);
+    const cleanedTags: any = updatedProduct.tags.map(({ id, name }) => ({ id, name }));
+    updatedProduct.tags = cleanedTags;
+    return updatedProduct;
+  }
+
+  async remove(id: number): Promise<void> {
+    const product = await this.findById(id);
+    await this.productsRepository.remove(product);
+  }
+}

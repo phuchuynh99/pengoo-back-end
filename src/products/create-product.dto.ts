@@ -89,7 +89,8 @@ export class CreateProductDto {
   @IsString()
   status: string;
 
-  @ApiProperty({ type: [String], required: false })
-  @IsOptional()
-  @IsArray()
-  tags?: string[];
+    @ApiProperty({ type: [String], required: false })
+    @IsOptional()
+    @IsArray()
+    tags?: string[];
+  }

@@ -7,7 +7,7 @@ export class Tag {
       id: number;
       @Column()
       name: string;
-      @Column()
+      @Column({ default: 'defaultType' })
       type: string;
 
       @ManyToMany(() => Product, (product) => product.tags)

@@ -10,7 +10,7 @@ import { Wishlist } from 'src/wishlist/wishlist.entity';
 import { Publisher } from 'src/publishers/entities/publisher.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Image } from 'src/products/entities/image.entity';
-import { Feature } from 'src/products/entities/feature.entity';
+import { Featured } from 'src/products/entities/featured.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { Coupon } from '../coupons/coupon.entity';
 import { TicketEarningLog } from '../minigame/ticket-earning-log.entity';
@@ -26,7 +26,7 @@ const dataSourceOptions: DataSourceOptions = {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     entities: [
-        User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, CartItem, Publisher, Tag, Image, Feature,
+        User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, CartItem, Publisher, Tag, Image, Featured,
         Coupon, TicketEarningLog, UserCoupon
     ],
     synchronize: true
@@ -34,4 +34,4 @@ const dataSourceOptions: DataSourceOptions = {
 
 console.log('Data Source Options:', dataSourceOptions);
 
-export default<vscode_annotation details='%5B%7B%22title%22%3A%22clear-text
+export default dataSourceOptions;
