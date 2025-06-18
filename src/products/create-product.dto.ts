@@ -12,7 +12,7 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   @IsString()
-  features: string;
+  featured: string;
 
   @IsNotEmpty()
   @IsNumber()

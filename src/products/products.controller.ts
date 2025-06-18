@@ -35,16 +35,16 @@ export class ProductsController {
       ['featureImages[]']?: Express.Multer.File[]
     }
   ) {
-    const { features, ...productData } = createProductDto;
-    const parsedFeatures = JSON.parse(features); // [{title, content}, ...]
+    const { featured, ...productData } = createProductDto;
+    const parsedFeatured = JSON.parse(featured); // [{title, content}, ...]
     console.log('amin:', files.file,);
-    console.log('features:', features);
+    console.log('features:', featured);
     console.log('featureImages:', files?.['featureImages[]']);
     return this.productsService.create(
       productData,
       files?.file?.[0],
       files?.images || [],
-      parsedFeatures,
+      parsedFeatured,
       files?.['featureImages[]'] || []
     );
   }

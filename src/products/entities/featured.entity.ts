@@ -2,8 +2,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Product } from '../product.entity';
 
-@Entity('feature')
-export class Feature {
+@Entity('featured')
+export class Featured {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -13,6 +13,6 @@ export class Feature {
     @Column('text')
     content: string;
 
-    @ManyToOne(() => Product, (product) => product.features, { onDelete: 'CASCADE' })
+    @ManyToOne(() => Product, (product) => product.featured, { onDelete: 'CASCADE' })
     product: Product;
 }

@@ -13,7 +13,7 @@ import { Tag } from 'src/tags/entities/tag.entity';
 import { PublishersService } from 'src/publishers/publishers.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Image } from './entities/image.entity';
-import { Feature } from './entities/feature.entity';
+import { Featured } from './entities/featured.entity';
 import slugify from 'slugify';
 export class FilterProductDto {
   name?: string;
@@ -27,8 +27,8 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
-    @InjectRepository(Feature)
-    private featuresRepository: Repository<Feature>,
+    @InjectRepository(Featured)
+    private featuresRepository: Repository<Featured>,
     private readonly publishersService: PublishersService,
     private readonly categoriesService: CategoriesService,
     private readonly cloudinaryService: CloudinaryService,
@@ -129,7 +129,7 @@ export class ProductsService {
       })
     );
     await this.featuresRepository.save(featureEntities);
-
+    console.log(savedProduct)
     return savedProduct;
   }
 
@@ -139,7 +139,7 @@ export class ProductsService {
       .leftJoinAndSelect('product.publisher_ID', 'publisher')
       .leftJoinAndSelect('product.tags', 'tags')
       .leftJoinAndSelect('product.images', 'images')
-      .leftJoinAndSelect('product.features', 'feature')
+      .leftJoinAndSelect('product.featured', 'featured')
 
     if (filter.name) {
       query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });

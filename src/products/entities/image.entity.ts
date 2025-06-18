@@ -13,7 +13,7 @@ export class Image {
     name: string;
 
     @Column({ nullable: true })
-    ord: string;
+    ord: number;
 
     @ManyToOne(() => Product, (product) => product.images, { onDelete: 'CASCADE' })
     product: Product;

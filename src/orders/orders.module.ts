@@ -15,13 +15,13 @@ import { TagsModule } from 'src/tags/tags.module';
 import { Tag } from '../tags/entities/tag.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { ProductsModule } from 'src/products/products.module';
-import { Feature } from 'src/products/entities/feature.entity';
+import { Featured } from 'src/products/entities/featured.entity';
 
 @Module({
   providers: [OrdersService, UsersService, ProductsService, CategoriesService],
   controllers: [OrdersController],
   imports: [
-    TypeOrmModule.forFeature([Order, OrderItem, User, Product, Category, Tag, Feature]),
+    TypeOrmModule.forFeature([Order, OrderItem, User, Product, Category, Tag, Featured]),
     PublishersModule,
     CloudinaryModule,
     TagsModule,

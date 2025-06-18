@@ -28,7 +28,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { Tag } from './tags/entities/tag.entity';
 import { Publisher } from './publishers/entities/publisher.entity';
 import { Image } from './products/entities/image.entity';
-import { Feature } from './products/entities/feature.entity';
+import { Featured } from './products/entities/featured.entity';
 
 @Module({
   imports: [
@@ -40,7 +40,7 @@ import { Feature } from './products/entities/feature.entity';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => (dataSourceOptions),
     }),
-    TypeOrmModule.forFeature([User, Product, Category, Order, OrderItem, Review, Cart, Wishlist, Tag, Publisher, Image, Feature]),
+    TypeOrmModule.forFeature([User, Product, Category, Order, OrderItem, Review, Cart, Wishlist, Tag, Publisher, Image, Featured]),
     UsersModule,
     AuthModule,
     ProductsModule,
