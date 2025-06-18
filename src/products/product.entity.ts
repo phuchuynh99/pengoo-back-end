@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Category } from '../categories/category.entity';
 import { Review } from 'src/reviews/review.entity';
-import { Wishlist } from 'src/wishlist/wishlist.entity';
+import { Wishlist } from '../wishlist/wishlist.entity';
 import { Publisher } from 'src/publishers/entities/publisher.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Image } from './entities/image.entity';
@@ -54,11 +54,11 @@ export class Product {
   @JoinTable()
   tags: Tag[];
 
-  @OneToMany(() => Review, (review) => review.product)
+  @OneToMany(() => Review, review => review.product)
   reviews: Review[];
 
-  // @OneToMany(() => Wishlist, (wishlist) => wishlist.product)
-  // wishlists: Wishlist[];
+  @OneToMany(() => Wishlist, wishlist => wishlist.product)
+  wishlists: Wishlist[];
   @OneToMany(() => Image, (image) => image.product, { cascade: true })
   images: Image[];
 

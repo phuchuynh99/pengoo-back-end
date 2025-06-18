@@ -1,59 +1,125 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Order } from '../../orders/order.entity';
-import { UsersService } from '../../users/users.service';
-import Stripe from 'stripe';
+import { Repository, DataSource } from 'typeorm';
+import { Order, PaymentStatus } from '../../orders/order.entity';
+import { PaymentMethod } from './payment.types';
+import { PaypalService } from '../paypal/paypal.service';
 
 @Injectable()
 export class PaymentsService {
-  private stripe: Stripe;
-
   constructor(
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
-    private usersService: UsersService,
-  ) {
-    this.stripe = new Stripe('YOUR_STRIPE_SECRET_KEY', {
-      apiVersion: '2025-05-28.basil',
-    });
+    private paypalService: PaypalService,
+    private dataSource: DataSource,
+  ) {}
+
+  // Only allow order owner or admin
+  private async assertCanAct(userId: number, order: Order, userRole: string) {
+    if (order.user.id !== userId && userRole !== 'ADMIN') {
+      throw new ForbiddenException('You are not allowed to perform this action on this order.');
+    }
   }
 
-  async createPaymentIntent(orderId: number): Promise<Stripe.PaymentIntent> {
+  async pay(orderId: number, method: PaymentMethod, userId: number, userRole: string) {
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
-      relations: ['user', 'items', 'items.product'],
+      relations: ['user'],
     });
-    if (!order) {
-      throw new BadRequestException('Order not found');
+    if (!order) throw new BadRequestException('Order not found');
+    await this.assertCanAct(userId, order, userRole);
+
+    if (order.payment_status === PaymentStatus.Paid) {
+      throw new BadRequestException('Order is already paid.');
     }
-    if (typeof order.total_price !== 'number') {
-      throw new Error('Order total_price is not a number');
+    if (order.payment_status === PaymentStatus.PendingOnDelivery && method === PaymentMethod.ON_DELIVERY) {
+      throw new BadRequestException('Order is already set for on-delivery payment.');
+    }
+    if (order.productStatus === 'cancelled') {
+      throw new BadRequestException('Cannot pay for a cancelled order.');
     }
 
-    const paymentIntent = await this.stripe.paymentIntents.create({
-      amount: Math.round(order.total_price),
-      currency: 'vnd',
-      metadata: { orderId: order.id.toString() },
-    });
-
-    return paymentIntent;
-  }
-
-  async handleWebhook(event: Stripe.Event): Promise<void> {
-    if (event.type === 'payment_intent.succeeded') {
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      const orderId = paymentIntent.metadata.orderId;
-
-      const order = await this.ordersRepository.findOne({ where: { id: Number(orderId) } });
-      if (order) {
-        order.payment_status = 'paid';
+    switch (method) {
+      case PaymentMethod.PAYPAL:
+        // Set status to pending, create PayPal order, update to paid after capture
+        order.payment_status = PaymentStatus.Pending;
         await this.ordersRepository.save(order);
-      }
+        return this.paypalService.createOrder(orderId);
+      case PaymentMethod.ON_DELIVERY:
+        order.payment_status = PaymentStatus.PendingOnDelivery;
+        await this.ordersRepository.save(order);
+        return { message: 'Order placed. Pay on delivery.' };
+      default:
+        throw new BadRequestException('Unsupported payment method');
     }
   }
+  async handlePaypalCapture(orderId: number, userId: number, userRole: string) {
+    const order = await this.ordersRepository.findOne({
+      where: { id: orderId },
+      relations: ['user'],
+    });
+    if (!order) throw new BadRequestException('Order not found');
+    await this.assertCanAct(userId, order, userRole);
 
-  public getStripe(): Stripe {
-    return this.stripe;
+    if (order.payment_status === PaymentStatus.Paid) {
+      throw new BadRequestException('Order is already paid.');
+    }
+    if (order.productStatus === 'cancelled') {
+      throw new BadRequestException('Cannot capture payment for a cancelled order.');
+    }
+
+    order.payment_status = PaymentStatus.Paid;
+    await this.ordersRepository.save(order);
+    return { message: 'Payment captured and order marked as paid.' };
+  }
+
+  async refundOrder(orderId: number, userId: number, userRole: string) {
+    const order = await this.ordersRepository.findOne({
+      where: { id: orderId },
+      relations: ['user'],
+    });
+    if (!order) throw new BadRequestException('Order not found');
+    await this.assertCanAct(userId, order, userRole);
+
+    if (order.payment_status !== PaymentStatus.Paid) {
+      throw new BadRequestException('Order is not paid or already refunded.');
+    }
+    if (order.productStatus === 'cancelled') {
+      throw new BadRequestException('Order is already cancelled.');
+    }
+
+    // Transaction for refund and status update
+    await this.dataSource.transaction(async manager => {
+      // Refund via PayPal if needed (implement in PaypalService)
+      if (order.payment_type === PaymentMethod.PAYPAL) {
+        await this.paypalService.refundOrder(order.id);
+      }
+      order.payment_status = PaymentStatus.Refunded;
+      order.productStatus = 'cancelled';
+      await manager.save(order);
+    });
+
+    return { message: 'Order refunded and cancelled.' };
+  }
+
+  async cancelOrder(orderId: number, userId: number, userRole: string) {
+    const order = await this.ordersRepository.findOne({
+      where: { id: orderId },
+      relations: ['user'],
+    });
+    if (!order) throw new BadRequestException('Order not found');
+    await this.assertCanAct(userId, order, userRole);
+
+    if (order.productStatus === 'cancelled') {
+      throw new BadRequestException('Order is already cancelled.');
+    }
+    if (order.payment_status === PaymentStatus.Paid) {
+      // Optionally, auto-refund if paid
+      return this.refundOrder(orderId, userId, userRole);
+    }
+
+    order.productStatus = 'cancelled';
+    await this.ordersRepository.save(order);
+    return { message: 'Order cancelled.' };
   }
 }

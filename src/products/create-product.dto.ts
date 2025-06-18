@@ -1,65 +1,95 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { IsNotEmpty, IsString, IsNumber, IsArray, IsOptional, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+
+export class FeatureDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  title: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  content: string;
+}
 
 export class CreateProductDto {
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   product_name: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   description: string;
 
-  @IsNotEmpty()
-  @IsString()
-  featured: string;
+  @ApiProperty({ type: [FeatureDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FeatureDto)
+  features: FeatureDto[];
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
   product_price: number;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
   discount: number;
 
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  slug: string;
+
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   meta_title: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   meta_description: string;
 
-  @IsNotEmpty()
-  @IsString()
-  mainImage: string;
+  @ApiProperty({ required: false, type: 'string', format: 'binary' })
+  @IsOptional()
+  mainImage?: any;
 
-  @IsNotEmpty()
-  @IsString()
-  detailImages: string;
+  @ApiProperty({ required: false, type: 'array', items: { type: 'string', format: 'binary' } })
+  @IsOptional()
+  detailImages?: any[];
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
   quantity_sold: number;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
   quantity_stock: number;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
   categoryId: number;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
   publisherID: number;
 
+  @ApiProperty()
   @IsNotEmpty()
-  @IsNumber()
+  @IsString()
   status: string;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
-
-  tags?: string[] | string;
-}
+  @ApiProperty({ type: [String], required: false })
+  @IsOptional()
+  @IsArray()
+  tags?: string[];

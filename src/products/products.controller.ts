@@ -15,37 +15,46 @@ import {
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './create-product.dto';
 import { UpdateProductDto } from '../products/update-product.dto';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { diskStorage } from 'multer';
+import { editFileName, imageFileFilter } from 'src/utils/file-upload.utils';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: CreateProductDto })
   @Post()
-  @UseInterceptors(FileFieldsInterceptor([
-    { name: 'file', maxCount: 1 },
-    { name: 'images', maxCount: 10 },
-    { name: 'featureImages[]', maxCount: 10 },
-  ]))
-  create(
-    @Body() createProductDto: any,
-    @UploadedFiles() files: {
-      file?: Express.Multer.File[],
-      images?: Express.Multer.File[],
-      ['featureImages[]']?: Express.Multer.File[]
-    }
+  @UseInterceptors(
+    FilesInterceptor('featureImages', 10, {
+      storage: diskStorage({
+        destination: './uploads/features',
+        filename: editFileName,
+      }),
+      fileFilter: imageFileFilter,
+    }),
+  )
+  async create(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFile() mainImage: Express.Multer.File,
+    @UploadedFiles() detailImages: Express.Multer.File[],
+    @UploadedFiles() featureImages: Express.Multer.File[],
   ) {
-    const { featured, ...productData } = createProductDto;
-    const parsedFeatured = JSON.parse(featured); // [{title, content}, ...]
-    console.log('amin:', files.file,);
-    console.log('features:', featured);
-    console.log('featureImages:', files?.['featureImages[]']);
+    const { features } = createProductDto;
+    const parsedFeatures = typeof features === 'string'
+      ? JSON.parse(features)
+      : features;
+    console.log('features:', parsedFeatures);
+    console.log('featureImages:', featureImages);
+
     return this.productsService.create(
-      productData,
-      files?.file?.[0],
-      files?.images || [],
-      parsedFeatured,
-      files?.['featureImages[]'] || []
+      createProductDto,
+      mainImage,
+      detailImages,
+      parsedFeatures,
+      featureImages,
     );
   }
 
@@ -65,6 +74,7 @@ export class ProductsController {
       maxPrice: maxPrice ? Number(maxPrice) : undefined,
     });
   }
+
   @Get(':id')
   findById(@Param('id') id: number) {
     return this.productsService.findById(id);
@@ -81,5 +91,3 @@ export class ProductsController {
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.productsService.remove(id);
-  }
-}

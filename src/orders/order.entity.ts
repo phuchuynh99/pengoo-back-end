@@ -1,6 +1,23 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, JoinColumn } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Product } from '../products/product.entity';
+import { Delivery } from '../delivery/delivery.entity';
+import { Review } from '../reviews/review.entity';
+import { Wishlist } from '../wishlist/wishlist.entity';
+
+export enum PaymentStatus {
+  Paid = 'paid',
+  Pending = 'pending', // <-- Add this line
+  PendingOnDelivery = 'pending_on_delivery',
+  Refunded = 'refunded',
+}
+
+export enum ProductStatus {
+  Pending = 'pending',
+  Cancelled = 'cancelled',
+  Shipped = 'shipped',
+  Delivered = 'delivered',
+}
 
 @Entity()
 export class Order {
@@ -10,11 +27,16 @@ export class Order {
   @ManyToOne(() => User, user => user.id, { nullable: false })
   user: User; // User
 
-  @Column({ type: 'int', nullable: false })
-  delivery_id: number; // Delivery ID
+  @ManyToOne(() => Delivery, { nullable: false })
+  @JoinColumn({ name: 'delivery_id' }) // This will use delivery_id as the foreign key
+  delivery: Delivery; // Delivery method
 
-  @Column({ type: 'int', nullable: false })
-  coupon_id: number; // Coupon ID
+  @Column({ type: 'int', nullable: true })
+  coupon_id: number | null; // Coupon ID
+
+  // Optionally, keep the code for history:
+  @Column({ type: 'varchar', nullable: true })
+  coupon_code: string | null;
 
   @Column({ type: 'varchar', nullable: false })
   payment_type: string; // Payment method
@@ -29,24 +51,27 @@ export class Order {
   shipping_address: string; // Shipping address
 
   @Column({ type: 'varchar', nullable: true })
-  payment_status: string; // Payment status
-
-  @Column({ type: 'varchar', nullable: true })
-  discount: string; // Discount code
+  payment_status: PaymentStatus; // Payment status
 
   @Column({ type: 'varchar', nullable: true })
   productStatus: string; // Product availability status
 
-  @OneToMany(() => OrderItem, orderItem => orderItem.order, { cascade: true })
-  items: OrderItem[];
+  @OneToMany(() => OrderDetail, orderDetail => orderDetail.order, { cascade: true })
+  details: OrderDetail[];
+
+  @OneToMany(() => Review, review => review.order)
+  reviews: Review[];
+
+  @OneToMany(() => Wishlist, wishlist => wishlist.movedToOrder)
+  wishlistItems: Wishlist[];
 }
 
 @Entity()
-export class OrderItem {
+export class OrderDetail {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Order, order => order.items)
+  @ManyToOne(() => Order, order => order.details)
   order: Order;
 
   @ManyToOne(() => Product, product => product.id)
@@ -56,5 +81,9 @@ export class OrderItem {
   quantity: number;
 
   @Column('decimal')
-  price: number;
+  price: number; // price per unit at the time of order
+
+  get total(): number {
+    return Number(this.price) * this.quantity;
+  }
 }

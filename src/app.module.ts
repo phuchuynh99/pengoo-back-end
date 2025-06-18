@@ -7,7 +7,7 @@ import { User } from './users/user.entity';
 import { Product } from './products/product.entity';
 import { Category } from './categories/category.entity';
 import { OrdersModule } from './orders/orders.module';
-import { Order, OrderItem } from './orders/order.entity';
+import { Order, OrderDetail } from './orders/order.entity';
 import { CartModule } from './cart/cart.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { Review } from './reviews/review.entity';
@@ -25,10 +25,13 @@ import { PublishersModule } from './publishers/publishers.module';
 import { PaymentModule } from './services/payment/payment.module';
 import { InvoicesModule } from './services/invoices/invoices.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { Tag } from './tags/entities/tag.entity';
-import { Publisher } from './publishers/entities/publisher.entity';
-import { Image } from './products/entities/image.entity';
-import { Featured } from './products/entities/featured.entity';
+import { PostsModule } from './posts/posts.module';
+import { DeliveryModule } from './delivery/delivery.module';
+import { Delivery } from './delivery/delivery.entity';
+import { MinigameModule } from './minigame/minigame.module';
+import { Coupon } from './coupons/coupon.entity';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './auth/roles.guard';
 
 @Module({
   imports: [
@@ -40,14 +43,15 @@ import { Featured } from './products/entities/featured.entity';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => (dataSourceOptions),
     }),
-    TypeOrmModule.forFeature([User, Product, Category, Order, OrderItem, Review, Cart, Wishlist, Tag, Publisher, Image, Featured]),
+    TypeOrmModule.forFeature([
+      User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, Coupon
+    ]),
     UsersModule,
     AuthModule,
     ProductsModule,
     OrdersModule,
-    // CartModule,
-    // ReviewsModule,
-    // WishlistModule,
+    ReviewsModule,
+    WishlistModule,
     CategoriesModule,
     TagsModule,
     PublishersModule,
@@ -55,8 +59,17 @@ import { Featured } from './products/entities/featured.entity';
     InvoicesModule,
     CloudinaryModule,
     NotificationsModule,
+    PostsModule,
+    DeliveryModule,
+    MinigameModule,
   ],
-  providers: [CategoriesService],
+  providers: [
+    CategoriesService,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
   controllers: [CategoriesController],
 })
 export class AppModule { }

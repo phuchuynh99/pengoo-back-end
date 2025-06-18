@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Review } from './review.entity';
@@ -6,6 +6,7 @@ import { CreateReviewDto } from './create-review.dto';
 import { UpdateReviewDto } from './update-review.dto';  
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
+import { Order, ProductStatus } from '../orders/order.entity';
 
 @Injectable()
 export class ReviewsService {
@@ -14,6 +15,8 @@ export class ReviewsService {
     private reviewsRepository: Repository<Review>,
     private usersService: UsersService,
     private productsService: ProductsService,
+    @InjectRepository(Order)
+    private ordersRepository: Repository<Order>,
   ) {}
 
   async addReview(userId: number, productId: number, createReviewDto: CreateReviewDto): Promise<Review> {
@@ -27,7 +30,22 @@ export class ReviewsService {
       throw new NotFoundException('Product not found');
     }
 
-    const review = this.reviewsRepository.create({ ...createReviewDto, user, product });
+    let order: Order | undefined;
+    if (createReviewDto.orderId) {
+      const foundOrder = await this.ordersRepository.findOne({ where: { id: createReviewDto.orderId } });
+      if (!foundOrder || foundOrder.productStatus !== ProductStatus.Delivered) {
+        throw new BadRequestException('You can leave a review after the order is delivered.');
+      }
+      order = foundOrder;
+    }
+
+    const review = this.reviewsRepository.create({
+      rating: createReviewDto.rating,
+      content: createReviewDto.content,
+      user,
+      product,
+      order,
+    });
     return this.reviewsRepository.save(review);
   }
 
@@ -38,7 +56,7 @@ export class ReviewsService {
     }
 
     review.rating = updateReviewDto.rating;
-    review.comment = updateReviewDto.comment;
+    review.content = updateReviewDto.comment; 
     return this.reviewsRepository.save(review);
   }
 
