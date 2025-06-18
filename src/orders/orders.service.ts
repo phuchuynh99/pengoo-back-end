@@ -108,7 +108,7 @@ export class OrdersService {
     const checkout = {
       orderCode: +(this.generateSafeOrderCode()),
       amount: 2000,
-      description: "VQRIO123",
+      description: "Thanh toán đơn hàng",
       cancelUrl: "https://your-cancel-url.com",
       returnUrl: "https://your-success-url.com"
     }
