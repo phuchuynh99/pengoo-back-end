@@ -41,4 +41,3 @@ import { CouponsModule } from '../coupons/coupons.module';
   exports: [OrdersService, ProductsService] 
 })
 export class OrdersModule {}
-

@@ -5,7 +5,7 @@ import { Wishlist } from '../wishlist/wishlist.entity';
 import { Publisher } from 'src/publishers/entities/publisher.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Image } from './entities/image.entity';
-import { Feature } from './entities/feature.entity';
+import { Featured } from './entities/featured.entity';
 
 @Entity('product')
 export class Product {
@@ -28,8 +28,6 @@ export class Product {
   @Column({ nullable: false })
   status: string;
 
-  @Column({ nullable: false })
-  image_url: string;
 
   @Column({ nullable: false })
   discount: number;
@@ -42,6 +40,9 @@ export class Product {
 
   @Column({ nullable: false })
   quantity_sold: number;
+
+  @Column({ nullable: false })
+  quantity_stock: number;
 
   @ManyToOne(() => Category, (category) => category.products)
   category_ID: Category;
@@ -61,8 +62,8 @@ export class Product {
   @OneToMany(() => Image, (image) => image.product, { cascade: true })
   images: Image[];
 
-  @OneToMany(() => Feature, (feature) => feature.product, { cascade: true })
-  features: Feature[];
+  @OneToMany(() => Featured, (feature) => feature.product, { cascade: true })
+  featured: Featured[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

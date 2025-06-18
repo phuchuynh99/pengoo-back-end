@@ -1,12 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './product.entity';
 import { Category } from '../categories/category.entity';
 import { CreateProductDto, FeatureDto } from './create-product.dto';
 import { UpdateProductDto } from '../products/update-product.dto';
-import { CreateCategoryDto } from '../categories/create-category.dto';
-import { UpdateCategoryDto } from '../categories/update-category.dto';
 import { CategoriesService } from 'src/categories/categories.service';
 import { CloudinaryService } from 'src/services/cloudinary/cloudinary.service';
 import { Tag } from 'src/tags/entities/tag.entity';
@@ -14,6 +12,8 @@ import { PublishersService } from 'src/publishers/publishers.service';
 import { TagsService } from 'src/tags/tags.service';
 import { Image } from './entities/image.entity';
 import { Feature } from 'src/products/entities/feature.entity';
+import slugify from 'slugify';
+
 export class FilterProductDto {
   name?: string;
   categoryId?: number;
@@ -21,6 +21,7 @@ export class FilterProductDto {
   minPrice?: number;
   maxPrice?: number;
 }
+
 @Injectable()
 export class ProductsService {
   constructor(
@@ -34,6 +35,8 @@ export class ProductsService {
     private tagsService: TagsService,
     @InjectRepository(Tag)
     private tagRepo: Repository<Tag>,
+    @InjectRepository(Image)
+    private imageRepo: Repository<Image>,
   ) { }
 
   async create(
@@ -45,17 +48,34 @@ export class ProductsService {
   ): Promise<Product> {
     const category_ID = await this.categoriesService.findById(createProductDto.categoryId);
     const publisher_ID = await this.publishersService.findOne(createProductDto.publisherID);
-    const newProduct = new Product();
 
-    const uploadResult = await this.cloudinaryService.uploadImage(mainImage);
-    const imageEntities = await Promise.all(
-      detailImages.map(async (file) => {
-        const result = await this.cloudinaryService.uploadImage(file);
-        const image = new Image();
-        image.url = result.secure_url;
-        return image;
-      })
-    );
+    const newProduct = new Product();
+    const images: Image[] = [];
+
+    // 1. Upload main image
+    if (mainImage) {
+      const uploadMain = await this.cloudinaryService.uploadImage(mainImage);
+      const mainImg = new Image();
+      mainImg.url = uploadMain.secure_url;
+      mainImg.name = 'main';
+      images.push(mainImg);
+    }
+
+    // 2. Upload detail images
+    if (detailImages && detailImages.length > 0) {
+      const detailImageEntities = await Promise.all(
+        detailImages.map(async (file) => {
+          const result = await this.cloudinaryService.uploadImage(file);
+          const img = new Image();
+          img.url = result.secure_url;
+          img.name = 'detail';
+          return img;
+        })
+      );
+      images.push(...detailImageEntities);
+    }
+
+    // 3. Handle tags
     let tags: Tag[] = [];
     if (createProductDto.tags && createProductDto.tags.length > 0) {
       tags = await Promise.all(
@@ -76,34 +96,45 @@ export class ProductsService {
       }
       tags = [tag];
     }
+
+    // 4. Assign product fields
     newProduct.product_name = createProductDto.product_name;
     newProduct.description = createProductDto.description;
     newProduct.product_price = createProductDto.product_price;
-    newProduct.slug = createProductDto.slug;
+    newProduct.slug = createProductDto.slug || slugify(createProductDto.product_name, { lower: true });
     newProduct.quantity_sold = createProductDto.quantity_sold;
+    newProduct.quantity_stock = createProductDto.quantity_stock;
     newProduct.category_ID = category_ID;
     newProduct.publisher_ID = publisher_ID;
-    newProduct.image_url = uploadResult.secure_url;
     newProduct.discount = createProductDto.discount;
     newProduct.meta_description = createProductDto.meta_description;
     newProduct.meta_title = createProductDto.meta_title;
     newProduct.status = createProductDto.status;
     newProduct.tags = tags;
-    newProduct.images = imageEntities;
-    const savedProduct = this.productsRepository.save(newProduct);
-    const featureEntities = await Promise.all(
-      features.map(async (f, i) => {
-        const uploaded = await this.cloudinaryService.uploadImage(featureImages[i]);
-        return this.featuresRepository.create({
-          title: f.title,
-          content: f.content,
-          image: uploaded.secure_url,
-          product: newProduct,
-        });
-      })
-    );
+    newProduct.images = images;
 
-    await this.featuresRepository.save(featureEntities);
+    // 5. Save product first
+    const savedProduct = await this.productsRepository.save(newProduct);
+
+    // 6. Save features (with optional feature images)
+    if (features && features.length > 0) {
+      const featureEntities = await Promise.all(
+        features.map(async (f, i) => {
+          let imageUrl: string | undefined;
+          if (featureImages && featureImages[i]) {
+            const uploaded = await this.cloudinaryService.uploadImage(featureImages[i]);
+            imageUrl = uploaded.secure_url;
+          }
+          return this.featuresRepository.create({
+            title: f.title,
+            content: f.content,
+            image: imageUrl,
+            product: savedProduct,
+          });
+        })
+      );
+      await this.featuresRepository.save(featureEntities);
+    }
 
     return savedProduct;
   }
@@ -114,7 +145,7 @@ export class ProductsService {
       .leftJoinAndSelect('product.publisher_ID', 'publisher')
       .leftJoinAndSelect('product.tags', 'tags')
       .leftJoinAndSelect('product.images', 'images')
-      .leftJoinAndSelect('product.features', 'feature');
+      .leftJoinAndSelect('product.features', 'features');
 
     if (filter.name) {
       query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
@@ -139,9 +170,8 @@ export class ProductsService {
     return query.getMany();
   }
 
-
   async findById(id: number): Promise<Product> {
-    const product = await this.productsRepository.findOne({ where: { id: id }, relations: ['category'] });
+    const product = await this.productsRepository.findOne({ where: { id: id }, relations: ['category_ID', 'publisher_ID', 'tags', 'images', 'features'] });
     if (!product) {
       throw new NotFoundException('Product not found');
     }
@@ -172,36 +202,4 @@ export class ProductsService {
     }
 
     if (updateProductDto.tags && updateProductDto.tags.length > 0) {
-      const tags = await Promise.all(
-        updateProductDto.tags.map(async (tagName) => {
-          let tag = await this.tagsService.findOneByName(tagName);
-          if (!tag) {
-            tag = this.tagRepo.create({ name: tagName });
-            await this.tagRepo.save(tag);
-          }
-          return tag;
-        })
-      );
-      product.tags = tags;
-    }
-    product.product_name = updateProductDto.product_name ?? product.product_name;
-    product.description = updateProductDto.description ?? product.description;
-    product.product_price = updateProductDto.product_price ?? product.product_price;
-    product.slug = updateProductDto.slug ?? product.slug;
-    product.quantity_sold = updateProductDto.quantity_sold ?? product.quantity_sold;
-    product.discount = updateProductDto.discount ?? product.discount;
-    product.meta_description = updateProductDto.meta_description ?? product.meta_description;
-    product.meta_title = updateProductDto.meta_title ?? product.meta_title;
-    product.status = updateProductDto.status ?? product.status;
-    const updatedProduct = await this.productsRepository.save(product);
-    const cleanedTags: any = updatedProduct.tags.map(({ id, name }) => ({ id, name }));
-    updatedProduct.tags = cleanedTags;
-    return updatedProduct;
-  }
-
-
-  async remove(id: number): Promise<void> {
-    const product = await this.findById(id);
-    await this.productsRepository.remove(product);
-  }
-}
+      const tags

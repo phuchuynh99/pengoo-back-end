@@ -72,6 +72,11 @@ export class CreateProductDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
+  quantity_stock: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
   categoryId: number;
 
   @ApiProperty()
@@ -88,4 +93,3 @@ export class CreateProductDto {
   @IsOptional()
   @IsArray()
   tags?: string[];
-}

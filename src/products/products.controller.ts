@@ -40,21 +40,21 @@ export class ProductsController {
     @Body() createProductDto: CreateProductDto,
     @UploadedFile() mainImage: Express.Multer.File,
     @UploadedFiles() detailImages: Express.Multer.File[],
-    @UploadedFiles() featureImages: Express.Multer.File[], // <-- Add this
+    @UploadedFiles() featureImages: Express.Multer.File[],
   ) {
     const { features } = createProductDto;
-    const parsedFeatures = typeof createProductDto.features === 'string'
-      ? JSON.parse(createProductDto.features)
-      : createProductDto.features; 
-    console.log('features:', features);
-    console.log('featureImages:', detailImages);
+    const parsedFeatures = typeof features === 'string'
+      ? JSON.parse(features)
+      : features;
+    console.log('features:', parsedFeatures);
+    console.log('featureImages:', featureImages);
 
     return this.productsService.create(
       createProductDto,
       mainImage,
       detailImages,
-      features,
-      featureImages, // <-- Pass here
+      parsedFeatures,
+      featureImages,
     );
   }
 
@@ -74,6 +74,7 @@ export class ProductsController {
       maxPrice: maxPrice ? Number(maxPrice) : undefined,
     });
   }
+
   @Get(':id')
   findById(@Param('id') id: number) {
     return this.productsService.findById(id);
@@ -90,5 +91,3 @@ export class ProductsController {
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.productsService.remove(id);
-  }
-}

@@ -27,9 +27,9 @@ import { InvoicesModule } from './services/invoices/invoices.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PostsModule } from './posts/posts.module';
 import { DeliveryModule } from './delivery/delivery.module';
-import { Delivery } from './delivery/delivery.entity'; // <-- Add this import
+import { Delivery } from './delivery/delivery.entity';
 import { MinigameModule } from './minigame/minigame.module';
-import { Coupon } from './coupons/coupon.entity'; // <-- Add this import
+import { Coupon } from './coupons/coupon.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/roles.guard';
 
@@ -44,13 +44,12 @@ import { RolesGuard } from './auth/roles.guard';
       useFactory: (configService: ConfigService) => (dataSourceOptions),
     }),
     TypeOrmModule.forFeature([
-      User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, Coupon // <-- Add Coupon here
+      User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, Coupon
     ]),
     UsersModule,
     AuthModule,
     ProductsModule,
     OrdersModule,
-    // CartModule,
     ReviewsModule,
     WishlistModule,
     CategoriesModule,

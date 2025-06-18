@@ -34,4 +34,4 @@ const dataSourceOptions: DataSourceOptions = {
 
 console.log('Data Source Options:', dataSourceOptions);
 
-export default dataSourceOptions;
+export default<vscode_annotation details='%5B%7B%22title%22%3A%22clear-text
