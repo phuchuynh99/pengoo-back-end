@@ -117,7 +117,7 @@ export class OrdersService {
 
   }
   async findAll(): Promise<Order[]> {
-    return this.ordersRepository.find({ relations: ['user', 'details', 'details.product', 'delivery'] });
+    return this.ordersRepository.find({ relations: ['user', 'details', 'details.product', 'delivery', 'details.product.images'] });
   }
 
   async findById(orderId: number): Promise<Order | null> {
