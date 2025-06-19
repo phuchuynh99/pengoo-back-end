@@ -200,6 +200,24 @@ export class MinigameService {
     };
   }
 
+  async claimDailyFreeTicket(userId: number) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // If never claimed or last claim was before today, allow claim
+    if (!user.lastFreeTicketClaim || user.lastFreeTicketClaim.getTime() < today.getTime()) {
+      user.minigame_tickets += 1;
+      user.lastFreeTicketClaim = today;
+      await this.usersRepository.save(user);
+      return { message: 'Bạn đã nhận vé miễn phí hôm nay!', tickets: user.minigame_tickets };
+    } else {
+      return { message: 'Bạn đã nhận vé miễn phí hôm nay rồi. Hãy quay lại vào ngày mai!', tickets: user.minigame_tickets };
+    }
+  }
+
   // Helper to check for winning lines (returns array of winning line types)
   private getWinningLines(grid: string[][]): string[] {
     const size = grid.length;

@@ -29,4 +29,10 @@ export class MinigameController {
     const userId = req.user.id;
     return this.minigameService.playScratch(userId);
   }
+
+  @UseGuards(JwtAuthGuard)
+@Post('claim-daily-ticket')
+async claimDailyTicket(@Req() req) {
+  return this.minigameService.claimDailyFreeTicket(req.user.id);
+}
 }
