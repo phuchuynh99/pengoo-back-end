@@ -1,12 +1,16 @@
-import { Body, Controller, Post, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Post, BadRequestException, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody } from '@nestjs/swagger';
 import { SignInRequestDto } from 'src/dto/signin-request.dto';
 import { VerifyRequestDto } from 'src/dto/verify-request.dto';
 import { UsersService } from '../users/users.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { RolesGuard } from './roles.guard';
+import { Public } from './public.decorator';
 
 @Controller('api/auth')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -15,6 +19,7 @@ export class AuthController {
   ) {}
 
   @Post('signin')
+  @Public()
   @ApiBody({
     type: SignInRequestDto,
     examples: {
@@ -36,6 +41,7 @@ export class AuthController {
   }
 
   @Post('verify')
+  @Public()
   @ApiBody({
     type: VerifyRequestDto,
     examples: {
@@ -57,6 +63,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @Public()
   @ApiBody({
     schema: {
       example: {
@@ -74,6 +81,7 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  @Public()
   @ApiBody({
     schema: {
       example: {
