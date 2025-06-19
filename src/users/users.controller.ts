@@ -6,6 +6,7 @@ import { UpdateUserDto } from './update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
+import { Public } from '../auth/public.decorator';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -15,8 +16,7 @@ export class UsersController {
   ) { }
 
   @Post('register')
-  // Registration is public, so skip guards
-  @UseGuards()
+  @Public()
   async register(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
