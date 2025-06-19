@@ -3,12 +3,14 @@ import { ApiBody } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
 import { CreateOrderDto } from './create-orders.dto';
+import { Public } from '../auth/public.decorator'; // Add this import
 
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
+  @Public()
   @ApiBody({
     type: CreateOrderDto,
     examples: {
@@ -44,6 +46,7 @@ export class OrdersController {
   }
 
   @Patch(':id/status')
+  @Public()
   @ApiBody({
     type: UpdateOrderStatusDto,
     examples: {
@@ -60,16 +63,19 @@ export class OrdersController {
   }
 
   @Get()
+  @Public()
   findAllOrders() {
     return this.ordersService.findAll();
   }
 
   @Get(':id')
+  @Public()
   findOrderById(@Param('id') id: number) {
     return this.ordersService.findById(id);
   }
 
   @Delete(':id')
+  @Public()
   removeOrder(@Param('id') id: number) {
     return this.ordersService.remove(id);
   }
