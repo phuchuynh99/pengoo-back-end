@@ -21,19 +21,15 @@ export class AuthService {
   }
 
   async signin(email: string, password: string): Promise<SignInResponseDto> {
-    try {
-      const user = await this.usersService.findByEmail(email);
-      if (!user) {
-        throw new UnauthorizedException('User not found');
-      }
-
-      await this.validateUser(user, password);
-
-      const payload: TokenPayloadDto = { email: user.email, sub: user.id, role: user.role, username: user.username };
-      return new SignInResponseDto(this.jwtService.sign(payload), user.username, user.role);
-    } catch (error) {
-      throw new InternalServerErrorException('User not found');
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
     }
+
+    await this.validateUser(user, password);
+
+    const payload: TokenPayloadDto = { email: user.email, sub: user.id, role: user.role, username: user.username };
+    return new SignInResponseDto(this.signToken(payload), user.username, user.role);
   }
 
   async verify(token: string): Promise<any> {
@@ -43,5 +39,9 @@ export class AuthService {
     } catch (error) {
       throw new UnauthorizedException('Invalid credentials');
     }
+  }
+
+  signToken(payload: TokenPayloadDto): string {
+    return this.jwtService.sign(payload);
   }
 }
