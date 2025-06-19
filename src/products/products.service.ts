@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Product } from './product.entity';
 import { Category } from '../categories/category.entity';
 import { CreateProductDto, FeatureDto } from './create-product.dto';
@@ -36,7 +36,7 @@ export class ProductsService {
     @InjectRepository(Tag)
     private tagRepo: Repository<Tag>,
     @InjectRepository(Image)
-    private imageRepo: Repository<Image>,
+    private imageRepository: Repository<Image>,
   ) { }
 
   async create(
@@ -176,10 +176,18 @@ export class ProductsService {
     return product;
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto, file?: Express.Multer.File): Promise<Product> {
+  async update(
+    id: number,
+    updateProductDto: UpdateProductDto,
+    mainImage?: Express.Multer.File,
+    detailImages?: Express.Multer.File[],
+    features?: FeatureDto[],
+    featureImages?: Express.Multer.File[],
+    deleteImages?: number[]
+  ): Promise<Product> {
     const product = await this.productsRepository.findOne({
       where: { id },
-      relations: ['tags', 'category_ID', 'publisher_ID'],
+      relations: ['tags', 'category_ID', 'publisher_ID', 'images', "featured"],
     });
 
     if (!product) {
@@ -193,38 +201,107 @@ export class ProductsService {
     if (updateProductDto.publisher_ID) {
       product.publisher_ID = await this.publishersService.findOne(updateProductDto.publisher_ID);
     }
+    if (deleteImages?.length) {
+      const toRemove = await this.imageRepository.findBy({
+        id: In(deleteImages),
+        product: { id },
+      });
+      if (toRemove.length > 0) {
+        await this.imageRepository.remove(toRemove);
+        product.images = product.images.filter(img => !deleteImages.includes(img.id));
+      }
+    }
 
     // If you want to update the main image, update the images array instead.
-    if (file) {
-      const uploadResult = await this.cloudinaryService.uploadImage(file);
-      // Update images array here if needed
-    }
+    if (mainImage) {
+      const uploadMain = await this.cloudinaryService.uploadImage(mainImage);
 
-    if (updateProductDto.tags && updateProductDto.tags.length > 0) {
-      const tags = await Promise.all(
-        updateProductDto.tags.map(async (tagName) => {
-          let tag = await this.tagsService.findOneByName(tagName);
-          if (!tag) {
-            tag = this.tagRepo.create({ name: tagName });
-            await this.tagRepo.save(tag);
-          }
-          return tag;
+      const mainImg = this.imageRepository.create({
+        product,
+        name: "main",
+        url: uploadMain.secure_url,
+        ord: 0,
+      });
+
+      const savedMainImg = await this.imageRepository.save(mainImg);
+      product.images.push(savedMainImg);
+    }
+    if (detailImages && detailImages.length > 0) {
+      const detailImageEntities = await Promise.all(
+        detailImages.map(async (file) => {
+          const detailUploads = await this.cloudinaryService.uploadImage(file);
+          const img = this.imageRepository.create({
+            product: product,
+            name: "detail",
+            url: detailUploads.secure_url,
+            ord: 0,
+          });
+          return await this.imageRepository.save(img);
         })
       );
-      product.tags = tags;
+      product.images.push(...detailImageEntities);
     }
+    if (featureImages?.length && features?.length) {
+      // Lấy số thứ tự cuối cùng của ảnh featured (nếu có)
+      const featuredImages = product.images.filter(i => i.name === 'featured');
+      let ordLastImage = featuredImages.length > 0
+        ? Math.max(...featuredImages.map(i => i.ord ?? 0))
+        : -1;
+
+      const featuredImageEntities = await Promise.all(
+        featureImages.map(async (f) => {
+          ordLastImage += 1;
+          const uploaded = await this.cloudinaryService.uploadImage(f);
+
+          const newImg = this.imageRepository.create({
+            url: uploaded.secure_url,
+            name: 'featured',
+            ord: ordLastImage,
+            product,
+          });
+
+          return await this.imageRepository.save(newImg);
+        })
+      );
+
+      product.images.push(...featuredImageEntities);
+    }
+    // if (updateProductDto.tags && updateProductDto.tags.length > 0) {
+    //   const tags = await Promise.all(
+    //     updateProductDto.tags.map(async (tagName) => {
+    //       let tag = await this.tagsService.findOneByName(tagName);
+    //       if (!tag) {
+    //         tag = this.tagRepo.create({ name: tagName });
+    //         await this.tagRepo.save(tag);
+    //       }
+    //       return tag;
+    //     })
+    //   );
+    //   product.tags = tags;
+    // }
     product.product_name = updateProductDto.product_name ?? product.product_name;
     product.description = updateProductDto.description ?? product.description;
     product.product_price = updateProductDto.product_price ?? product.product_price;
     product.slug = updateProductDto.slug ?? product.slug;
     product.quantity_sold = updateProductDto.quantity_sold ?? product.quantity_sold;
+    product.quantity_stock = updateProductDto.quantity_stock ?? product.quantity_stock;
     product.discount = updateProductDto.discount ?? product.discount;
     product.meta_description = updateProductDto.meta_description ?? product.meta_description;
     product.meta_title = updateProductDto.meta_title ?? product.meta_title;
     product.status = updateProductDto.status ?? product.status;
     const updatedProduct = await this.productsRepository.save(product);
-    const cleanedTags: any = updatedProduct.tags.map(({ id, name }) => ({ id, name }));
-    updatedProduct.tags = cleanedTags;
+    if (features?.length) {
+      await this.featuresRepository.delete({ product: { id } });
+
+      const newFeatures = features.map((f) =>
+        this.featuresRepository.create({
+          title: f.title,
+          content: f.content,
+          product,
+        })
+      );
+      await this.featuresRepository.save(newFeatures);
+    }
     return updatedProduct;
   }
 

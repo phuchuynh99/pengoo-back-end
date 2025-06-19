@@ -12,9 +12,10 @@ import { Tag } from 'src/tags/entities/tag.entity';
 import { Publisher } from 'src/publishers/entities/publisher.entity';
 import { Featured } from 'src/products/entities/featured.entity';
 import { Image } from 'src/products/entities/image.entity';
+import { ImagesService } from 'src/images/images.service';
 
 @Module({
-  providers: [ProductsService, CategoriesService, TagsService, PublishersService],
+  providers: [ProductsService, ImagesService, CategoriesService, TagsService, PublishersService],
   controllers: [ProductsController],
   imports: [TypeOrmModule.forFeature([Product, Category, Tag, Publisher, Featured, Image]), CloudinaryModule],
   exports: [ProductsService]
