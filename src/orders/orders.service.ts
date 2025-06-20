@@ -9,7 +9,7 @@ import { ProductsService } from '../products/products.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Delivery } from '../delivery/delivery.entity';
 import { CouponsService } from '../coupons/coupons.service'; // <-- Add this import
-import { PayosService } from 'src/payos/payos.service';
+import { PayosService } from 'src/services/payos/payos.service';
 
 @Injectable()
 export class OrdersService {
@@ -27,7 +27,7 @@ export class OrdersService {
     private couponsService: CouponsService,
   ) { }
 
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+  async create(createOrderDto: CreateOrderDto): Promise<any> {
     const {
       userId,
       delivery_id,
@@ -77,8 +77,14 @@ export class OrdersService {
       coupon_id = coupon.id;
       coupon_code = coupon.code;
     }
-
-    const order = this.ordersRepository.create({
+    let order_code: any = null
+    let checkout_url: any = null
+    if (payment_type === "payos") {
+      const data = await this.createOrderPayOS(2000)
+      order_code = data.order_code
+      checkout_url = data.checkout_url
+    }
+    const order: any = this.ordersRepository.create({
       user: userEntity,
       delivery,
       coupon_id,
@@ -89,13 +95,11 @@ export class OrdersService {
       payment_status: payment_status as PaymentStatus,
       productStatus: productStatus as ProductStatus,
       details: orderDetails,
+      order_code
     });
-    const savedOrder = await this.ordersRepository.save(order);
-    if (payment_type === "payos") {
-      const checkout_url = this.createOrderPayOS(2000)
-      return checkout_url
-    }
-    // await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id); 
+    let savedOrder = await this.ordersRepository.save(order);
+    savedOrder.checkout_url = checkout_url ?? null
+    // await this.notificationsService.sendOrderConfirmation(userEntity.email, savedOrder.id);
     return savedOrder;
   }
   generateSafeOrderCode = (): number => {
@@ -104,16 +108,16 @@ export class OrdersService {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
   async createOrderPayOS(amount: number) {
-
+    const order_code = this.generateSafeOrderCode()
     const checkout = {
-      orderCode: +(this.generateSafeOrderCode()),
+      orderCode: +(order_code),
       amount: 2000,
       description: "Thanh toán đơn hàng",
       cancelUrl: "https://your-cancel-url.com",
       returnUrl: "https://your-success-url.com"
     }
     const result = await this.payosService.createInvoice(checkout);
-    return result.data.checkoutUrl;
+    return { checkout_url: result.data.checkoutUrl, order_code };
 
   }
   async findAll(): Promise<Order[]> {
@@ -123,7 +127,23 @@ export class OrdersService {
   async findById(orderId: number): Promise<Order | null> {
     return this.ordersRepository.findOne({ where: { id: orderId } });
   }
+  async markOrderAsPaidByCode(orderCode: number): Promise<void> {
+    const order = await this.ordersRepository.findOne({ where: { order_code: orderCode } });
+    if (!order) throw new Error('Order not found');
 
+    order.payment_status = 'paid' as PaymentStatus;
+    await this.ordersRepository.save(order);
+  }
+
+  async handleOrderCancellation(orderCode: number): Promise<void> {
+    const order = await this.ordersRepository.findOne({ where: { order_code: orderCode } });
+    if (!order) {
+      console.warn(`Order ${orderCode} not found during cancellation.`);
+      return;
+    }
+    order.payment_status = 'canceled' as PaymentStatus;
+    await this.ordersRepository.save(order);
+  }
   async updateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto): Promise<Order> {
     const order = await this.findById(id);
     if (!order) {

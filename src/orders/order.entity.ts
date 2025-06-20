@@ -10,6 +10,8 @@ export enum PaymentStatus {
   Pending = 'pending', // <-- Add this line
   PendingOnDelivery = 'pending_on_delivery',
   Refunded = 'refunded',
+  Success = 'success',
+  Canceled = 'canceled',
 }
 
 export enum ProductStatus {
@@ -46,6 +48,9 @@ export class Order {
 
   @Column({ type: 'int', nullable: false })
   total_price: number; // Total price
+
+  @Column({ type: 'bigint', nullable: true, default: null })
+  order_code: number; // Total price
 
   @Column({ type: 'varchar', nullable: false })
   shipping_address: string; // Shipping address

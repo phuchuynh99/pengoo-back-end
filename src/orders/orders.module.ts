@@ -18,7 +18,7 @@ import { Featured } from 'src/products/entities/featured.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { CouponsModule } from '../coupons/coupons.module';
 import { Image } from 'src/products/entities/image.entity';
-import { PayosService } from 'src/payos/payos.service';
+import { PayosService } from 'src/services/payos/payos.service';
 
 @Module({
   providers: [OrdersService, UsersService, ProductsService, CategoriesService, PayosService],
