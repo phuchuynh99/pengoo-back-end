@@ -21,21 +21,31 @@ export class AuthService {
   }
 
   async signin(email: string, password: string): Promise<SignInResponseDto> {
-    console.log(password, email)
-    try {
-      const user = await this.usersService.findByEmail(email);
-      console.log(user)
-      if (!user) {
-        throw new UnauthorizedException('User not found ...');
-      }
+    // Debug log: show input email and password (do not log password in production)
+    console.log('[AuthService] Attempting login for email:', email);
 
-      await this.validateUser(user, password);
+    const user = await this.usersService.findByEmail(email);
+    console.log('[AuthService] User found:', user);
 
-      const payload: TokenPayloadDto = { email: user.email, sub: user.id, role: user.role, username: user.username };
-      return new SignInResponseDto(this.jwtService.sign(payload), user.username, user.role);
-    } catch (error) {
-      throw new InternalServerErrorException('User not found..');
+    if (!user) {
+      console.log('[AuthService] User not found for email:', email);
+      throw new UnauthorizedException('User not found');
     }
+
+    await this.validateUser(user, password);
+
+    const payload: TokenPayloadDto = { 
+      email: user.email, 
+      sub: user.id, 
+      role: user.role, 
+      username: user.username 
+    };
+
+    const token = this.signToken(payload);
+
+    console.log('[AuthService] Login successful for user:', user.username, 'Token:', token);
+
+    return new SignInResponseDto(token, user.username, user.role);
   }
 
   async verify(token: string): Promise<any> {
@@ -45,5 +55,9 @@ export class AuthService {
     } catch (error) {
       throw new UnauthorizedException('Invalid credentials');
     }
+  }
+
+  signToken(payload: TokenPayloadDto): string {
+    return this.jwtService.sign(payload);
   }
 }

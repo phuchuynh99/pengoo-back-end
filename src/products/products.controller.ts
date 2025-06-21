@@ -16,6 +16,7 @@ import { CreateProductDto } from './create-product.dto';
 import { UpdateProductDto } from '../products/update-product.dto';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { Public } from '../auth/public.decorator'; // adjust path if needed
 
 @Controller('products')
 export class ProductsController {
@@ -50,6 +51,7 @@ export class ProductsController {
     }
   })
   @Post()
+  @Public()
   @UseInterceptors(AnyFilesInterceptor())
   async create(
     @Body() createProductDto: CreateProductDto,
@@ -78,6 +80,7 @@ export class ProductsController {
   }
 
   @Get()
+  @Public()
   findAll(
     @Query('name') name?: string,
     @Query('category') categoryId?: number,
@@ -95,6 +98,7 @@ export class ProductsController {
   }
 
   @Get(':id')
+  @Public()
   findById(@Param('id') id: number) {
     return this.productsService.findById(id);
   }
@@ -102,6 +106,8 @@ export class ProductsController {
   @Put(':id')
   @UseInterceptors(AnyFilesInterceptor())
   async update(
+  @Public()
+  update(
     @Param('id') id: number,
     @Body() updateProductDto: UpdateProductDto,
     @UploadedFiles() files: Express.Multer.File[],
@@ -131,6 +137,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @Public()
   remove(@Param('id') id: number) {
     return this.productsService.remove(id);
   }

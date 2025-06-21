@@ -70,4 +70,7 @@ export class User {
 
   @OneToMany(() => UserCoupon, uc => uc.user)
   userCoupons: UserCoupon[];
+
+  @Column({ type: 'date', nullable: true })
+  lastFreeTicketClaim: Date | null;
 }

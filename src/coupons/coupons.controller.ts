@@ -4,6 +4,7 @@ import { CreateCouponDto } from './dto/create-coupon.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserCoupon } from './user-coupon.entity';
+import { Public } from '../auth/public.decorator'; // Add this import
 
 @Controller('coupons')
 export class CouponsController {
@@ -14,16 +15,19 @@ export class CouponsController {
   ) {}
 
   @Post()
+  @Public()
   create(@Body() dto: CreateCouponDto) {
     return this.couponsService.create(dto);
   }
 
   @Post('validate')
+  @Public()
   validate(@Body() body: { code: string; orderValue: number; userId: number; productIds: number[] }) {
     return this.couponsService.validateAndApply(body.code, body.orderValue, body.userId, body.productIds);
   }
 
   @Get('redeem')
+  @Public()
   async redeemCoupon(@Query('token') token: string) {
     const userCoupon = await this.userCouponRepo.findOne({ where: { redeemToken: token }, relations: ['coupon', 'user'] });
     if (!userCoupon) throw new BadRequestException('Invalid or expired token');

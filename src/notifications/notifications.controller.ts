@@ -1,12 +1,14 @@
 import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
+import { Public } from '../auth/public.decorator'; // Add this import
 
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Post('send-email')
+  @Public()
   @ApiBody({
     schema: {
       example: {
@@ -27,6 +29,7 @@ export class NotificationsController {
   }
 
   @Post('order-confirmation')
+  @Public()
   @ApiBody({
     schema: {
       example: {
@@ -46,6 +49,7 @@ export class NotificationsController {
   }
 
   @Post('shipping-update')
+  @Public()
   @ApiBody({
     schema: {
       example: {
@@ -66,6 +70,7 @@ export class NotificationsController {
   }
 
   @Post('password-reset')
+  @Public()
   @ApiBody({
     schema: {
       example: {

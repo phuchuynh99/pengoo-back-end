@@ -1,65 +1,84 @@
-import { Controller, Post, Param, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Param, Body } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { PaymentsService } from './payment.service';
 import { PaymentMethod } from './payment.types';
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { Public } from '../../auth/public.decorator';
 
 @Controller('payments')
-@UseGuards(JwtAuthGuard)
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post('pay/:orderId')
+  @Public()
   @ApiBody({
     schema: {
       example: {
-        method: 'paypal' // or 'on_delivery'
+        method: 'paypal', // or 'on_delivery'
+        userId: 1,
+        userRole: 'USER'
       }
     }
   })
   async pay(
     @Param('orderId') orderId: number,
     @Body('method') method: PaymentMethod,
-    @Req() req,
+    @Body('userId') userId: number,
+    @Body('userRole') userRole: string,
   ) {
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
     return this.paymentsService.pay(orderId, method, userId, userRole);
   }
 
   @Post('refund/:orderId')
+  @Public()
   @ApiBody({
     schema: {
-      example: {}
+      example: {
+        userId: 1,
+        userRole: 'USER'
+      }
     }
   })
-  async refundOrder(@Param('orderId') orderId: number, @Req() req) {
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
+  async refundOrder(
+    @Param('orderId') orderId: number,
+    @Body('userId') userId: number,
+    @Body('userRole') userRole: string,
+  ) {
     return this.paymentsService.refundOrder(orderId, userId, userRole);
   }
 
   @Post('cancel/:orderId')
+  @Public()
   @ApiBody({
     schema: {
-      example: {}
+      example: {
+        userId: 1,
+        userRole: 'USER'
+      }
     }
   })
-  async cancelOrder(@Param('orderId') orderId: number, @Req() req) {
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
+  async cancelOrder(
+    @Param('orderId') orderId: number,
+    @Body('userId') userId: number,
+    @Body('userRole') userRole: string,
+  ) {
     return this.paymentsService.cancelOrder(orderId, userId, userRole);
   }
 
   @Post('paypal/capture/:orderId')
+  @Public()
   @ApiBody({
     schema: {
-      example: {}
+      example: {
+        userId: 1,
+        userRole: 'USER'
+      }
     }
   })
-  async capturePaypal(@Param('orderId') orderId: number, @Req() req) {
-    const userId = req.user?.id;
-    const userRole = req.user?.role;
+  async capturePaypal(
+    @Param('orderId') orderId: number,
+    @Body('userId') userId: number,
+    @Body('userRole') userRole: string,
+  ) {
     return this.paymentsService.handlePaypalCapture(orderId, userId, userRole);
   }
 }
