@@ -1,13 +1,14 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, Query, Res } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { UpdateOrderStatusDto } from './update-orders-status.dto';
 import { CreateOrderDto } from './create-orders.dto';
+import { Redirect } from '@nestjs/common';
+import { Response } from 'express';
 import { Public } from '../auth/public.decorator'; // Add this import
-
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   @Post()
   @Public()
@@ -73,7 +74,23 @@ export class OrdersController {
   findOrderById(@Param('id') id: number) {
     return this.ordersService.findById(id);
   }
+  @Post('payos/order-success')
+  async handleOrderSuccess(@Query() query: any, @Res() res: Response) {
+    const { orderCode } = query;
+    try {
+      await this.ordersService.markOrderAsPaidByCode(+orderCode);
+      return res.redirect(`https://your-frontend-url.com/order/success?orderCode=${orderCode}`);
+    } catch (err) {
+      return res.status(404).json({ message: err.message || 'Order not found' });
+    }
+  }
 
+  @Post('payos/order-cancel')
+  async handleOrderCancel(@Query() query: any, @Res() res: Response) {
+    const { orderCode } = query;
+    await this.ordersService.handleOrderCancellation(+orderCode);
+    return res.redirect(`https://your-frontend-url.com/order/cancel?orderCode=${orderCode}`);
+  }
   @Delete(':id')
   @Public()
   removeOrder(@Param('id') id: number) {

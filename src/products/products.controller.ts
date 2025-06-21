@@ -104,12 +104,36 @@ export class ProductsController {
   }
 
   @Put(':id')
+  @UseInterceptors(AnyFilesInterceptor())
+  async update(
   @Public()
   update(
     @Param('id') id: number,
     @Body() updateProductDto: UpdateProductDto,
+    @UploadedFiles() files: Express.Multer.File[],
   ) {
-    return this.productsService.update(id, updateProductDto);
+    // Map files by fieldname
+    const mainImage: Express.Multer.File | undefined = files.find(f => f.fieldname === 'mainImage')
+    const detailImages = files.filter(f => f.fieldname === 'detailImages') || [];
+    const featureImages = files.filter(f => f.fieldname === 'featureImages') || [];
+
+    // Parse features if sent as string
+    const features = typeof updateProductDto.featured === 'string'
+      ? JSON.parse(updateProductDto.featured)
+      : updateProductDto.featured;
+    const deleteImages = typeof updateProductDto.deleteImages === 'string'
+      ? JSON.parse(updateProductDto.deleteImages)
+      : updateProductDto.deleteImages;
+    console.log(featureImages)
+    return this.productsService.update(
+      id,
+      updateProductDto,
+      mainImage,
+      detailImages,
+      features,
+      featureImages,
+      deleteImages
+    );
   }
 
   @Delete(':id')

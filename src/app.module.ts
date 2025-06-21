@@ -32,6 +32,8 @@ import { MinigameModule } from './minigame/minigame.module';
 import { Coupon } from './coupons/coupon.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/roles.guard';
+import { ImagesModule } from './images/images.module';
+import { Image } from './products/entities/image.entity';
 
 @Module({
   imports: [
@@ -44,7 +46,7 @@ import { RolesGuard } from './auth/roles.guard';
       useFactory: (configService: ConfigService) => (dataSourceOptions),
     }),
     TypeOrmModule.forFeature([
-      User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, Coupon
+      User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, Coupon, Image
     ]),
     UsersModule,
     AuthModule,
@@ -62,6 +64,7 @@ import { RolesGuard } from './auth/roles.guard';
     PostsModule,
     DeliveryModule,
     MinigameModule,
+    ImagesModule,
   ],
   providers: [
     CategoriesService,

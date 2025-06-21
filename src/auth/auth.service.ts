@@ -21,15 +21,31 @@ export class AuthService {
   }
 
   async signin(email: string, password: string): Promise<SignInResponseDto> {
+    // Debug log: show input email and password (do not log password in production)
+    console.log('[AuthService] Attempting login for email:', email);
+
     const user = await this.usersService.findByEmail(email);
+    console.log('[AuthService] User found:', user);
+
     if (!user) {
+      console.log('[AuthService] User not found for email:', email);
       throw new UnauthorizedException('User not found');
     }
 
     await this.validateUser(user, password);
 
-    const payload: TokenPayloadDto = { email: user.email, sub: user.id, role: user.role, username: user.username };
-    return new SignInResponseDto(this.signToken(payload), user.username, user.role);
+    const payload: TokenPayloadDto = { 
+      email: user.email, 
+      sub: user.id, 
+      role: user.role, 
+      username: user.username 
+    };
+
+    const token = this.signToken(payload);
+
+    console.log('[AuthService] Login successful for user:', user.username, 'Token:', token);
+
+    return new SignInResponseDto(token, user.username, user.role);
   }
 
   async verify(token: string): Promise<any> {

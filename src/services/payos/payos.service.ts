@@ -1,6 +1,7 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import axios from 'axios';
 import * as crypto from 'crypto';
+import https from 'https';
 
 @Injectable()
 export class PayosService {
@@ -32,14 +33,18 @@ export class PayosService {
         };
 
         try {
+            // const agent = new https.Agent({
+            //     rejectUnauthorized: false, // Bỏ verify SSL
+            // });
             const res = await axios.post(this.apiUrl, payload, {
+                // httpsAgent: agent,
                 headers: {
                     'x-api-key': this.apiKey ?? '',
                     'x-client-id': this.clientId ?? '',
                     'Content-Type': 'application/json',
                 },
+
             });
-            console.log(res.data)
             return res.data;
         } catch (err: any) {
             throw new HttpException(err.response?.data || 'Lỗi khi gọi PayOS', err.response?.status || 500);

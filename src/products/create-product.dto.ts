@@ -98,4 +98,6 @@ export class CreateProductDto {
   @IsOptional()
   @IsArray()
   tags?: string[] | string;
+
+  deleteImages?: number[] | number;
 }
