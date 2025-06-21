@@ -84,8 +84,7 @@ export class OrdersController {
       return res.status(404).json({ message: err.message || 'Order not found' });
     }
   }
-
-  @Post('payos/order-cancel')
+  @Public() @Post('payos/order-cancel')
   async handleOrderCancel(@Query() query: any, @Res() res: Response) {
     const { orderCode } = query;
     await this.ordersService.handleOrderCancellation(+orderCode);
