@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserCoupon } from './user-coupon.entity';
 import { Public } from '../auth/public.decorator'; // Add this import
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('coupons')
 export class CouponsController {
@@ -12,7 +13,7 @@ export class CouponsController {
     private readonly couponsService: CouponsService,
     @InjectRepository(UserCoupon)
     private userCouponRepo: Repository<UserCoupon>,
-  ) {}
+  ) { }
 
   @Post()
   @Public()
@@ -21,6 +22,20 @@ export class CouponsController {
   }
 
   @Post('validate')
+  @ApiBody({
+    type: CreateCouponDto,
+    examples: {
+      default: {
+        summary: 'Example product',
+        value: {
+          code: "HUYDEPTRAI",
+          orderValue: 1000,
+          userId: 1,
+          product: [1, 2]
+        }
+      }
+    }
+  })
   @Public()
   validate(@Body() body: { code: string; orderValue: number; userId: number; productIds: number[] }) {
     return this.couponsService.validateAndApply(body.code, body.orderValue, body.userId, body.productIds);

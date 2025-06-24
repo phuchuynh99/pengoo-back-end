@@ -105,9 +105,8 @@ export class ProductsController {
 
   @Put(':id')
   @UseInterceptors(AnyFilesInterceptor())
-  async update(
   @Public()
-  update(
+  async update(
     @Param('id') id: number,
     @Body() updateProductDto: UpdateProductDto,
     @UploadedFiles() files: Express.Multer.File[],

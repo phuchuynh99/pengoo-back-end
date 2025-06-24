@@ -18,7 +18,7 @@ export class CouponsService {
     private usersRepository: Repository<User>,
     @InjectRepository(UserCoupon)
     private userCouponRepo: Repository<UserCoupon>,
-  ) {}
+  ) { }
 
   async create(dto: CreateCouponDto): Promise<Coupon> {
     const coupon = this.couponsRepository.create(dto);
@@ -33,7 +33,7 @@ export class CouponsService {
     return this.couponsRepository.save(coupon);
   }
 
-  async validateAndApply(code: string, orderValue: number, userId: number, productIds: number[]): Promise<{coupon: Coupon, discount: number}> {
+  async validateAndApply(code: string, orderValue: number, userId: number, productIds: number[]): Promise<{ coupon: Coupon, discount: number }> {
     const coupon = await this.couponsRepository.findOne({
       where: { code },
       relations: ['products', 'users'],
@@ -42,7 +42,7 @@ export class CouponsService {
 
     const now = new Date();
     if (coupon.status !== CouponStatus.Active) throw new BadRequestException('Coupon is not active');
-    if (now < new Date(coupon.startDate) || now > new Date(coupon.endDate)) throw new BadRequestException('Coupon is not valid at this time');
+    // if (now < new Date(coupon.startDate) || now > new Date(coupon.endDate)) throw new BadRequestException('Coupon is not valid at this time');
     if (orderValue < Number(coupon.minOrderValue) || orderValue > Number(coupon.maxOrderValue)) throw new BadRequestException('Order value not eligible for this coupon');
     if (coupon.usedCount >= coupon.usageLimit) throw new BadRequestException('Coupon usage limit reached');
 
@@ -52,9 +52,9 @@ export class CouponsService {
     }
 
     // If coupon is restricted to certain products
-    if (coupon.products && coupon.products.length > 0 && !coupon.products.some(p => productIds.includes(p.id))) {
-      throw new BadRequestException('Coupon not valid for these products');
-    }
+    // if (coupon.products && coupon.products.length > 0 && !coupon.products.some(p => productIds.includes(p.id))) {
+    //   throw new BadRequestException('Coupon not valid for these products');
+    // }
 
     // Calculate discount
     const discount = (orderValue * Number(coupon.discountPercent)) / 100;
