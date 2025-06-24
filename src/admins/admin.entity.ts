@@ -1,6 +1,6 @@
 // src/admins/admin.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Role } from '../roles/role,entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Role } from '../roles/role.entity';
 
 @Entity('admins')
 export class Admin {
@@ -40,6 +40,7 @@ export class Admin {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToOne(() => Role, role => role.admins)
-  role: Role;
+  @ManyToOne(() => Role, role => role.admins, { nullable: true })
+  @JoinColumn({ name: 'role_id' })
+  role: Role | null;
 }
