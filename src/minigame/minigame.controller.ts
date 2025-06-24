@@ -31,8 +31,8 @@ export class MinigameController {
   }
 
   @UseGuards(JwtAuthGuard)
-@Post('claim-daily-ticket')
-async claimDailyTicket(@Req() req) {
-  return this.minigameService.claimDailyFreeTicket(req.user.id);
-}
+  @Post('claim-daily-ticket')
+  async claimDailyTicket(@Req() req) {
+    return this.minigameService.claimDailyFreeTicket(req.user.id);
+  }
 }
