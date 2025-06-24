@@ -7,7 +7,9 @@ import { RolePermission } from './role-permission.entity';
 import { Admin } from '../admins/admin.entity';
 import { PermissionsGuard } from '../auth/permissions.guard';
 import { Permissions } from '../auth/permissions.decorator';
+import { ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Roles')
 @Controller('roles')
 @UseGuards(PermissionsGuard)
 export class RolesController {
@@ -37,6 +39,17 @@ export class RolesController {
   // 2. Update a role's permissions (edit, delete, update)
   @Patch(':id/permissions')
   @Permissions('edit_roles')
+  @ApiParam({ name: 'id', type: Number, example: 1 })
+  @ApiBody({
+    schema: {
+      example: {
+        edit: true,
+        delete: false,
+        update: true,
+      },
+    },
+    description: 'Set permissions for the role (edit, delete, update)',
+  })
   async updatePermissions(
     @Param('id') id: number,
     @Body() perms: { edit: boolean; delete: boolean; update: boolean }
@@ -67,6 +80,7 @@ export class RolesController {
   // 3. List all users by role
   @Get(':roleName/users')
   @Permissions('view_roles')
+  @ApiParam({ name: 'roleName', type: String, example: 'Admin' })
   async getUsersByRole(@Param('roleName') roleName: string) {
     const users = await this.adminRepo.find({ relations: ['role'] });
     return users.filter(u => u.role?.name === roleName);
@@ -75,6 +89,15 @@ export class RolesController {
   // 4. Assign a user to a role
   @Patch('assign-user')
   @Permissions('edit_roles')
+  @ApiBody({
+    schema: {
+      example: {
+        userId: 2,
+        roleName: 'Editor',
+      },
+    },
+    description: 'Assign a user to a role',
+  })
   async assignUserToRole(
     @Body() body: { userId: number; roleName: string }
   ) {
@@ -89,6 +112,14 @@ export class RolesController {
   // 5. Remove a user from a role (set to "User" or null)
   @Patch('remove-user')
   @Permissions('edit_roles')
+  @ApiBody({
+    schema: {
+      example: {
+        userId: 2,
+      },
+    },
+    description: 'Remove a user from their role',
+  })
   async removeUserFromRole(
     @Body() body: { userId: number }
   ) {
