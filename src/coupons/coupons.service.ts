@@ -6,6 +6,7 @@ import { CreateCouponDto } from './dto/create-coupon.dto';
 import { Product } from '../products/product.entity';
 import { User } from '../users/user.entity';
 import { UserCoupon } from './user-coupon.entity';
+import { UpdateCouponDto } from './dto/update-coupon.dto';
 
 @Injectable()
 export class CouponsService {
@@ -108,5 +109,32 @@ export class CouponsService {
     });
     if (!userCoupon) throw new BadRequestException('Coupon not redeemed or not assigned to user');
     return userCoupon.coupon;
+  }
+  async update(id: number, dto: UpdateCouponDto): Promise<Coupon> {
+    const coupon = await this.couponsRepository.findOne({
+      where: { id },
+      relations: ['products', 'users'],
+    });
+    if (!coupon) throw new NotFoundException('Coupon not found');
+
+    Object.assign(coupon, dto);
+
+    if (dto.productIds) {
+      coupon.products = await this.productsRepository.findBy({ id: In(dto.productIds) });
+    }
+
+    if (dto.userIds) {
+      coupon.users = await this.usersRepository.findBy({ id: In(dto.userIds) });
+    }
+
+    return this.couponsRepository.save(coupon);
+  }
+
+  async updateStatus(id: number, status: CouponStatus): Promise<Coupon> {
+    const coupon = await this.couponsRepository.findOne({ where: { id } });
+    if (!coupon) throw new NotFoundException('Coupon not found');
+
+    coupon.status = status;
+    return this.couponsRepository.save(coupon);
   }
 }

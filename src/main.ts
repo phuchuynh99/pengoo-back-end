@@ -10,7 +10,7 @@ async function bootstrap() {
   app.useGlobalGuards(new JwtAuthGuard(reflector));
 
   app.enableCors({
-    origin: 'http://localhost:3001', 
+    origin: ['http://localhost:3001', 'http://localhost:4000'],
     credentials: true,
   });
 
@@ -22,13 +22,13 @@ async function bootstrap() {
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger-api', app, documentFactory);
-  
+
 
   await app.listen(process.env.PORT ?? 3000);
 
   console.log("-------------------------------------------");
   console.log("---| http://localhost:3000/swagger-api |---")
   console.log("-------------------------------------------");
-  
+
 }
 bootstrap();
