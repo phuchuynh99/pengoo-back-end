@@ -61,9 +61,6 @@ export class User {
   @OneToMany(() => Cart, cart => cart.user)
   carts: Cart[];
 
-  @ManyToMany(() => Coupon, coupon => coupon.users)
-  @JoinTable()
-  coupons: Coupon[];
 
   @OneToMany(() => TicketEarningLog, log => log.user)
   ticketEarningLogs: TicketEarningLog[];

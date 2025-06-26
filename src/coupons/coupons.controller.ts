@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, BadRequestException, UseGuards, Req } from '@nestjs/common';
 import { CouponsService } from './coupons.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { UserCoupon } from './user-coupon.entity';
 import { Public } from '../auth/public.decorator';
 import { ApiTags, ApiBody, ApiQuery, ApiOperation } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('Coupons')
 @Controller('coupons')
@@ -81,5 +82,25 @@ export class CouponsController {
     await this.userCouponRepo.save(userCoupon);
 
     return { message: 'Coupon redeemed! You can now use it.', coupon: userCoupon.coupon.code };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('next-milestone-coupon')
+  @ApiOperation({ summary: 'Get next available coupon for user milestone' })
+  @ApiQuery({ name: 'userPoints', type: Number, required: true })
+  async getNextMilestoneCoupon(@Req() req, @Query('userPoints') userPoints: number) {
+    const userId = req.user.id;
+    const coupon = await this.couponsService.getNextAvailableCoupon(userId, Number(userPoints));
+    if (!coupon) return { coupon: null };
+    return { coupon: { code: coupon.code, discount: coupon.discountPercent } };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('milestone-coupons')
+  @ApiOperation({ summary: 'Get all milestone coupons' })
+  async getMilestoneCoupons() {
+    // Only coupons with milestonePoints set and active
+    const coupons = await this.couponsService.getMilestoneCoupons();
+    return { coupons };
   }
 }

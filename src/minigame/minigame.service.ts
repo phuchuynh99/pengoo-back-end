@@ -1,20 +1,37 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual, LessThan, Between } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 import { User } from '../users/user.entity';
 import { CouponsService } from '../coupons/coupons.service';
 import { TicketEarningLog, TicketEarningType } from './ticket-earning-log.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { randomBytes } from 'crypto';
 import { UserCoupon } from '../coupons/user-coupon.entity';
+import { v4 as uuidv4 } from 'uuid';
+
+type ScratchGameSession = {
+  userId: number;
+  reward: {
+    type: 'points' | 'coupon' | 'none';
+    value: number | string;
+    message: string;
+  };
+  createdAt: Date;
+};
 
 @Injectable()
 export class MinigameService {
   private readonly COUPON_POINT_THRESHOLD = 1000;
   private readonly MAX_TICKETS_PER_DAY = 3;
-
-  private readonly SCRATCH_SYMBOLS = ['🍒', '⭐', '💎', '🍀', '🔔'];
+  private readonly SCRATCH_SYMBOLS = [
+  'ssrb.png',
+  'takodachi.png',
+  'bubba.png',
+  'bloob.png',
+  'greenssrb.png'
+];
   private readonly SCRATCH_GRID_SIZE = 3;
+  private scratchGames = new Map<string, ScratchGameSession>();
 
   constructor(
     @InjectRepository(User)
@@ -30,24 +47,21 @@ export class MinigameService {
   async submitScore(userId: number, score: number) {
     const user = await this.usersRepository.findOne({ where: { id: userId }, relations: ['coupons'] });
     if (!user) throw new NotFoundException('User not found');
-
     if (user.minigame_tickets <= 0) {
-      return { message: 'No tickets left. Earn more by interacting with posts, products, or social links.' };
+      return { message: 'No tickets left.', tickets: user.minigame_tickets };
     }
 
     user.minigame_tickets -= 1;
     user.points += score;
     await this.usersRepository.save(user);
 
-    // After user qualifies for coupon:
+    // Coupon logic (unchanged)
     const activeCoupon = await this.couponsService.findActiveCoupon();
-    if (!activeCoupon) return { message: 'No active coupons available.' };
+    const hasCoupon = activeCoupon
+      ? await this.userCouponRepo.findOne({ where: { user: { id: userId }, coupon: { id: activeCoupon.id } } })
+      : null;
 
-    const hasCoupon = await this.userCouponRepo.findOne({
-      where: { user: { id: userId }, coupon: { id: activeCoupon.id } }
-    });
-
-    if (user.points >= this.COUPON_POINT_THRESHOLD && !hasCoupon) {
+    if (activeCoupon && user.points >= this.COUPON_POINT_THRESHOLD && !hasCoupon) {
       const redeemToken = randomBytes(32).toString('hex');
       const userCoupon = this.userCouponRepo.create({
         user,
@@ -57,6 +71,7 @@ export class MinigameService {
       });
       await this.userCouponRepo.save(userCoupon);
 
+      // Optionally notify user
       const redeemUrl = `https://your-frontend-domain.com/redeem-coupon?token=${redeemToken}`;
       await this.notificationsService.sendEmail(
         user.email,
@@ -68,6 +83,8 @@ export class MinigameService {
         message: `Congratulations! You earned a coupon. Check your email to redeem it.`,
         points: user.points,
         tickets: user.minigame_tickets,
+        couponGranted: true,
+        couponCode: activeCoupon.code,
       };
     }
 
@@ -84,7 +101,7 @@ export class MinigameService {
         where: { user: { id: userId }, type, refId },
       });
       if (existing) {
-        return { message: 'You have already earned a ticket for this action.', tickets: user.minigame_tickets };
+        return { message: 'Already earned a ticket for this action.', tickets: user.minigame_tickets };
       }
     }
 
@@ -102,7 +119,7 @@ export class MinigameService {
     });
 
     if (earnedToday >= this.MAX_TICKETS_PER_DAY) {
-      return { message: 'You have reached your ticket earning limit for today.', tickets: user.minigame_tickets };
+      return { message: 'Reached ticket earning limit for today.', tickets: user.minigame_tickets };
     }
 
     // Grant ticket and log the action
@@ -119,49 +136,47 @@ export class MinigameService {
     return { message: 'Ticket earned!', tickets: user.minigame_tickets };
   }
 
+  // --- SCRATCH GAME LOGIC ---
   async playScratch(userId: number) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
-
     if (user.minigame_tickets <= 0) {
-      return { message: 'No tickets left. Earn more by interacting with posts, products, or social links.' };
+      return { message: 'No tickets left.', tickets: user.minigame_tickets };
     }
 
-    // Deduct a ticket
     user.minigame_tickets -= 1;
 
-    // Generate 3x3 grid with random tokens (symbols)
+    // Generate grid (random symbols)
     const grid: string[][] = [];
-    const tokens = this.SCRATCH_SYMBOLS;
-    let gridScore = 0;
-    let tileTokens: string[][] = [];
     for (let i = 0; i < this.SCRATCH_GRID_SIZE; i++) {
       grid[i] = [];
-      tileTokens[i] = [];
       for (let j = 0; j < this.SCRATCH_GRID_SIZE; j++) {
-        const token = tokens[Math.floor(Math.random() * tokens.length)];
+        const token = this.SCRATCH_SYMBOLS[Math.floor(Math.random() * this.SCRATCH_SYMBOLS.length)];
         grid[i][j] = token;
-        tileTokens[i][j] = token;
-        gridScore += 50; // Each scratch awards 50 points (adjust as needed)
       }
     }
 
-    // Check for 3-in-a-row and award bonus points
-    const winLines = this.getWinningLines(tileTokens);
-    let bonus = 0;
-    if (winLines.length > 0) {
-      bonus = winLines.length * 200; // 200 bonus points per line (adjust as needed)
-      gridScore += bonus;
-    }
-
-    user.points += gridScore;
-
-    // Coupon logic
+    // --- NEW: Calculate win lines and score ---
+    const winLines = this.getWinLines(grid);
+    const gridScore = winLines.length * 100;
+    const bonus = winLines.length > 0 ? 50 * winLines.length : 0;
+    const totalPoints = gridScore + bonus;
+    let message = '';
     let couponGranted = false;
     let couponCode: string | null = null;
+
+    if (winLines.length > 0) {
+      message = `Chúc mừng! Bạn có ${winLines.length} hàng thắng và nhận được ${totalPoints} điểm!`;
+    } else {
+      message = "Không có hàng thắng nào. Chúc bạn may mắn lần sau!";
+    }
+
+    user.points += totalPoints;
+    await this.usersRepository.save(user);
+
+    // Coupon logic (unchanged)
     const activeCoupon = await this.couponsService.findActiveCoupon();
     if (activeCoupon && user.points >= this.COUPON_POINT_THRESHOLD) {
-      // Check if user already has this coupon
       const hasCoupon = await this.userCouponRepo.findOne({
         where: { user: { id: userId }, coupon: { id: activeCoupon.id } }
       });
@@ -176,27 +191,78 @@ export class MinigameService {
         await this.userCouponRepo.save(userCoupon);
         couponGranted = true;
         couponCode = activeCoupon.code;
-        // Optionally, send notification/email here
       }
     }
 
-    await this.usersRepository.save(user);
-
     return {
       grid,
-      tileTokens,
       winLines,
-      bonus,
       gridScore,
-      totalPoints: user.points,
+      bonus,
+      totalPoints,
       tickets: user.minigame_tickets,
       couponGranted,
       couponCode,
-      message: couponGranted
-        ? `Congrats! You earned a coupon: ${couponCode}`
-        : winLines.length > 0
-          ? `Bonus! ${bonus} points for ${winLines.length} line(s)!`
-          : `You earned ${gridScore} points!`
+      message,
+      userPoints: user.points, // <-- add this line
+    };
+  }
+  // --- END SCRATCH GAME LOGIC ---
+
+  async startScratch(userId: number) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    if (user.minigame_tickets <= 0) {
+      return { message: 'No tickets left.', tickets: user.minigame_tickets };
+    }
+    user.minigame_tickets -= 1;
+    await this.usersRepository.save(user);
+
+    // Generate a random reward (e.g. points or coupon)
+    const rewards = [
+      { type: 'points', value: 100, message: 'Bạn nhận được 100 điểm!' },
+      { type: 'points', value: 200, message: 'Bạn nhận được 200 điểm!' },
+      { type: 'coupon', value: 'SALE50', message: 'Bạn nhận được coupon SALE50!' },
+      { type: 'none', value: 0, message: 'Chúc bạn may mắn lần sau!' },
+    ] as const;
+    const reward = rewards[Math.floor(Math.random() * rewards.length)];
+    const gameId = uuidv4();
+    this.scratchGames.set(gameId, { userId, reward, createdAt: new Date() });
+
+    return { gameId, tickets: user.minigame_tickets };
+  }
+
+  async revealScratch(userId: number, gameId: string) {
+    const game = this.scratchGames.get(gameId);
+    if (!game || game.userId !== userId) {
+      throw new NotFoundException('Game not found or expired');
+    }
+    const { reward } = game;
+    this.scratchGames.delete(gameId);
+
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    let couponGranted = false;
+    let couponCode: string | null = null;
+
+    if (reward.type === 'points') {
+      user.points += reward.value as number;
+    } else if (reward.type === 'coupon') {
+      couponGranted = true;
+      couponCode = reward.value as string;
+      // Optionally, assign coupon to user here
+    }
+    await this.usersRepository.save(user);
+
+    return {
+      rewardType: reward.type,
+      rewardValue: reward.value,
+      message: reward.message,
+      tickets: user.minigame_tickets,
+      totalPoints: user.points,
+      couponGranted,
+      couponCode,
     };
   }
 
@@ -205,44 +271,57 @@ export class MinigameService {
     if (!user) throw new NotFoundException('User not found');
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // If never claimed or last claim was before today, allow claim
-    if (!user.lastFreeTicketClaim || user.lastFreeTicketClaim.getTime() < today.getTime()) {
+    today.setHours(0, 0, 0);
+    if (user.lastFreeTicketClaim) {
+      const lastClaim = new Date(user.lastFreeTicketClaim);
+      if (!isNaN(lastClaim.getTime())) {
+        // Now you can safely use lastClaim.getTime()
+        if (lastClaim.getTime() < today.getTime()) {
+          user.minigame_tickets += 1;
+          user.lastFreeTicketClaim = today;
+          await this.usersRepository.save(user);
+          return { message: 'Bạn đã nhận vé miễn phí hôm nay!', tickets: user.minigame_tickets };
+        } else {
+          return { message: 'Bạn đã nhận vé miễn phí hôm nay rồi. Hãy quay lại vào ngày mai!', tickets: user.minigame_tickets };
+        }
+      } else {
+        // Handle invalid date if needed
+      }
+    } else {
       user.minigame_tickets += 1;
       user.lastFreeTicketClaim = today;
       await this.usersRepository.save(user);
       return { message: 'Bạn đã nhận vé miễn phí hôm nay!', tickets: user.minigame_tickets };
-    } else {
-      return { message: 'Bạn đã nhận vé miễn phí hôm nay rồi. Hãy quay lại vào ngày mai!', tickets: user.minigame_tickets };
     }
   }
 
-  // Helper to check for winning lines (returns array of winning line types)
-  private getWinningLines(grid: string[][]): string[] {
-    const size = grid.length;
-    const lines: string[] = [];
+  async getTicketCount(userId: number): Promise<number> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    return user?.minigame_tickets ?? 0;
+  }
 
+  private getWinLines(grid: string[][]): Array<{ type: "row" | "col" | "diag", index: number }> {
+    const winLines: Array<{ type: "row" | "col" | "diag", index: number }> = [];
     // Rows
-    for (let i = 0; i < size; i++) {
-      if (grid[i][0] && grid[i].every(cell => cell === grid[i][0])) {
-        lines.push(`row${i + 1}`);
+    for (let i = 0; i < 3; i++) {
+      if (grid[i][0] && grid[i][0] === grid[i][1] && grid[i][1] === grid[i][2]) {
+        winLines.push({ type: "row", index: i });
       }
     }
     // Columns
-    for (let i = 0; i < size; i++) {
-      if (grid[0][i] && grid.every(row => row[i] === grid[0][i])) {
-        lines.push(`col${i + 1}`);
+    for (let j = 0; j < 3; j++) {
+      if (grid[0][j] && grid[0][j] === grid[1][j] && grid[1][j] === grid[2][j]) {
+        winLines.push({ type: "col", index: j });
       }
     }
-    // Diagonal TL-BR
-    if (grid[0][0] && grid.every((row, idx) => row[idx] === grid[0][0])) {
-      lines.push('diag1');
+    // Diagonal 1
+    if (grid[0][0] && grid[0][0] === grid[1][1] && grid[1][1] === grid[2][2]) {
+      winLines.push({ type: "diag", index: 1 });
     }
-    // Diagonal TR-BL
-    if (grid[0][size - 1] && grid.every((row, idx) => row[size - 1 - idx] === grid[0][size - 1])) {
-      lines.push('diag2');
+    // Diagonal 2
+    if (grid[0][2] && grid[0][2] === grid[1][1] && grid[1][1] === grid[2][0]) {
+      winLines.push({ type: "diag", index: 2 });
     }
-    return lines;
+    return winLines;
   }
 }
