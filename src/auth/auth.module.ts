@@ -18,8 +18,8 @@ import { PermissionsGuard } from '../auth/permissions.guard';
     PassportModule,
     NotificationsModule,
     JwtModule.register({
-      secret: 'secretKey',
-      signOptions: { expiresIn: '60m' },
+      secret: process.env.JWT_SECRET || 'chimpanzibananini',
+      signOptions: { expiresIn: '60h' },
     }),
     TypeOrmModule.forFeature([RolePermission, Permission, Role]),
   ],
