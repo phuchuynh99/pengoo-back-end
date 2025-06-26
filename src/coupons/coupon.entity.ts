@@ -1,6 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany } from 'typeorm';
-import { Product } from '../products/product.entity';
-import { User } from '../users/user.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { UserCoupon } from './user-coupon.entity';
 
 export enum CouponStatus {
@@ -41,16 +39,11 @@ export class Coupon {
   @Column('decimal')
   discountPercent: number; // Percentage discount (e.g., 10 for 10%)
 
-  // Optional: restrict coupon to specific products
-  @ManyToMany(() => Product)
-  @JoinTable()
-  products: Product[];
-
-  // Optional: restrict coupon to specific users
-  @ManyToMany(() => User)
-  @JoinTable()
-  users: User[];
+  // Removed product and user restrictions
 
   @OneToMany(() => UserCoupon, uc => uc.coupon)
   userCoupons: UserCoupon[];
+
+  @Column({ type: 'int', nullable: true })
+  milestonePoints: number | null; // Points required to unlock this coupon
 }
