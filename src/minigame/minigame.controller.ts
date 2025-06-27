@@ -10,7 +10,7 @@ import { ApiBody, ApiTags, ApiOperation } from '@nestjs/swagger';
 @ApiTags('Minigame')
 @Controller('minigame')
 export class MinigameController {
-  constructor(private readonly minigameService: MinigameService) {}
+  constructor(private readonly minigameService: MinigameService) { }
 
 
   @Post('submit-score')
@@ -81,11 +81,17 @@ export class MinigameController {
   }
 
   @UseGuards(JwtAuthGuard)
+
+  @Post('claim-daily-ticket')
+  async claimDailyTicket(@Req() req) {
+    return this.minigameService.claimDailyFreeTicket(req.user.id);
+  }
   @Get('ticket-count')
   @ApiOperation({ summary: 'Get current user minigame ticket count' })
   async getTicketCount(@Req() req) {
     const userId = req.user.id;
     const tickets = await this.minigameService.getTicketCount(userId);
     return { tickets };
+
   }
 }
