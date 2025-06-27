@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put, Delete, UseGuards, Patch } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './create-user.dto';
@@ -33,8 +33,7 @@ export class UsersController {
     return this.usersService.findById(Number(id));
   }
 
-  @Patch(':id')
-  @Roles('Admin', 'Editor')
+  @Put('update/:id')
   async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(Number(id), updateUserDto);
   }

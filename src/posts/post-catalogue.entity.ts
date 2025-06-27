@@ -1,8 +1,9 @@
+// src/posts/post-catalogue.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { PostCatalogue } from './post-catalogue.entity';
+import { Admin } from '../admins/admin.entity';
 
-@Entity('post')
-export class Post {
+@Entity('post_catalogues')
+export class PostCatalogue {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -14,9 +15,6 @@ export class Post {
 
   @Column({ nullable: true })
   description: string;
-
-  @Column('text')
-  content: string;
 
   @Column({ nullable: true })
   meta_description: string;
@@ -42,6 +40,6 @@ export class Post {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToOne(() => PostCatalogue, catalogue => catalogue.id)
-  catalogue: PostCatalogue;
+  @ManyToOne(() => Admin, admin => admin.id)
+  admin: Admin;
 }

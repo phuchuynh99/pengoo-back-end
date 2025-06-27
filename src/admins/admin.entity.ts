@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { PostCatalogue } from './post-catalogue.entity';
+// src/admins/admin.entity.ts
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Role } from '../roles/role.entity';
 
-@Entity('post')
-export class Post {
+@Entity('admins')
+export class Admin {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -12,26 +13,23 @@ export class Post {
   @Column({ unique: true })
   canonical: string;
 
-  @Column({ nullable: true })
-  description: string;
+  @Column({ unique: true })
+  email: string;
 
-  @Column('text')
-  content: string;
-
-  @Column({ nullable: true })
-  meta_description: string;
+  @Column()
+  password: string;
 
   @Column({ nullable: true })
-  meta_keyword: string;
+  phone: string;
 
   @Column({ nullable: true })
-  meta_title: string;
+  address: string;
 
   @Column({ nullable: true })
-  image: string;
+  bio: string;
 
   @Column({ nullable: true })
-  order: number;
+  birthday: Date;
 
   @Column({ default: true })
   publish: boolean;
@@ -42,6 +40,7 @@ export class Post {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToOne(() => PostCatalogue, catalogue => catalogue.id)
-  catalogue: PostCatalogue;
+  @ManyToOne(() => Role, role => role.admins, { nullable: true })
+  @JoinColumn({ name: 'role_id' })
+  role: Role | null;
 }

@@ -104,17 +104,18 @@ export class ProductsController {
   }
 
   @Put(':id')
-  @UseInterceptors(AnyFilesInterceptor())
   @Public()
+  @UseInterceptors(AnyFilesInterceptor())
+
   async update(
     @Param('id') id: number,
     @Body() updateProductDto: UpdateProductDto,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
     // Map files by fieldname
-    const mainImage: Express.Multer.File | undefined = files.find(f => f.fieldname === 'mainImage')
-    const detailImages = files.filter(f => f.fieldname === 'detailImages') || [];
-    const featureImages = files.filter(f => f.fieldname === 'featureImages') || [];
+    const mainImage: Express.Multer.File | undefined = files?.find(f => f.fieldname === 'mainImage');
+    const detailImages = files?.filter(f => f.fieldname === 'detailImages') || [];
+    const featureImages = files?.filter(f => f.fieldname === 'featureImages') || [];
 
     // Parse features if sent as string
     const features = typeof updateProductDto.featured === 'string'

@@ -6,6 +6,11 @@ import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthController } from './auth.controller';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { RolePermission } from '../roles/role-permission.entity';
+import { Permission } from '../roles/permission.entity';
+import { Role } from '../roles/role.entity';
+import { PermissionsGuard } from '../auth/permissions.guard';
 
 @Module({
   imports: [
@@ -13,12 +18,13 @@ import { NotificationsModule } from '../notifications/notifications.module';
     PassportModule,
     NotificationsModule,
     JwtModule.register({
-      secret: 'secretKey',
-      signOptions: { expiresIn: '60m' },
+      secret: process.env.JWT_SECRET || 'chimpanzibananini',
+      signOptions: { expiresIn: '60h' },
     }),
+    TypeOrmModule.forFeature([RolePermission, Permission, Role]),
   ],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService],
+  providers: [AuthService, JwtStrategy, PermissionsGuard],
+  exports: [AuthService, PermissionsGuard],
   controllers: [AuthController],
 })
 export class AuthModule {}

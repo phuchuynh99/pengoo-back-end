@@ -34,6 +34,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/roles.guard';
 import { ImagesModule } from './images/images.module';
 import { Image } from './products/entities/image.entity';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { Image } from './products/entities/image.entity';
     DeliveryModule,
     MinigameModule,
     ImagesModule,
+    RolesModule,
   ],
   providers: [
     CategoriesService,
