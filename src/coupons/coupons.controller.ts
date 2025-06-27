@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, Get, Query, BadRequestException, UseGuards, Req, Patch, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, BadRequestException, UseGuards, Req, Patch, Param, Delete } from '@nestjs/common';
 
 import { CouponsService } from './coupons.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
@@ -112,6 +112,11 @@ export class CouponsController {
   @Public()
   getAll() {
     return this.couponsService.getAll();
+  }
+  @Delete(':id')
+  @Public()
+  delete(@Param('id') id: number) {
+    return this.couponsService.delete(id);
   }
 
   @Patch(':id/:status/status')

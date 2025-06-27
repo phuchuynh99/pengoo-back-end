@@ -108,4 +108,10 @@ export class CouponsService {
     coupon.status = status;
     return this.couponsRepository.save(coupon);
   }
+  async delete(id: number): Promise<Coupon> {
+    const coupon = await this.couponsRepository.findOne({ where: { id } });
+    if (!coupon) throw new NotFoundException('Coupon not found');
+
+    return this.couponsRepository.remove(coupon);
+  }
 }
