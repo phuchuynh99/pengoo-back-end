@@ -106,6 +106,7 @@ export class ProductsController {
   @Put(':id')
   @Public()
   @UseInterceptors(AnyFilesInterceptor())
+
   async update(
     @Param('id') id: number,
     @Body() updateProductDto: UpdateProductDto,

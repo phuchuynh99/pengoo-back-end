@@ -1,12 +1,16 @@
-import { Controller, Post, Body, Get, Query, BadRequestException, UseGuards, Req } from '@nestjs/common';
+
+import { Controller, Post, Body, Get, Query, BadRequestException, UseGuards, Req ,, Patch, Param } from '@nestjs/common';
+
 import { CouponsService } from './coupons.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserCoupon } from './user-coupon.entity';
+
 import { Public } from '../auth/public.decorator';
 import { ApiTags, ApiBody, ApiQuery, ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+
 
 @ApiTags('Coupons')
 @Controller('coupons')
@@ -15,7 +19,7 @@ export class CouponsController {
     private readonly couponsService: CouponsService,
     @InjectRepository(UserCoupon)
     private userCouponRepo: Repository<UserCoupon>,
-  ) {}
+  ) { }
 
   @Post()
   @Public()
@@ -45,6 +49,20 @@ export class CouponsController {
   }
 
   @Post('validate')
+  @ApiBody({
+    type: CreateCouponDto,
+    examples: {
+      default: {
+        summary: 'Example product',
+        value: {
+          code: "HUYDEPTRAI",
+          orderValue: 1000,
+          userId: 1,
+          product: [1, 2]
+        }
+      }
+    }
+  })
   @Public()
   @ApiOperation({ summary: 'Validate and apply a coupon to an order' })
   @ApiBody({
@@ -82,6 +100,23 @@ export class CouponsController {
     await this.userCouponRepo.save(userCoupon);
 
     return { message: 'Coupon redeemed! You can now use it.', coupon: userCoupon.coupon.code };
+  }
+
+  @Patch(':id')
+  @Public()
+  update(@Param('id') id: number, @Body() dto: UpdateCouponDto) {
+    return this.couponsService.update(+id, dto);
+  }
+  @Get()
+  @Public()
+  getAll() {
+    return this.couponsService.getAll();
+  }
+
+  @Patch(':id/:status/status')
+  @Public()
+  updateStatus(@Param('id') id: number, @Param('status') status: any) {
+    return this.couponsService.updateStatus(+id, status);
   }
 
   @UseGuards(JwtAuthGuard)
