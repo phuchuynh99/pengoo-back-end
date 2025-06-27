@@ -139,4 +139,17 @@ export class CouponsController {
     const coupons = await this.couponsService.getMilestoneCoupons();
     return { coupons };
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('my-vouchers')
+  @ApiOperation({ summary: 'Get all vouchers owned by the current user' })
+  async getMyVouchers(@Req() req) {
+    const userId = req.user.id;
+    const vouchers = await this.userCouponRepo.find({
+      where: { user: { id: userId } },
+      relations: ['coupon'],
+      order: { id: 'DESC' }
+    });
+    return { vouchers };
+  }
 }
