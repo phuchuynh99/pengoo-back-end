@@ -34,11 +34,11 @@ export class AuthService {
 
     await this.validateUser(user, password);
 
-    const payload: TokenPayloadDto = { 
-      email: user.email, 
-      sub: user.id, 
-      role: user.role, 
-      username: user.username 
+    const payload: TokenPayloadDto = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+      username: user.username
     };
 
     const token = this.signToken(payload);
@@ -51,6 +51,7 @@ export class AuthService {
   async verify(token: string): Promise<any> {
     try {
       const decoded = await this.jwtService.verify(token);
+      console.log(decoded)
       return decoded;
     } catch (error) {
       throw new UnauthorizedException('Invalid credentials');

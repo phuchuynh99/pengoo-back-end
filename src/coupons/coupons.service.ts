@@ -97,6 +97,10 @@ export class CouponsService {
     });
     return coupon ?? undefined;
   }
+  public async getAll(): Promise<Coupon[] | undefined> {
+    const coupon = await this.couponsRepository.find()
+    return coupon ?? undefined;
+  }
 
   async validateUserCoupon(userId: number, couponCode: string) {
     const userCoupon = await this.userCouponRepo.findOne({

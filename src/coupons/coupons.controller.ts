@@ -56,12 +56,19 @@ export class CouponsController {
     return { message: 'Coupon redeemed! You can now use it.', coupon: userCoupon.coupon.code };
   }
   @Patch(':id')
+  @Public()
   update(@Param('id') id: number, @Body() dto: UpdateCouponDto) {
     return this.couponsService.update(+id, dto);
   }
+  @Get()
+  @Public()
+  getAll() {
+    return this.couponsService.getAll();
+  }
 
-  @Patch(':id/status')
-  updateStatus(@Param('id') id: number, @Body() dto: UpdateCouponStatusDto) {
-    return this.couponsService.updateStatus(+id, dto.status);
+  @Patch(':id/:status/status')
+  @Public()
+  updateStatus(@Param('id') id: number, @Param('status') status: any) {
+    return this.couponsService.updateStatus(+id, status);
   }
 }
