@@ -66,12 +66,12 @@ export class MinigameController {
   @Post('play-scratch/reveal')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Reveal scratch result (returns grid and rewards)' })
-  @ApiBody({ schema: { example: { gameId: '...' }}})
+  @ApiBody({ schema: { example: { gameId: '...' } } })
   async revealScratch(@Req() req, @Body() body: { gameId: string }) {
     const userId = req.user.id;
     return this.minigameService.revealScratch(userId, body.gameId);
   }
-  
+
   @UseGuards(JwtAuthGuard)
   @Post('claim-daily-ticket')
   @ApiOperation({ summary: 'Claim your daily free minigame ticket' })
@@ -80,12 +80,6 @@ export class MinigameController {
     return this.minigameService.claimDailyFreeTicket(userId);
   }
 
-  @UseGuards(JwtAuthGuard)
-
-  @Post('claim-daily-ticket')
-  async claimDailyTicket(@Req() req) {
-    return this.minigameService.claimDailyFreeTicket(req.user.id);
-  }
   @Get('ticket-count')
   @ApiOperation({ summary: 'Get current user minigame ticket count' })
   async getTicketCount(@Req() req) {

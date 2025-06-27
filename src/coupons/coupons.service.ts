@@ -35,9 +35,9 @@ export class CouponsService {
     if (coupon.usedCount >= coupon.usageLimit) throw new BadRequestException('Coupon usage limit reached');
 
     // If coupon is restricted to certain users
-//     if (coupon.users && coupon.users.length > 0 && !coupon.users.some(u => u.id === userId)) {
-//       throw new BadRequestException('Coupon not valid for this user');
-//     }
+    //     if (coupon.users && coupon.users.length > 0 && !coupon.users.some(u => u.id === userId)) {
+    //       throw new BadRequestException('Coupon not valid for this user');
+    //     }
 
     // If coupon is restricted to certain products
     // if (coupon.products && coupon.products.length > 0 && !coupon.products.some(p => productIds.includes(p.id))) {
@@ -91,20 +91,12 @@ export class CouponsService {
   }
   async update(id: number, dto: UpdateCouponDto): Promise<Coupon> {
     const coupon = await this.couponsRepository.findOne({
-      where: { id },
-      relations: ['products', 'users'],
+      where: { id }
     });
     if (!coupon) throw new NotFoundException('Coupon not found');
 
     Object.assign(coupon, dto);
 
-    if (dto.productIds) {
-      coupon.products = await this.productsRepository.findBy({ id: In(dto.productIds) });
-    }
-
-    if (dto.userIds) {
-      coupon.users = await this.usersRepository.findBy({ id: In(dto.userIds) });
-    }
 
     return this.couponsRepository.save(coupon);
   }

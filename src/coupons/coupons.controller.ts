@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, Get, Query, BadRequestException, UseGuards, Req ,, Patch, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, BadRequestException, UseGuards, Req, Patch, Param } from '@nestjs/common';
 
 import { CouponsService } from './coupons.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
@@ -10,6 +10,7 @@ import { UserCoupon } from './user-coupon.entity';
 import { Public } from '../auth/public.decorator';
 import { ApiTags, ApiBody, ApiQuery, ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { UpdateCouponDto } from './dto/update-coupon.dto';
 
 
 @ApiTags('Coupons')
