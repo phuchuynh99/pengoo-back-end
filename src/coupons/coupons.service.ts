@@ -124,7 +124,7 @@ export class CouponsService {
       .getOne();
     if (!isActive) throw new NotFoundException('Coupon not found');
     await this.handleSaveCouponForUser(user.id, isActive.id)
-    return isActive;
+    return await this.getVoucherByUserId(user.id);
 
   }
   async handleSaveCouponForUser(userId, voucherId) {
@@ -132,7 +132,7 @@ export class CouponsService {
       .where("user_coupon.userId = :userId", { userId })
       .andWhere("user_coupon.redeemed = :redeemed", { redeemed: true })
       .andWhere("user_coupon.couponId = :voucherId", { voucherId })
-      .getMany();
+      .getOne();
     if (existing) throw new BadRequestException("User has redeem a voucher");
     const userCoupon = this.userCouponRepo.create({
       user: { id: userId },
