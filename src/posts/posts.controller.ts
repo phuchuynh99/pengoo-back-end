@@ -3,6 +3,7 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { ApiTags, ApiBody, ApiParam, ApiOperation } from '@nestjs/swagger';
+import { Public } from '../auth/public.decorator';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -10,6 +11,7 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @HttpPost()
+  @Public()
   @ApiOperation({ summary: 'Create a new post' })
   @ApiBody({
     type: CreatePostDto,

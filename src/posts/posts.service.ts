@@ -17,7 +17,9 @@ export class PostsService {
 
   async create(dto: CreatePostDto): Promise<Post> {
     const catalogue = await this.cataloguesRepository.findOne({ where: { id: dto.catalogueId } });
-    if (!catalogue) throw new NotFoundException('Catalogue not found');
+    if (!catalogue) {
+      throw new Error('Catalogue not found');
+    }
     const post = this.postsRepository.create({
       ...dto,
       catalogue,

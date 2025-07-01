@@ -35,6 +35,8 @@ import { RolesGuard } from './auth/roles.guard';
 import { ImagesModule } from './images/images.module';
 import { Image } from './products/entities/image.entity';
 import { RolesModule } from './roles/roles.module';
+import { Post } from './posts/posts.entity';
+import { PostCatalogue } from './posts/post-catalogue.entity';
 
 @Module({
   imports: [
@@ -47,7 +49,8 @@ import { RolesModule } from './roles/roles.module';
       useFactory: (configService: ConfigService) => (dataSourceOptions),
     }),
     TypeOrmModule.forFeature([
-      User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, Coupon, Image
+      User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, Coupon, Image,
+      Post, PostCatalogue
     ]),
     UsersModule,
     AuthModule,
