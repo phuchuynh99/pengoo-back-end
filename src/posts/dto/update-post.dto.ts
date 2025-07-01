@@ -1,13 +1,4 @@
-export class UpdatePostDto {
-  name?: string;
-  canonical?: string;
-  description?: string;
-  content?: string;
-  meta_description?: string;
-  meta_keyword?: string;
-  meta_title?: string;
-  image?: string;
-  order?: number;
-  publish?: boolean;
-  catalogueId?: number;
-}
+import { PartialType } from '@nestjs/mapped-types';
+import { CreatePostDto } from './create-post.dto';
+
+export class UpdatePostDto extends PartialType(CreatePostDto) {}
