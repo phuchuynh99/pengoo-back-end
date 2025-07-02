@@ -39,6 +39,7 @@ export class PostsController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Get all posts' })
   async findAll() {
     return this.postsService.findAll();
@@ -49,6 +50,14 @@ export class PostsController {
   @ApiParam({ name: 'id', type: Number, example: 1 })
   async findOne(@Param('id') id: number) {
     return this.postsService.findOne(+id);
+  }
+
+  @Get('slug/:canonical')
+  @Public()
+  @ApiOperation({ summary: 'Get post by canonical (slug)' })
+  @ApiParam({ name: 'canonical', type: String, example: 'how-to-choose-the-best-board-game' })
+  async findByCanonical(@Param('canonical') canonical: string) {
+    return this.postsService.findByCanonical(canonical);
   }
 
   @Patch(':id')
