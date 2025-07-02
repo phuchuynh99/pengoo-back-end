@@ -52,4 +52,11 @@ export class PostsService {
     const post = await this.findOne(id);
     await this.postsRepository.remove(post);
   }
+
+  async findByCanonical(canonical: string) {
+    return this.postsRepository.findOne({
+      where: { canonical },
+      relations: ['catalogue'],
+    });
+  }
 }
