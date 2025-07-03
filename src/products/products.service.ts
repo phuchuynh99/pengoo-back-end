@@ -20,6 +20,11 @@ export class FilterProductDto {
   tags?: string[];
   minPrice?: number;
   maxPrice?: number;
+  publisherId?: number;
+  status?: string;
+  sort?: string;
+  page?: number;
+  limit?: number;
 }
 
 @Injectable()
@@ -137,7 +142,7 @@ export class ProductsService {
     return savedProduct;
   }
 
-  async searchAndFilter(filter: FilterProductDto): Promise<Product[]> {
+  async searchAndFilter(filter: FilterProductDto): Promise<{items: Product[], total: number}> {
     const query = this.productsRepository.createQueryBuilder('product')
       .leftJoinAndSelect('product.category_ID', 'category')
       .leftJoinAndSelect('product.publisher_ID', 'publisher')
@@ -148,24 +153,47 @@ export class ProductsService {
     if (filter.name) {
       query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
     }
-
     if (filter.categoryId) {
       query.andWhere('category.id = :categoryId', { categoryId: filter.categoryId });
     }
-
     if (filter.tags && filter.tags.length > 0) {
       query.andWhere('tags.name IN (:...tags)', { tags: filter.tags });
     }
-
     if (filter.minPrice) {
       query.andWhere('product.product_price >= :minPrice', { minPrice: filter.minPrice });
     }
-
     if (filter.maxPrice) {
       query.andWhere('product.product_price <= :maxPrice', { maxPrice: filter.maxPrice });
     }
+    if (filter.publisherId) {
+      query.andWhere('publisher.id = :publisherId', { publisherId: filter.publisherId });
+    }
+    if (filter.status) {
+      query.andWhere('product.status = :status', { status: filter.status });
+    }
 
-    return query.getMany();
+    // Sorting
+    switch (filter.sort) {
+      case 'price_asc':
+        query.orderBy('product.product_price', 'ASC');
+        break;
+      case 'price_desc':
+        query.orderBy('product.product_price', 'DESC');
+        break;
+      case 'sold_desc':
+        query.orderBy('product.quantity_sold', 'DESC');
+        break;
+      default:
+        query.orderBy('product.created_at', 'DESC');
+    }
+
+    // Pagination
+    const page = filter.page || 1;
+    const limit = filter.limit || 20;
+    query.skip((page - 1) * limit).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+    return { items, total };
   }
 
   async findById(id: number): Promise<Product> {

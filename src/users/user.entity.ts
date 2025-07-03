@@ -1,8 +1,7 @@
 import { Cart } from 'src/cart/cart.entity';
 import { Review } from 'src/reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
-import { Coupon } from '../coupons/coupon.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, } from 'typeorm';
 import { TicketEarningLog } from '../minigame/ticket-earning-log.entity';
 import { UserCoupon } from '../coupons/user-coupon.entity';
 
@@ -70,4 +69,10 @@ export class User {
 
   @Column({ type: 'date', nullable: true })
   lastFreeTicketClaim: Date | null;
+
+  @Column({ type: 'varchar', length: 10, nullable: true })
+  mfaCode: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  mfaCodeExpires: Date | null;
 }

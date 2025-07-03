@@ -33,11 +33,25 @@ export class AuthController {
     },
   })
   async signin(@Body() body: SignInRequestDto) {
-    if (body.email) {
-      return this.authService.signin(body.email, body.password);
-    } else {
-      throw new BadRequestException('Email is required');
+    if (!body.email) throw new BadRequestException('Email is required');
+    if (!body.password) throw new BadRequestException('Password is required');
+    // This will send the code to email if password is correct
+    return this.authService.signinWithEmailMfa(body.email, body.password);
+  }
+
+  @Post('verify-mfa')
+  @Public()
+  @ApiBody({
+    schema: {
+      example: {
+        email: 'user@example.com',
+        code: '123456'
+      }
     }
+  })
+  async verifyMfa(@Body() body: { email: string; code: string }) {
+    if (!body.email || !body.code) throw new BadRequestException('Email and code are required');
+    return this.authService.verifyMfaCode(body.email, body.code);
   }
 
   @Post('verify')
@@ -94,5 +108,29 @@ export class AuthController {
     const success = await this.usersService.resetPassword(body.token, body.newPassword);
     if (!success) throw new BadRequestException('Invalid or expired token');
     return { message: 'Password has been reset successfully.' };
+  }
+
+  @Post('google')
+  @Public()
+  @ApiBody({
+    schema: {
+      example: { idToken: 'firebase-id-token' }
+    }
+  })
+  async googleLogin(@Body('idToken') idToken: string) {
+    if (!idToken) throw new BadRequestException('No idToken provided');
+    return this.authService.googleLogin(idToken);
+  }
+
+  @Post('facebook')
+  @Public()
+  @ApiBody({
+    schema: {
+      example: { accessToken: 'facebook-access-token' }
+    }
+  })
+  async facebookLogin(@Body('accessToken') accessToken: string) {
+    if (!accessToken) throw new BadRequestException('No accessToken provided');
+    return this.authService.facebookLogin(accessToken);
   }
 }
