@@ -142,7 +142,7 @@ export class ProductsService {
     return savedProduct;
   }
 
-  async searchAndFilter(filter: FilterProductDto): Promise<{items: Product[], total: number}> {
+async searchAndFilter(filter: FilterProductDto): Promise<Product[]> {
     const query = this.productsRepository.createQueryBuilder('product')
       .leftJoinAndSelect('product.category_ID', 'category')
       .leftJoinAndSelect('product.publisher_ID', 'publisher')
@@ -192,9 +192,10 @@ export class ProductsService {
     const limit = filter.limit || 20;
     query.skip((page - 1) * limit).take(limit);
 
-    const [items, total] = await query.getManyAndCount();
-    return { items, total };
-  }
+    // Only get the array of products, not [items, total]
+    const products = await query.getMany();
+    return products;
+}
 
   async findById(id: number): Promise<Product> {
     const product = await this.productsRepository.findOne({ where: { id: id }, relations: ['category_ID', 'publisher_ID', 'tags', 'images', 'featured'] });
