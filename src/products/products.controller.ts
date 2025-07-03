@@ -87,6 +87,11 @@ export class ProductsController {
     @Query('tags') tags?: string,
     @Query('minPrice') minPrice?: number,
     @Query('maxPrice') maxPrice?: number,
+    @Query('publisher') publisherId?: number,
+    @Query('status') status?: string,
+    @Query('sort') sort?: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
   ) {
     return this.productsService.searchAndFilter({
       name,
@@ -94,6 +99,11 @@ export class ProductsController {
       tags: tags ? tags.split(',') : undefined,
       minPrice: minPrice ? Number(minPrice) : undefined,
       maxPrice: maxPrice ? Number(maxPrice) : undefined,
+      publisherId: publisherId ? Number(publisherId) : undefined,
+      status,
+      sort,
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 20,
     });
   }
 
