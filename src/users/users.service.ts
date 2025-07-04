@@ -16,10 +16,24 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
-      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-      const newUser = new User();
+      // Validate email format (simple check)
+      if (!createUserDto.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(createUserDto.email)) {
+        throw new InternalServerErrorException('Invalid email format');
+      }
 
-      newUser.username = createUserDto.username;
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+      let baseUsername = createUserDto.email.split('@')[0].trim().toLowerCase();
+      let username = baseUsername;
+      let counter = 1;
+
+      // Ensure username uniqueness
+      while (await this.usersRepository.findOne({ where: { username } })) {
+        username = `${baseUsername}${counter}`;
+        counter++;
+      }
+
+      const newUser = new User();
+      newUser.username = username;
       newUser.full_name = createUserDto.full_name;
       newUser.password = hashedPassword;
       newUser.email = createUserDto.email;
@@ -28,8 +42,11 @@ export class UsersService {
       newUser.address = createUserDto.address;
       newUser.role = createUserDto.role || 'USER';
       newUser.status = true;
+
       return this.usersRepository.save(newUser);
     } catch (error) {
+      // Log the actual error for debugging
+      console.error('User creation error:', error);
       throw new InternalServerErrorException('User registration failed');
     }
   }
