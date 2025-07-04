@@ -25,4 +25,7 @@ export class Review {
 
   @ManyToOne(() => Order, order => order.reviews, { nullable: true })
   order: Order; // Optional: link to the order this review is about
+
+  @Column({ type: 'enum', enum: ['Visible', 'Hidden'], default: 'Visible' })
+  status: 'Visible' | 'Hidden';
 }

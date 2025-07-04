@@ -9,5 +9,5 @@ export class UpdateReviewDto {
 
   @IsNotEmpty()
   @IsString()
-  comment: string;
+  content: string; // Use 'content' for consistency
 }

@@ -56,7 +56,16 @@ export class ReviewsService {
     }
 
     review.rating = updateReviewDto.rating;
-    review.content = updateReviewDto.comment; 
+    review.content = updateReviewDto.content; 
+    return this.reviewsRepository.save(review);
+  }
+
+  async updateReviewStatus(reviewId: number, status: 'Visible' | 'Hidden'): Promise<Review> {
+    const review = await this.reviewsRepository.findOne({ where: { id: reviewId } });
+    if (!review) {
+      throw new NotFoundException('Review not found');
+    }
+    review.status = status;
     return this.reviewsRepository.save(review);
   }
 
@@ -71,5 +80,12 @@ export class ReviewsService {
 
   async getProductReviews(productId: number): Promise<Review[]> {
     return this.reviewsRepository.find({ where: { product: { id: productId } }, relations: ['user'] });
+  }
+
+  async getUserReviews(userId: number): Promise<Review[]> {
+    return this.reviewsRepository.find({
+      where: { user: { id: userId } },
+      relations: ['product'],
+    });
   }
 }
