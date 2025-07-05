@@ -1,38 +1,79 @@
-import { Controller, Post, Delete, Get, Param, Req, Body } from '@nestjs/common';
+import { Controller, Post, Delete, Get, Param, Body } from '@nestjs/common';
 import { WishlistService } from './wishlist.service';
-import { Request } from 'express';
-import { Public } from '../auth/public.decorator'; // Add this import
+import { Public } from '../auth/public.decorator';
 
-interface AuthenticatedRequest extends Request {
-  user: { id: number; [key: string]: any };
+// Swagger imports
+import { ApiTags, ApiBody, ApiParam } from '@nestjs/swagger';
+
+interface WishlistBody {
+  userId: number;
 }
 
+@ApiTags('Wishlist')
 @Controller('wishlist')
 export class WishlistController {
   constructor(private readonly wishlistService: WishlistService) {}
 
   @Post(':productId')
   @Public()
-  addToWishlist(@Body() body: { userId: number }, @Param('productId') productId: string) {
-    // Lấy userId từ body thay vì req.user
+  @ApiParam({ name: 'productId', type: Number, required: true })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        userId: { type: 'number', example: 1 },
+      },
+      required: ['userId'],
+    },
+  })
+  addToWishlist(@Body() body: WishlistBody, @Param('productId') productId: string) {
     return this.wishlistService.addToWishlist(body.userId, Number(productId));
   }
 
   @Delete(':productId')
   @Public()
-  removeFromWishlist(@Body() body: { userId: number }, @Param('productId') productId: string) {
+  @ApiParam({ name: 'productId', type: Number, required: true })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        userId: { type: 'number', example: 1 },
+      },
+      required: ['userId'],
+    },
+  })
+  removeFromWishlist(@Body() body: WishlistBody, @Param('productId') productId: string) {
     return this.wishlistService.removeFromWishlist(body.userId, Number(productId));
   }
 
   @Get()
   @Public()
-  viewWishlist(@Body() body: { userId: number }) {
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        userId: { type: 'number', example: 1 },
+      },
+      required: ['userId'],
+    },
+  })
+  viewWishlist(@Body() body: WishlistBody) {
     return this.wishlistService.viewWishlist(body.userId);
   }
 
   @Post('move-to-order/:orderId')
   @Public()
-  async moveToOrder(@Body() body: { userId: number }, @Param('orderId') orderId: string) {
+  @ApiParam({ name: 'orderId', type: Number, required: true })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        userId: { type: 'number', example: 1 },
+      },
+      required: ['userId'],
+    },
+  })
+  async moveToOrder(@Body() body: WishlistBody, @Param('orderId') orderId: string) {
     return this.wishlistService.moveWishlistToOrder(body.userId, Number(orderId));
   }
 }
