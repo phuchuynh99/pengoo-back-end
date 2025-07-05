@@ -99,7 +99,7 @@ export class AuthService {
           avatar_url: picture ?? '',
           phone_number: '',
           address: '',
-          role: 'USER',
+          role: 'user',
         });
       }
 
