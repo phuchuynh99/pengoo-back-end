@@ -10,10 +10,13 @@ export class CreateImageDto {
     name: string;
 
     @IsOptional()
+    @IsString()
+    folder?: string;
+
+    @IsOptional()
     @IsNumber()
     ord?: number;
 
-    @IsNotEmpty()
-    @IsNumber()
+    @IsOptional()
     product?: { id: number };
 }

@@ -1,20 +1,23 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Product } from '../product.entity';
 
 @Entity()
 export class Image {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    url: string;
+  @Column()
+  url: string;
 
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @Column({ nullable: true })
-    ord: number;
+  @Column({ nullable: true })
+  folder?: string;
 
-    @ManyToOne(() => Product, (product) => product.images, { onDelete: 'CASCADE' })
-    product: Product;
+  @Column({ nullable: true, type: 'int' })
+  ord?: number;
+
+  @ManyToOne(() => Product, (product) => product.images, { nullable: true, onDelete: 'CASCADE' })
+  product?: Product;
 }

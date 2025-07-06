@@ -38,4 +38,25 @@ export class ImagesService {
     const image = await this.findOne(id);
     await this.imageRepo.remove(image);
   }
+
+  async moveImage(id: number, folder: string) {
+    const image = await this.imageRepo.findOneBy({ id });
+    if (!image) throw new NotFoundException('Image not found');
+    image.folder = folder;
+    return this.imageRepo.save(image);
+  }
+
+  async deleteFolder(path: string) {
+    // Delete all images in this folder and subfolders
+    const images = await this.imageRepo
+      .createQueryBuilder('image')
+      .where('image.folder LIKE :path', { path: `${path}%` })
+      .getMany();
+
+    for (const img of images) {
+      await this.imageRepo.delete(img.id);
+      // Optionally: delete from Cloudinary as well
+    }
+    return { deleted: images.length };
+  }
 }
