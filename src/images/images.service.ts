@@ -5,6 +5,7 @@ import { Image } from '../products/entities/image.entity';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
 import { Product } from '../products/product.entity';
+import { v2 as cloudinary } from 'cloudinary';
 
 @Injectable()
 export class ImagesService {
@@ -53,10 +54,22 @@ export class ImagesService {
       .where('image.folder LIKE :path', { path: `${path}%` })
       .getMany();
 
+    let deletedFromCloudinary = 0;
     for (const img of images) {
+      // Extract public_id from URL (assuming standard Cloudinary URL)
+      // Example: https://res.cloudinary.com/<cloud_name>/image/upload/v123456789/folder/file.jpg
+      const match = img.url.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z]+$/);
+      const publicId = match ? match[1] : null;
+      if (publicId) {
+        try {
+          await cloudinary.uploader.destroy(publicId);
+          deletedFromCloudinary++;
+        } catch (e) {
+          // Optionally log error
+        }
+      }
       await this.imageRepo.delete(img.id);
-      // Optionally: delete from Cloudinary as well
     }
-    return { deleted: images.length };
+    return { deleted: images.length, deletedFromCloudinary };
   }
 }

@@ -5,7 +5,7 @@ import { ImagesService } from './images.service';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
 import { ApiTags, ApiBody, ApiParam, ApiOperation } from '@nestjs/swagger';
-import '../cloudinary.config'; // <-- fixed import
+import '../cloudinary.config';
 import { v2 as cloudinary } from 'cloudinary';
 
 @ApiTags('Images')
@@ -23,6 +23,7 @@ export class ImagesController {
         value: {
           url: 'https://example.com/image.jpg',
           name: 'Sample Image',
+          folder: 'products',
           ord: 1,
           product: { id: 1 }
         }
@@ -69,9 +70,21 @@ export class ImagesController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete image by ID' })
+  @ApiOperation({ summary: 'Delete image by ID (also deletes from Cloudinary)' })
   @ApiParam({ name: 'id', type: Number, example: 1 })
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
+    // Find image to get its URL for Cloudinary deletion
+    const image = await this.imagesService.findOne(+id);
+    // Extract public_id from URL
+    const match = image.url.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z]+$/);
+    const publicId = match ? match[1] : null;
+    if (publicId) {
+      try {
+        await cloudinary.uploader.destroy(publicId);
+      } catch (e) {
+        // Optionally log error
+      }
+    }
     return this.imagesService.remove(+id);
   }
 
@@ -96,14 +109,16 @@ export class ImagesController {
   }
 
   @Delete('folder')
+  @ApiOperation({ summary: 'Delete all images in a folder (and subfolders) from DB and Cloudinary' })
   async deleteFolder(@Query('path') path: string) {
     return this.imagesService.deleteFolder(path);
   }
 
   @Get('folders')
+  @ApiOperation({ summary: 'Get all folder paths' })
   async getFolderTree() {
     const images = await this.imagesService.findAll();
-    // Build tree as in your frontend, or return flat list for frontend to build
-    return images.map(img => img.folder || 'default');
+    // Return unique folder paths for frontend to build tree
+    return Array.from(new Set(images.map(img => img.folder || 'default')));
   }
 }
