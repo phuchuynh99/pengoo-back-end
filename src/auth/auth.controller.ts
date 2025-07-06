@@ -16,7 +16,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
-  ) {}
+  ) { }
 
   @Post('signin')
   @Public()
@@ -122,15 +122,15 @@ export class AuthController {
     return this.authService.googleLogin(idToken);
   }
 
-  @Post('facebook')
-  @Public()
-  @ApiBody({
-    schema: {
-      example: { accessToken: 'facebook-access-token' }
-    }
-  })
-  async facebookLogin(@Body('accessToken') accessToken: string) {
-    if (!accessToken) throw new BadRequestException('No accessToken provided');
-    return this.authService.facebookLogin(accessToken);
-  }
+  // @Post('facebook')
+  // @Public()
+  // @ApiBody({
+  //   schema: {
+  //     example: { accessToken: 'facebook-access-token' }
+  //   }
+  // })
+  // async facebookLogin(@Body('accessToken') accessToken: string) {
+  //   if (!accessToken) throw new BadRequestException('No accessToken provided');
+  //   return this.authService.facebookLogin(accessToken);
+  // }
 }

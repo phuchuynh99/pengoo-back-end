@@ -167,43 +167,43 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async facebookLogin(accessToken: string) {
-    try {
-      // Get user info from Facebook Graph API
-      const fbRes = await fetch(`https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${accessToken}`);
-      const fbData = await fbRes.json();
+  // async facebookLogin(accessToken: string) {
+  //   try {
+  //     // Get user info from Facebook Graph API
+  //     const fbRes = await fetch(`https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${accessToken}`);
+  //     const fbData = await fbRes.json();
 
-      if (!fbData.email) {
-        throw new UnauthorizedException('Facebook account email is missing');
-      }
+  //     if (!fbData.email) {
+  //       throw new UnauthorizedException('Facebook account email is missing');
+  //     }
 
-      let user = await this.usersService.findByEmail(fbData.email);
-      if (!user) {
-        user = await this.usersService.create({
-          username: fbData.id,
-          password: Math.random().toString(36).slice(-8),
-          full_name: fbData.name ?? fbData.email ?? '',
-          email: fbData.email,
-          avatar_url: fbData.picture?.data?.url ?? '',
-          phone_number: '',
-          address: '',
-          role: 'USER',
-        });
-      }
+  //     let user = await this.usersService.findByEmail(fbData.email);
+  //     if (!user) {
+  //       user = await this.usersService.create({
+  //         username: fbData.id,
+  //         password: Math.random().toString(36).slice(-8),
+  //         full_name: fbData.name ?? fbData.email ?? '',
+  //         email: fbData.email,
+  //         avatar_url: fbData.picture?.data?.url ?? '',
+  //         phone_number: '',
+  //         address: '',
+  //         role: 'USER',
+  //       });
+  //     }
 
-      // --- MFA: Send code to email, require verification ---
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-      user.mfaCode = code;
-      user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
-      await this.usersService.update(user.id, user);
-      await this.notificationsService.sendEmail(
-        user.email,
-        'Your Login Confirmation Code',
-        `Your code is: ${code}`
-      );
-      return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
-    } catch (error) {
-      throw new UnauthorizedException('Invalid Facebook token');
-    }
-  }
+  //     // --- MFA: Send code to email, require verification ---
+  //     const code = Math.floor(100000 + Math.random() * 900000).toString();
+  //     user.mfaCode = code;
+  //     user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
+  //     await this.usersService.update(user.id, user);
+  //     await this.notificationsService.sendEmail(
+  //       user.email,
+  //       'Your Login Confirmation Code',
+  //       `Your code is: ${code}`
+  //     );
+  //     return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
+  //   } catch (error) {
+  //     throw new UnauthorizedException('Invalid Facebook token');
+  //   }
+  // }
 }

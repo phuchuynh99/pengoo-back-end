@@ -6,6 +6,7 @@ import { Publisher } from 'src/publishers/entities/publisher.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Image } from './entities/image.entity';
 import { Featured } from './entities/featured.entity';
+import { Collection } from 'src/collection/entities/collection.entity';
 
 @Entity('product')
 export class Product {
@@ -64,6 +65,9 @@ export class Product {
 
   @OneToMany(() => Featured, (feature) => feature.product, { cascade: true })
   featured: Featured[];
+
+  @ManyToOne(() => Collection, (collection) => collection.products, { onDelete: 'SET NULL' })
+  collection: Collection | null;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
