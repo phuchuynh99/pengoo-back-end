@@ -48,7 +48,6 @@ export class ImagesService {
   }
 
   async deleteFolder(path: string) {
-    // Delete all images in this folder and subfolders
     const images = await this.imageRepo
       .createQueryBuilder('image')
       .where('image.folder LIKE :path', { path: `${path}%` })
@@ -70,6 +69,7 @@ export class ImagesService {
       }
       await this.imageRepo.delete(img.id);
     }
+    // Always return success, even if images.length === 0
     return { deleted: images.length, deletedFromCloudinary };
   }
 }

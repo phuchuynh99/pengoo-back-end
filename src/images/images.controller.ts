@@ -1,5 +1,5 @@
 import {
-  Controller, Get, Post, Body, Patch, Param, Delete, Query
+  Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe
 } from '@nestjs/common';
 import { ImagesService } from './images.service';
 import { CreateImageDto } from './dto/create-image.dto';
@@ -72,7 +72,7 @@ export class ImagesController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete image by ID (also deletes from Cloudinary)' })
   @ApiParam({ name: 'id', type: Number, example: 1 })
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id', ParseIntPipe) id: number) {
     // Find image to get its URL for Cloudinary deletion
     const image = await this.imagesService.findOne(+id);
     // Extract public_id from URL
