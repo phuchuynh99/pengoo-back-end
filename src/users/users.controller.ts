@@ -22,13 +22,13 @@ export class UsersController {
   }
 
   @Get()
-  @Roles('Admin', 'Editor')
+  @Roles('admin', 'editor')
   async getAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  @Roles('Admin', 'Editor', 'Viewer')
+  @Roles('admin', 'editor', 'viewer')
   async getById(@Param('id') id: number) {
     return this.usersService.findById(Number(id));
   }
@@ -39,20 +39,20 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles('Admin')
+  @Roles('admin')
   async remove(@Param('id') id: number) {
     await this.usersService.remove(Number(id));
     return { message: 'User deleted' };
   }
 
   @Patch(':id/status')
-  @Roles('Admin', 'Editor')
+  @Roles('admin', 'editor')
   async setStatus(@Param('id') id: number, @Body('status') status: boolean) {
     return this.usersService.setStatus(Number(id), status);
   }
 
   @Patch(':id/reset-password')
-  @Roles('Admin')
+  @Roles('admin')
   async adminResetPassword(
     @Param('id') id: number,
     @Body('newPassword') newPassword: string
@@ -61,14 +61,14 @@ export class UsersController {
   }
 
   @Patch(':id/role')
-  @Roles('Admin')
+  @Roles('admin')
   @ApiBody({
     schema: {
       example: {
-        role: 'Editor'
+        role: 'editor'
       }
     },
-    description: 'Set the new role for the user. Example roles: Admin, Editor, Viewer, USER'
+    description: 'Set the new role for the user. Example roles: admin, editor, viewer, user'
   })
   async updateRole(
     @Param('id') id: number,
