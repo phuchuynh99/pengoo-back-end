@@ -51,7 +51,7 @@ export class AuthService {
     }
   }
 
-  async googleLogin(idToken: string) {
+  async googleLogin(idToken: string, skipMfa = false) {
     try {
       // Initialize Firebase Admin if not already
       if (!admin.apps.length) {
@@ -92,7 +92,17 @@ export class AuthService {
         });
       }
 
-      // --- MFA: Send code to email, require verification ---
+      if (skipMfa) {
+        const payload: TokenPayloadDto = {
+          email: user.email,
+          sub: user.id,
+          role: user.role,
+          username: user.username
+        };
+        const token = this.signToken(payload);
+        return { token, username: user.username, role: user.role, profileCompleted: !!user.full_name };
+      }
+      // --- MFA: Send code to email, require verification (dashboard only) ---
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       user.mfaCode = code;
       user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
@@ -156,7 +166,7 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async facebookLogin(accessToken: string) {
+  async facebookLogin(accessToken: string, skipMfa = false) {
     try {
       // Get user info from Facebook Graph API
       const fbRes = await fetch(`https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${accessToken}`);
@@ -180,7 +190,17 @@ export class AuthService {
         });
       }
 
-      // --- MFA: Send code to email, require verification ---
+      if (skipMfa) {
+        const payload: TokenPayloadDto = {
+          email: user.email,
+          sub: user.id,
+          role: user.role,
+          username: user.username
+        };
+        const token = this.signToken(payload);
+        return { token, username: user.username, role: user.role, profileCompleted: !!user.full_name };
+      }
+      // --- MFA: Send code to email, require verification (dashboard only) ---
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       user.mfaCode = code;
       user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
