@@ -133,4 +133,21 @@ export class AuthController {
     if (!accessToken) throw new BadRequestException('No accessToken provided');
     return this.authService.facebookLogin(accessToken);
   }
+
+  @Post('simple-login')
+  @Public()
+  @ApiBody({
+    schema: {
+      example: {
+        email: 'user@example.com',
+        password: 'yourPassword123',
+      },
+    },
+  })
+  async simpleLogin(@Body() body: { email: string; password: string }) {
+    if (!body.email) throw new BadRequestException('Email is required');
+    if (!body.password) throw new BadRequestException('Password is required');
+    // This will NOT send MFA code, just validate and return token
+    return this.authService.signin(body.email, body.password);
+  }
 }
