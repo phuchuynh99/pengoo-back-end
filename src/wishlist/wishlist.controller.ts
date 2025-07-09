@@ -1,10 +1,10 @@
-import { Controller, Post, Delete, Get, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Delete, Get, Param, Body, Query } from '@nestjs/common'; // Removed UseGuards
 import { WishlistService } from './wishlist.service';
-import { Roles } from '../auth/roles.decorator';
-import { RolesGuard } from '../auth/roles.guard';
+// import { Roles } from '../auth/roles.decorator';
+// import { RolesGuard } from '../auth/roles.guard';
 
 // Swagger imports
-import { ApiTags, ApiBody, ApiParam, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBody, ApiParam, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 
 interface WishlistBody {
   userId: number;
@@ -17,8 +17,8 @@ export class WishlistController {
   constructor(private readonly wishlistService: WishlistService) {}
 
   @Post(':productId')
-  @Roles('user')
-  @UseGuards(RolesGuard)
+  // @Roles('user')
+  // @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Add product to wishlist' })
   @ApiParam({ name: 'productId', type: Number, required: true })
   @ApiBody({
@@ -41,8 +41,8 @@ export class WishlistController {
   }
 
   @Delete(':productId')
-  @Roles('user')
-  @UseGuards(RolesGuard)
+  // @Roles('user')
+  // @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Remove product from wishlist' })
   @ApiParam({ name: 'productId', type: Number, required: true })
   @ApiBody({
@@ -65,31 +65,17 @@ export class WishlistController {
   }
 
   @Get()
-  @Roles('user')
-  @UseGuards(RolesGuard)
+  // @Roles('user')
+  // @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'View wishlist' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        userId: { type: 'number', example: 1 },
-      },
-      required: ['userId'],
-    },
-    examples: {
-      user: {
-        summary: 'View wishlist',
-        value: { userId: 1 },
-      },
-    },
-  })
-  viewWishlist(@Body() body: WishlistBody) {
-    return this.wishlistService.viewWishlist(body.userId);
+  @ApiQuery({ name: 'userId', type: Number, required: true })
+  viewWishlist(@Query('userId') userId: number) {
+    return this.wishlistService.viewWishlist(Number(userId));
   }
 
   @Post('move-to-order/:orderId')
-  @Roles('user')
-  @UseGuards(RolesGuard)
+  // @Roles('user')
+  // @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Move wishlist items to order' })
   @ApiParam({ name: 'orderId', type: Number, required: true })
   @ApiBody({

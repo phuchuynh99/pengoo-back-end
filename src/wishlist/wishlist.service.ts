@@ -5,7 +5,7 @@ import { Wishlist } from './wishlist.entity';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
 import { OrdersService } from '../orders/orders.service';
-import { Order } from '../orders/order.entity';
+
 
 @Injectable()
 export class WishlistService {
