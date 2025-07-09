@@ -142,13 +142,14 @@ export class ProductsService {
     return savedProduct;
   }
 
-async searchAndFilter(filter: FilterProductDto): Promise<Product[]> {
+  async searchAndFilter(filter: FilterProductDto): Promise<Product[]> {
     const query = this.productsRepository.createQueryBuilder('product')
       .leftJoinAndSelect('product.category_ID', 'category')
       .leftJoinAndSelect('product.publisher_ID', 'publisher')
       .leftJoinAndSelect('product.tags', 'tags')
       .leftJoinAndSelect('product.images', 'images')
-      .leftJoinAndSelect('product.featured', 'featured');
+      .leftJoinAndSelect('product.featured', 'featured')
+      .leftJoinAndSelect('product.collection', 'collection');
 
     if (filter.name) {
       query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
@@ -195,7 +196,7 @@ async searchAndFilter(filter: FilterProductDto): Promise<Product[]> {
     // Only get the array of products, not [items, total]
     const products = await query.getMany();
     return products;
-}
+  }
 
   async findById(id: number): Promise<Product> {
     const product = await this.productsRepository.findOne({ where: { id: id }, relations: ['category_ID', 'publisher_ID', 'tags', 'images', 'featured'] });
