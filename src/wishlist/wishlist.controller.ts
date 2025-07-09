@@ -1,8 +1,5 @@
-import { Controller, Post, Delete, Get, Param, Body, Query } from '@nestjs/common'; // Removed UseGuards
+import { Controller, Post, Delete, Get, Param, Body, Query, BadRequestException } from '@nestjs/common';
 import { WishlistService } from './wishlist.service';
-// import { Roles } from '../auth/roles.decorator';
-// import { RolesGuard } from '../auth/roles.guard';
-
 // Swagger imports
 import { ApiTags, ApiBody, ApiParam, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 
@@ -17,8 +14,6 @@ export class WishlistController {
   constructor(private readonly wishlistService: WishlistService) {}
 
   @Post(':productId')
-  // @Roles('user')
-  // @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Add product to wishlist' })
   @ApiParam({ name: 'productId', type: Number, required: true })
   @ApiBody({
@@ -37,12 +32,14 @@ export class WishlistController {
     },
   })
   addToWishlist(@Body() body: WishlistBody, @Param('productId') productId: string) {
-    return this.wishlistService.addToWishlist(body.userId, Number(productId));
+    const userId = Number(body.userId);
+    if (!body || isNaN(userId)) {
+      throw new BadRequestException('userId is required and must be a number');
+    }
+    return this.wishlistService.addToWishlist(userId, Number(productId));
   }
 
   @Delete(':productId')
-  // @Roles('user')
-  // @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Remove product from wishlist' })
   @ApiParam({ name: 'productId', type: Number, required: true })
   @ApiBody({
@@ -61,12 +58,14 @@ export class WishlistController {
     },
   })
   removeFromWishlist(@Body() body: WishlistBody, @Param('productId') productId: string) {
-    return this.wishlistService.removeFromWishlist(body.userId, Number(productId));
+    const userId = Number(body.userId);
+    if (!body || isNaN(userId)) {
+      throw new BadRequestException('userId is required and must be a number');
+    }
+    return this.wishlistService.removeFromWishlist(userId, Number(productId));
   }
 
   @Get()
-  // @Roles('user')
-  // @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'View wishlist' })
   @ApiQuery({ name: 'userId', type: Number, required: true })
   viewWishlist(@Query('userId') userId: number) {
@@ -74,8 +73,6 @@ export class WishlistController {
   }
 
   @Post('move-to-order/:orderId')
-  // @Roles('user')
-  // @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Move wishlist items to order' })
   @ApiParam({ name: 'orderId', type: Number, required: true })
   @ApiBody({
@@ -94,6 +91,10 @@ export class WishlistController {
     },
   })
   async moveToOrder(@Body() body: WishlistBody, @Param('orderId') orderId: string) {
-    return this.wishlistService.moveWishlistToOrder(body.userId, Number(orderId));
+    const userId = Number(body.userId);
+    if (!body || isNaN(userId)) {
+      throw new BadRequestException('userId is required and must be a number');
+    }
+    return this.wishlistService.moveWishlistToOrder(userId, Number(orderId));
   }
 }
