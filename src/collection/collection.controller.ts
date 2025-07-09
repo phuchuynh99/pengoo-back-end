@@ -23,11 +23,13 @@ export class CollectionController {
     return this.collectionService.updateProductsInCollection(id, body);
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.collectionService.findAll();
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.collectionService.findOne(id);

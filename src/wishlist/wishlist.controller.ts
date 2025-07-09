@@ -1,4 +1,4 @@
-import { Controller, Post, Delete, Get, Param, Req, Body } from '@nestjs/common';
+import { Controller, Post, Delete, Get, Param, Req, Body,Query } from '@nestjs/common';
 import { WishlistService } from './wishlist.service';
 import { Request } from 'express';
 import { Public } from '../auth/public.decorator'; // Add this import
@@ -24,11 +24,11 @@ export class WishlistController {
     return this.wishlistService.removeFromWishlist(body.userId, Number(productId));
   }
 
-  @Get()
-  @Public()
-  viewWishlist(@Body() body: { userId: number }) {
-    return this.wishlistService.viewWishlist(body.userId);
-  }
+@Get()
+@Public()
+viewWishlist(@Query('userId') userId: string) {
+  return this.wishlistService.viewWishlist(Number(userId));
+}
 
   @Post('move-to-order/:orderId')
   @Public()

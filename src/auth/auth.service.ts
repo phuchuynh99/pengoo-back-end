@@ -42,7 +42,8 @@ export class AuthService {
       email: user.email,
       sub: user.id,
       role: user.role,
-      username: user.username
+      username: user.username,
+      points: user.points || 0, 
     };
 
     const token = this.signToken(payload);
