@@ -6,6 +6,7 @@ import { Publisher } from 'src/publishers/entities/publisher.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Image } from './entities/image.entity';
 import { Featured } from './entities/featured.entity';
+import { Collection } from 'src/collections/collection.entity';
 
 @Entity('product')
 export class Product {
@@ -64,6 +65,9 @@ export class Product {
 
   @OneToMany(() => Featured, (feature) => feature.product, { cascade: true })
   featured: Featured[];
+
+  @OneToMany(() => Collection, (collection) => collection.products, { cascade: true })
+  collection: Collection;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

@@ -170,7 +170,7 @@ export class AuthService {
     try {
       // Get user info from Facebook Graph API
       const fbRes = await fetch(`https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${accessToken}`);
-      const fbData = await fbRes.json();
+      const fbData: any = await fbRes.json();
 
       if (!fbData.email) {
         throw new UnauthorizedException('Facebook account email is missing');
