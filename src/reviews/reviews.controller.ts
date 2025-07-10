@@ -14,6 +14,7 @@ import { CreateReviewDto } from './create-review.dto';
 import { UpdateReviewDto } from './update-review.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Public } from '../auth/public.decorator'; // Adjust the path if needed
 
 @ApiTags('reviews')
 @ApiBearerAuth('jwt')
@@ -105,6 +106,7 @@ export class ReviewsController {
   }
 
   @Get('product/:productId')
+  @Public()
   @ApiOperation({ summary: 'Get all reviews for a product' })
   @ApiParam({ name: 'productId', type: Number })
   @ApiResponse({ status: 200, description: 'List of reviews' })
@@ -113,10 +115,19 @@ export class ReviewsController {
   }
 
   @Get('user/:userId')
+  @Public()
   @ApiOperation({ summary: 'Get all reviews by a user' })
   @ApiParam({ name: 'userId', type: Number })
   @ApiResponse({ status: 200, description: 'List of reviews by user' })
   async getUserReviews(@Param('userId') userId: number) {
     return this.reviewsService.getUserReviews(userId);
+  }
+
+  @Get()
+  @Public()
+  @ApiOperation({ summary: 'Get all reviews' })
+  @ApiResponse({ status: 200, description: 'List of all reviews' })
+  async getAllReviews() {
+    return this.reviewsService.getAllReviews();
   }
 }

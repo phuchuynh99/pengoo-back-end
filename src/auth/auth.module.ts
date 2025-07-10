@@ -11,15 +11,21 @@ import { RolePermission } from '../roles/role-permission.entity';
 import { Permission } from '../roles/permission.entity';
 import { Role } from '../roles/role.entity';
 import { PermissionsGuard } from '../auth/permissions.guard';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule, // <-- add this if not already imported globally
     UsersModule,
     PassportModule,
     NotificationsModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'chimpanzibananini',
-      signOptions: { expiresIn: '60h' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '60h' },
+      }),
     }),
     TypeOrmModule.forFeature([RolePermission, Permission, Role]),
   ],

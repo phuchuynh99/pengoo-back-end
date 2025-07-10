@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query } from '@nestjs/common';
 import { TagsService } from './tags.service';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
-import { Public } from '../auth/public.decorator'; // Add this import
+import { Public } from '../auth/public.decorator';
 
 @Controller('tags')
 export class TagsController {
@@ -16,7 +16,10 @@ export class TagsController {
 
   @Get()
   @Public()
-  findAll() {
+  findAll(@Query('type') type?: string) {
+    if (type) {
+      return this.tagsService.findByType(type);
+    }
     return this.tagsService.findAll();
   }
 

@@ -49,4 +49,11 @@ export class TagsService {
     const tag = await this.findOne(id);
     await this.tagRepository.remove(tag);
   }
+
+  async findByType(type: string): Promise<Tag[]> {
+    return this.tagRepository.find({
+      where: { type },
+      relations: ['products'],
+    });
+  }
 }

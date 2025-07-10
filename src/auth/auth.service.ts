@@ -25,17 +25,8 @@ export class AuthService {
   }
 
   async signin(email: string, password: string): Promise<SignInResponseDto> {
-    // Debug log: show input email and password (do not log password in production)
-    console.log('[AuthService] Attempting login for email:', email);
-
     const user = await this.usersService.findByEmail(email);
-    console.log('[AuthService] User found:', user);
-
-    if (!user) {
-      console.log('[AuthService] User not found for email:', email);
-      throw new UnauthorizedException('User not found');
-    }
-
+    if (!user) throw new UnauthorizedException('User not found');
     await this.validateUser(user, password);
 
     const payload: TokenPayloadDto = {
@@ -46,8 +37,6 @@ export class AuthService {
     };
 
     const token = this.signToken(payload);
-
-    console.log('[AuthService] Login successful for user:', user.username, 'Token:', token);
 
     return new SignInResponseDto(token, user.username, user.role);
   }
@@ -62,7 +51,7 @@ export class AuthService {
     }
   }
 
-  async googleLogin(idToken: string) {
+  async googleLogin(idToken: string, skipMfa = false) {
     try {
       // Initialize Firebase Admin if not already
       if (!admin.apps.length) {
@@ -99,11 +88,21 @@ export class AuthService {
           avatar_url: picture ?? '',
           phone_number: '',
           address: '',
-          role: 'USER',
+          role: 'user',
         });
       }
 
-      // --- MFA: Send code to email, require verification ---
+      if (skipMfa) {
+        const payload: TokenPayloadDto = {
+          email: user.email,
+          sub: user.id,
+          role: user.role,
+          username: user.username
+        };
+        const token = this.signToken(payload);
+        return { token, username: user.username, role: user.role, profileCompleted: !!user.full_name };
+      }
+      // --- MFA: Send code to email, require verification (dashboard only) ---
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       user.mfaCode = code;
       user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
@@ -167,43 +166,53 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  // async facebookLogin(accessToken: string) {
-  //   try {
-  //     // Get user info from Facebook Graph API
-  //     const fbRes = await fetch(`https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${accessToken}`);
-  //     const fbData = await fbRes.json();
+  async facebookLogin(accessToken: string, skipMfa = false) {
+    try {
+      // Get user info from Facebook Graph API
+      const fbRes = await fetch(`https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${accessToken}`);
+      const fbData: any = await fbRes.json();
 
-  //     if (!fbData.email) {
-  //       throw new UnauthorizedException('Facebook account email is missing');
-  //     }
+      if (!fbData.email) {
+        throw new UnauthorizedException('Facebook account email is missing');
+      }
 
-  //     let user = await this.usersService.findByEmail(fbData.email);
-  //     if (!user) {
-  //       user = await this.usersService.create({
-  //         username: fbData.id,
-  //         password: Math.random().toString(36).slice(-8),
-  //         full_name: fbData.name ?? fbData.email ?? '',
-  //         email: fbData.email,
-  //         avatar_url: fbData.picture?.data?.url ?? '',
-  //         phone_number: '',
-  //         address: '',
-  //         role: 'USER',
-  //       });
-  //     }
+      let user = await this.usersService.findByEmail(fbData.email);
+      if (!user) {
+        user = await this.usersService.create({
+          username: fbData.id,
+          password: Math.random().toString(36).slice(-8),
+          full_name: fbData.name ?? fbData.email ?? '',
+          email: fbData.email,
+          avatar_url: fbData.picture?.data?.url ?? '',
+          phone_number: '',
+          address: '',
+          role: 'USER',
+        });
+      }
 
-  //     // --- MFA: Send code to email, require verification ---
-  //     const code = Math.floor(100000 + Math.random() * 900000).toString();
-  //     user.mfaCode = code;
-  //     user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
-  //     await this.usersService.update(user.id, user);
-  //     await this.notificationsService.sendEmail(
-  //       user.email,
-  //       'Your Login Confirmation Code',
-  //       `Your code is: ${code}`
-  //     );
-  //     return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
-  //   } catch (error) {
-  //     throw new UnauthorizedException('Invalid Facebook token');
-  //   }
-  // }
+      if (skipMfa) {
+        const payload: TokenPayloadDto = {
+          email: user.email,
+          sub: user.id,
+          role: user.role,
+          username: user.username
+        };
+        const token = this.signToken(payload);
+        return { token, username: user.username, role: user.role, profileCompleted: !!user.full_name };
+      }
+      // --- MFA: Send code to email, require verification (dashboard only) ---
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      user.mfaCode = code;
+      user.mfaCodeExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
+      await this.usersService.update(user.id, user);
+      await this.notificationsService.sendEmail(
+        user.email,
+        'Your Login Confirmation Code',
+        `Your code is: ${code}`
+      );
+      return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid Facebook token');
+    }
+  }
 }

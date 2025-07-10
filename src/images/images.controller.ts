@@ -1,10 +1,12 @@
 import {
-  Controller, Get, Post, Body, Patch, Param, Delete
+  Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe
 } from '@nestjs/common';
 import { ImagesService } from './images.service';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
 import { ApiTags, ApiBody, ApiParam, ApiOperation } from '@nestjs/swagger';
+import '../cloudinary.config';
+import { v2 as cloudinary } from 'cloudinary';
 
 @ApiTags('Images')
 @Controller('images')
@@ -21,6 +23,7 @@ export class ImagesController {
         value: {
           url: 'https://example.com/image.jpg',
           name: 'Sample Image',
+          folder: 'products',
           ord: 1,
           product: { id: 1 }
         }
@@ -56,7 +59,8 @@ export class ImagesController {
           url: 'https://example.com/image2.jpg',
           name: 'Updated Image',
           ord: 2,
-          product: { id: 1 }
+          product: { id: 1 },
+          folder: 'folder1/folder2'
         }
       }
     }
@@ -66,9 +70,55 @@ export class ImagesController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete image by ID' })
+  @ApiOperation({ summary: 'Delete image by ID (also deletes from Cloudinary)' })
   @ApiParam({ name: 'id', type: Number, example: 1 })
-  remove(@Param('id') id: string) {
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    // Find image to get its URL for Cloudinary deletion
+    const image = await this.imagesService.findOne(+id);
+    // Extract public_id from URL
+    const match = image.url.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z]+$/);
+    const publicId = match ? match[1] : null;
+    if (publicId) {
+      try {
+        await cloudinary.uploader.destroy(publicId);
+      } catch (e) {
+        // Optionally log error
+      }
+    }
     return this.imagesService.remove(+id);
+  }
+
+  @Post('delete-cloudinary')
+  @ApiOperation({ summary: 'Delete image from Cloudinary by publicId' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        publicId: { type: 'string', example: 'folder/filename' },
+      },
+      required: ['publicId'],
+    },
+  })
+  async deleteCloudinary(@Body('publicId') publicId: string) {
+    try {
+      await cloudinary.uploader.destroy(publicId);
+      return { success: true };
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
+  }
+
+  @Delete('folder')
+  @ApiOperation({ summary: 'Delete all images in a folder (and subfolders) from DB and Cloudinary' })
+  async deleteFolder(@Query('path') path: string) {
+    return this.imagesService.deleteFolder(path);
+  }
+
+  @Get('folders')
+  @ApiOperation({ summary: 'Get all folder paths' })
+  async getFolderTree() {
+    const images = await this.imagesService.findAll();
+    // Return unique folder paths for frontend to build tree
+    return Array.from(new Set(images.map(img => img.folder || 'default')));
   }
 }

@@ -1,38 +1,100 @@
-import { Controller, Post, Delete, Get, Param, Req, Body } from '@nestjs/common';
+import { Controller, Post, Delete, Get, Param, Body, Query, BadRequestException } from '@nestjs/common';
 import { WishlistService } from './wishlist.service';
-import { Request } from 'express';
-import { Public } from '../auth/public.decorator'; // Add this import
+// Swagger imports
+import { ApiTags, ApiBody, ApiParam, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 
-interface AuthenticatedRequest extends Request {
-  user: { id: number; [key: string]: any };
+interface WishlistBody {
+  userId: number;
 }
 
+@ApiTags('Wishlist')
+@ApiBearerAuth()
 @Controller('wishlist')
 export class WishlistController {
   constructor(private readonly wishlistService: WishlistService) {}
 
   @Post(':productId')
-  @Public()
-  addToWishlist(@Body() body: { userId: number }, @Param('productId') productId: string) {
-    // Lấy userId từ body thay vì req.user
-    return this.wishlistService.addToWishlist(body.userId, Number(productId));
+  @ApiOperation({ summary: 'Add product to wishlist' })
+  @ApiParam({ name: 'productId', type: Number, required: true })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        userId: { type: 'number', example: 1 },
+      },
+      required: ['userId'],
+    },
+    examples: {
+      user: {
+        summary: 'Add to wishlist',
+        value: { userId: 1 },
+      },
+    },
+  })
+  addToWishlist(@Body() body: WishlistBody, @Param('productId') productId: string) {
+    const userId = Number(body.userId);
+    if (!body || isNaN(userId)) {
+      throw new BadRequestException('userId is required and must be a number');
+    }
+    return this.wishlistService.addToWishlist(userId, Number(productId));
   }
 
   @Delete(':productId')
-  @Public()
-  removeFromWishlist(@Body() body: { userId: number }, @Param('productId') productId: string) {
-    return this.wishlistService.removeFromWishlist(body.userId, Number(productId));
+  @ApiOperation({ summary: 'Remove product from wishlist' })
+  @ApiParam({ name: 'productId', type: Number, required: true })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        userId: { type: 'number', example: 1 },
+      },
+      required: ['userId'],
+    },
+    examples: {
+      user: {
+        summary: 'Remove from wishlist',
+        value: { userId: 1 },
+      },
+    },
+  })
+  removeFromWishlist(@Body() body: WishlistBody, @Param('productId') productId: string) {
+    const userId = Number(body.userId);
+    if (!body || isNaN(userId)) {
+      throw new BadRequestException('userId is required and must be a number');
+    }
+    return this.wishlistService.removeFromWishlist(userId, Number(productId));
   }
 
   @Get()
-  @Public()
-  viewWishlist(@Body() body: { userId: number }) {
-    return this.wishlistService.viewWishlist(body.userId);
+  @ApiOperation({ summary: 'View wishlist' })
+  @ApiQuery({ name: 'userId', type: Number, required: true })
+  viewWishlist(@Query('userId') userId: number) {
+    return this.wishlistService.viewWishlist(Number(userId));
   }
 
   @Post('move-to-order/:orderId')
-  @Public()
-  async moveToOrder(@Body() body: { userId: number }, @Param('orderId') orderId: string) {
-    return this.wishlistService.moveWishlistToOrder(body.userId, Number(orderId));
+  @ApiOperation({ summary: 'Move wishlist items to order' })
+  @ApiParam({ name: 'orderId', type: Number, required: true })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        userId: { type: 'number', example: 1 },
+      },
+      required: ['userId'],
+    },
+    examples: {
+      user: {
+        summary: 'Move to order',
+        value: { userId: 1 },
+      },
+    },
+  })
+  async moveToOrder(@Body() body: WishlistBody, @Param('orderId') orderId: string) {
+    const userId = Number(body.userId);
+    if (!body || isNaN(userId)) {
+      throw new BadRequestException('userId is required and must be a number');
+    }
+    return this.wishlistService.moveWishlistToOrder(userId, Number(orderId));
   }
 }

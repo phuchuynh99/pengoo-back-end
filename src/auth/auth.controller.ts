@@ -114,23 +114,40 @@ export class AuthController {
   @Public()
   @ApiBody({
     schema: {
-      example: { idToken: 'firebase-id-token' }
+      example: { idToken: 'firebase-id-token', skipMfa: true }
     }
   })
-  async googleLogin(@Body('idToken') idToken: string) {
-    if (!idToken) throw new BadRequestException('No idToken provided');
-    return this.authService.googleLogin(idToken);
+  async googleLogin(@Body() body: { idToken: string; skipMfa?: boolean }) {
+    if (!body.idToken) throw new BadRequestException('No idToken provided');
+    return this.authService.googleLogin(body.idToken, !!body.skipMfa);
   }
 
-  // @Post('facebook')
-  // @Public()
-  // @ApiBody({
-  //   schema: {
-  //     example: { accessToken: 'facebook-access-token' }
-  //   }
-  // })
-  // async facebookLogin(@Body('accessToken') accessToken: string) {
-  //   if (!accessToken) throw new BadRequestException('No accessToken provided');
-  //   return this.authService.facebookLogin(accessToken);
-  // }
+  @Post('facebook')
+  @Public()
+  @ApiBody({
+    schema: {
+      example: { accessToken: 'facebook-access-token', skipMfa: true }
+    }
+  })
+  async facebookLogin(@Body() body: { accessToken: string; skipMfa?: boolean }) {
+    if (!body.accessToken) throw new BadRequestException('No accessToken provided');
+    return this.authService.facebookLogin(body.accessToken, !!body.skipMfa);
+  }
+
+  @Post('simple-login')
+  @Public()
+  @ApiBody({
+    schema: {
+      example: {
+        email: 'user@example.com',
+        password: 'yourPassword123',
+      },
+    },
+  })
+  async simpleLogin(@Body() body: { email: string; password: string }) {
+    if (!body.email) throw new BadRequestException('Email is required');
+    if (!body.password) throw new BadRequestException('Password is required');
+    // This will NOT send MFA code, just validate and return token
+    return this.authService.signin(body.email, body.password);
+  }
 }

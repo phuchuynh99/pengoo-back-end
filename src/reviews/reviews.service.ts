@@ -88,4 +88,11 @@ export class ReviewsService {
       relations: ['product'],
     });
   }
+
+  async getAllReviews(): Promise<Review[]> {
+    return this.reviewsRepository.find({
+      relations: ['user', 'product'],
+      order: { createdAt: 'ASC' }, // earliest first
+    });
+  }
 }

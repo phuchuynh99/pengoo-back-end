@@ -5,7 +5,7 @@ import { Wishlist } from './wishlist.entity';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
 import { OrdersService } from '../orders/orders.service';
-import { Order } from '../orders/order.entity';
+
 
 @Injectable()
 export class WishlistService {
@@ -18,16 +18,14 @@ export class WishlistService {
   ) {}
 
   async addToWishlist(userId: number, productId: number): Promise<Wishlist> {
+    const existing = await this.wishlistRepository.findOne({ where: { user: { id: userId }, product: { id: productId } } });
+    if (existing) return existing; // or just return a success message
+
     const user = await this.usersService.findById(userId);
     if (!user) throw new NotFoundException('User not found');
 
     const product = await this.productsService.findById(productId);
     if (!product) throw new NotFoundException('Product not found');
-
-    const existing = await this.wishlistRepository.findOne({
-      where: { user: { id: userId }, product: { id: productId }, movedToOrder: IsNull() },
-    });
-    if (existing) throw new BadRequestException('Product already in wishlist');
 
     const wishlistItem = this.wishlistRepository.create({ user, product });
     return this.wishlistRepository.save(wishlistItem);

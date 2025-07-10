@@ -113,8 +113,8 @@ export class OrdersService {
       orderCode: +(order_code),
       amount: 2000,
       description: "Thanh toán đơn hàng",
-      cancelUrl: "https://your-cancel-url.com",
-      returnUrl: "https://your-success-url.com"
+      cancelUrl: "http://localhost:3001/order/cancel",
+      returnUrl: "http://localhost:3001/order/success"
     }
     const result = await this.payosService.createInvoice(checkout);
     return { checkout_url: result.data.checkoutUrl, order_code };
