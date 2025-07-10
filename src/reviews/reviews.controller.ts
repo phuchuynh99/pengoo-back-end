@@ -122,4 +122,12 @@ export class ReviewsController {
   async getUserReviews(@Param('userId') userId: number) {
     return this.reviewsService.getUserReviews(userId);
   }
+
+  @Get()
+  @Public()
+  @ApiOperation({ summary: 'Get all reviews' })
+  @ApiResponse({ status: 200, description: 'List of all reviews' })
+  async getAllReviews() {
+    return this.reviewsService.getAllReviews();
+  }
 }
