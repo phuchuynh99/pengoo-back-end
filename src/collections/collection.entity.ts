@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, CreateDateColumn } from 'typeorm';
 import { Product } from '../products/product.entity';
 
 @Entity('collection')
@@ -18,4 +18,7 @@ export class Collection {
   @ManyToMany(() => Product)
   @JoinTable()
   products: Product[];
+
+  @CreateDateColumn()
+  createdAt: Date;
 }
