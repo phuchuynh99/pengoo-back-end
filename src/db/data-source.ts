@@ -21,8 +21,7 @@ import { Admin } from '../admins/admin.entity';
 import { Role } from '../roles/role.entity';
 import { RolePermission } from '../roles/role-permission.entity';
 import { Permission } from '../roles/permission.entity';
-
-import { Collection } from 'src/collection/collection.entity';
+import { Collection } from '../collections/collection.entity';
 
 
 config();
@@ -38,8 +37,7 @@ const dataSourceOptions: DataSourceOptions = {
         User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, CartItem, Publisher, Tag, Image, Featured,
         Coupon, TicketEarningLog, UserCoupon,
         Admin, Post, PostCatalogue,
-        Role, RolePermission, Permission,
-        Collection
+        Role, RolePermission, Permission, Collection
     ],
     synchronize: true
 };

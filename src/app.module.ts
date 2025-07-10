@@ -37,8 +37,8 @@ import { Image } from './products/entities/image.entity';
 import { RolesModule } from './roles/roles.module';
 import { Post } from './posts/posts.entity';
 import { PostCatalogue } from './posts/post-catalogue.entity';
-import { CollectionModule } from './collection/collection.module';
-import { Collection } from './collection/collection.entity';
+import { CollectionsModule } from './collections/collections.module';
+import { Collection } from './collections/collection.entity';
 
 
 @Module({
@@ -73,7 +73,7 @@ import { Collection } from './collection/collection.entity';
     MinigameModule,
     ImagesModule,
     RolesModule,
-    CollectionModule,
+    CollectionsModule,
 
   ],
   providers: [

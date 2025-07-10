@@ -1,24 +1,37 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, CreateDateColumn } from 'typeorm';
-import { Product } from '../products/product.entity';
+import { Product } from 'src/products/product.entity';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    CreateDateColumn,
+    UpdateDateColumn,
+    OneToMany
+} from 'typeorm';
 
-@Entity('collection')
+@Entity()
 export class Collection {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column({ unique: true })
-  name: string;
+    @Column({ type: 'varchar', length: 255 })
+    name: string;
 
-  @Column({ unique: true })
-  slug: string;
+    @Column({ type: 'varchar', length: 255 })
+    slug: string;
 
-  @Column({ nullable: true })
-  image_url: string;
+    @Column({ type: 'text', nullable: true })
+    description: string;
 
-  @ManyToMany(() => Product)
-  @JoinTable()
-  products: Product[];
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    image_url: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @OneToMany(() => Product, (product) => product.collection)
+    products: Product[];
 }
+
