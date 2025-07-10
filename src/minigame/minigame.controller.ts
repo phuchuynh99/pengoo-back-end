@@ -88,4 +88,12 @@ export class MinigameController {
     return { tickets };
 
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user-points')
+  async getUserPoints(@Req() req) {
+    const userId = req.user.id;
+    const userPoints = await this.minigameService.getUserPoints(userId);
+    return { userPoints };
+  }
 }

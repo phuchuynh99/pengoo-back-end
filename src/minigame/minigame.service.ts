@@ -300,6 +300,13 @@ export class MinigameService {
     return user?.minigame_tickets ?? 0;
   }
 
+  async getUserPoints(userId: number): Promise<number> {
+    // Fetch the user's points from DB or cache
+    // Example:
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    return user?.points ?? 0;
+  }
+
   private getWinLines(grid: string[][]): Array<{ type: "row" | "col" | "diag", index: number }> {
     const winLines: Array<{ type: "row" | "col" | "diag", index: number }> = [];
     // Rows
