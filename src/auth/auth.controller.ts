@@ -16,7 +16,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
-  ) {}
+  ) { }
 
   @Post('signin')
   @Public()

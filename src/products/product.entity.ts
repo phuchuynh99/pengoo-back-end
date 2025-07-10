@@ -66,8 +66,9 @@ export class Product {
   @OneToMany(() => Featured, (feature) => feature.product, { cascade: true })
   featured: Featured[];
 
-  @OneToMany(() => Collection, (collection) => collection.products, { cascade: true })
-  collection: Collection;
+  @ManyToOne(() => Collection, (collection) => collection.products, { onDelete: 'SET NULL' })
+  collection: Collection | null;
+
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

@@ -13,11 +13,12 @@ import { Publisher } from 'src/publishers/entities/publisher.entity';
 import { Featured } from 'src/products/entities/featured.entity';
 import { Image } from 'src/products/entities/image.entity';
 import { ImagesService } from 'src/images/images.service';
+import { Collection } from 'src/collection/entities/collection.entity';
 
 @Module({
   providers: [ProductsService, ImagesService, CategoriesService, TagsService, PublishersService],
   controllers: [ProductsController],
-  imports: [TypeOrmModule.forFeature([Product, Category, Tag, Publisher, Featured, Image]), CloudinaryModule],
+  imports: [TypeOrmModule.forFeature([Product, Category, Tag, Publisher, Featured, Image, Collection]), CloudinaryModule],
   exports: [ProductsService]
 })
 export class ProductsModule { }

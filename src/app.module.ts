@@ -37,7 +37,9 @@ import { Image } from './products/entities/image.entity';
 import { RolesModule } from './roles/roles.module';
 import { Post } from './posts/posts.entity';
 import { PostCatalogue } from './posts/post-catalogue.entity';
-import { CollectionsModule } from './collections/collections.module';
+import { CollectionModule } from './collection/collection.module';
+import { Collection } from './collection/collection.entity';
+
 
 @Module({
   imports: [
@@ -51,7 +53,7 @@ import { CollectionsModule } from './collections/collections.module';
     }),
     TypeOrmModule.forFeature([
       User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, Coupon, Image,
-      Post, PostCatalogue
+      Post, PostCatalogue, Collection
     ]),
     UsersModule,
     AuthModule,
@@ -71,7 +73,8 @@ import { CollectionsModule } from './collections/collections.module';
     MinigameModule,
     ImagesModule,
     RolesModule,
-    CollectionsModule,
+    CollectionModule,
+
   ],
   providers: [
     CategoriesService,
