@@ -15,7 +15,7 @@ export class WishlistService {
     private usersService: UsersService,
     private productsService: ProductsService,
     private ordersService: OrdersService,
-  ) {}
+  ) { }
 
   async addToWishlist(userId: number, productId: number): Promise<Wishlist> {
     const existing = await this.wishlistRepository.findOne({ where: { user: { id: userId }, product: { id: productId } } });
@@ -42,7 +42,7 @@ export class WishlistService {
   async viewWishlist(userId: number): Promise<Wishlist[]> {
     return this.wishlistRepository.find({
       where: { user: { id: userId }, movedToOrder: IsNull() },
-      relations: ['product'],
+      relations: ['product', 'product.images'],
       order: { createdAt: 'DESC' },
     });
   }

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Review } from './review.entity';
 import { CreateReviewDto } from './create-review.dto';
-import { UpdateReviewDto } from './update-review.dto';  
+import { UpdateReviewDto } from './update-review.dto';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
 import { Order, ProductStatus } from '../orders/order.entity';
@@ -17,7 +17,7 @@ export class ReviewsService {
     private productsService: ProductsService,
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
-  ) {}
+  ) { }
 
   async addReview(userId: number, productId: number, createReviewDto: CreateReviewDto): Promise<Review> {
     const user = await this.usersService.findById(userId);
@@ -56,7 +56,7 @@ export class ReviewsService {
     }
 
     review.rating = updateReviewDto.rating;
-    review.content = updateReviewDto.content; 
+    review.content = updateReviewDto.content;
     return this.reviewsRepository.save(review);
   }
 
