@@ -99,5 +99,9 @@ export class UpdateProductDto {
   @IsArray()
   tags?: string[] | string;
 
+  @ApiProperty()
+  @IsOptional()
+  cms_content?: any;
+
   deleteImages?: number[] | number;
 }

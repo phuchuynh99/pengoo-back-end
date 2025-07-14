@@ -14,6 +14,7 @@ import { TagsModule } from 'src/tags/tags.module';
 import { UsersModule } from 'src/users/users.module';
 import { OrdersModule } from 'src/orders/orders.module';
 import { Order } from 'src/orders/order.entity';
+import { ProductsModule } from '../products/products.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { Order } from 'src/orders/order.entity';
     TagsModule,
     UsersModule,
     OrdersModule,
+    ProductsModule,
   ],
   providers: [ReviewsService],
   controllers: [ReviewsController],

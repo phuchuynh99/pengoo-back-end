@@ -20,7 +20,7 @@ export class Review {
   @ManyToOne(() => User, user => user.reviews, { nullable: false })
   user: User;
 
-  @ManyToOne(() => Product, product => product.reviews, { nullable: false })
+  @ManyToOne(() => Product, product => product.reviews, { onDelete: 'CASCADE' })
   product: Product;
 
   @ManyToOne(() => Order, order => order.reviews, { nullable: true })

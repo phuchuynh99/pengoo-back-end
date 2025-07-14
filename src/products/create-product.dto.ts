@@ -100,4 +100,8 @@ export class CreateProductDto {
   tags?: string[] | string;
 
   deleteImages?: number[] | number;
+
+  @ApiProperty()
+  @IsOptional()
+  cms_content?: any;
 }

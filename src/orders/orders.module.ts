@@ -19,9 +19,16 @@ import { Delivery } from '../delivery/delivery.entity';
 import { CouponsModule } from '../coupons/coupons.module';
 import { Image } from 'src/products/entities/image.entity';
 import { PayosService } from 'src/services/payos/payos.service';
+import { CmsContentModule } from '../cms-content/cms-content.module';
+import { ProductsModule } from '../products/products.module';
 
 @Module({
-  providers: [OrdersService, UsersService, ProductsService, CategoriesService, PayosService],
+  providers: [
+    OrdersService,
+    UsersService,
+    CategoriesService,
+    PayosService
+  ],
   controllers: [OrdersController],
   imports: [
     TypeOrmModule.forFeature([
@@ -40,7 +47,9 @@ import { PayosService } from 'src/services/payos/payos.service';
     TagsModule,
     NotificationsModule,
     CouponsModule,
+    CmsContentModule,
+    ProductsModule,
   ],
-  exports: [OrdersService, ProductsService]
+  exports: [OrdersService]
 })
 export class OrdersModule { }

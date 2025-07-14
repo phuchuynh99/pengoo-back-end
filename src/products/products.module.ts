@@ -14,11 +14,13 @@ import { Featured } from 'src/products/entities/featured.entity';
 import { Image } from 'src/products/entities/image.entity';
 import { ImagesService } from 'src/images/images.service';
 import { Collection } from 'src/collections/collection.entity';
+import { CmsContentModule } from '../cms-content/cms-content.module';
+import { CmsContent } from '../cms-content/cms-content.entity';
 
 @Module({
   providers: [ProductsService, ImagesService, CategoriesService, TagsService, PublishersService],
   controllers: [ProductsController],
-  imports: [TypeOrmModule.forFeature([Product, Category, Tag, Publisher, Featured, Image, Collection]), CloudinaryModule],
+  imports: [TypeOrmModule.forFeature([Product, Category, Tag, Publisher, Featured, Image, Collection, CmsContent]), CloudinaryModule, CmsContentModule],
   exports: [ProductsService]
 })
 export class ProductsModule { }

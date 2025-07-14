@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, ManyToMany, JoinTable, OneToOne } from 'typeorm';
 import { Category } from '../categories/category.entity';
 import { Review } from 'src/reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
@@ -7,6 +7,7 @@ import { Tag } from 'src/tags/entities/tag.entity';
 import { Image } from './entities/image.entity';
 import { Featured } from './entities/featured.entity';
 import { Collection } from 'src/collections/collection.entity';
+import { CmsContent } from '../cms-content/cms-content.entity';
 
 @Entity('product')
 export class Product {
@@ -25,10 +26,8 @@ export class Product {
   @Column({ nullable: false })
   slug: string;
 
-
   @Column({ nullable: false })
   status: string;
-
 
   @Column({ nullable: false })
   discount: number;
@@ -60,6 +59,7 @@ export class Product {
 
   @OneToMany(() => Wishlist, wishlist => wishlist.product)
   wishlists: Wishlist[];
+
   @OneToMany(() => Image, (image) => image.product, { cascade: true })
   images: Image[];
 
@@ -69,10 +69,12 @@ export class Product {
   @ManyToOne(() => Collection, (collection) => collection.products, { onDelete: 'SET NULL' })
   collection: Collection | null;
 
-
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
   @Column({ type: 'timestamp', nullable: true, default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
+
+  @OneToOne(() => CmsContent, cmsContent => cmsContent.product, { cascade: true, eager: true })
+  cmsContent: CmsContent;
 }

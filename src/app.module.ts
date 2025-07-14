@@ -8,7 +8,6 @@ import { Product } from './products/product.entity';
 import { Category } from './categories/category.entity';
 import { OrdersModule } from './orders/orders.module';
 import { Order, OrderDetail } from './orders/order.entity';
-import { CartModule } from './cart/cart.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { Review } from './reviews/review.entity';
 import { WishlistModule } from './wishlist/wishlist.module';
@@ -17,7 +16,6 @@ import { CategoriesService } from './categories/categories.service';
 import { CategoriesController } from './categories/categories.controller';
 import { CategoriesModule } from './categories/categories.module';
 import dataSourceOptions from './db/data-source';
-import { Cart } from './cart/cart.entity';
 import { Wishlist } from './wishlist/wishlist.entity';
 import { CloudinaryModule } from './services/cloudinary/cloudinary.module';
 import { TagsModule } from './tags/tags.module';
@@ -39,6 +37,18 @@ import { Post } from './posts/posts.entity';
 import { PostCatalogue } from './posts/post-catalogue.entity';
 import { CollectionsModule } from './collections/collections.module';
 import { Collection } from './collections/collection.entity';
+import { CmsContentModule } from './cms-content/cms-content.module';
+import { CmsContent } from './cms-content/cms-content.entity';
+import { Publisher } from './publishers/entities/publisher.entity';
+import { Tag } from './tags/entities/tag.entity';
+import { Featured } from './products/entities/featured.entity'; // <-- Add this import
+import { UserCoupon } from './coupons/user-coupon.entity'; // Adjust the path if needed
+import { Cart, CartItem } from './cart/cart.entity'; // Adjust the path if needed
+import { TicketEarningLog } from './minigame/ticket-earning-log.entity';
+import { Admin } from './admins/admin.entity'; // Adjust the path if needed
+import { Role } from './roles/role.entity'; // Adjust the path if needed
+import { RolePermission } from './roles/role-permission.entity'; // Adjust the path if needed
+import { Permission } from './roles/permission.entity'; // Adjust the path if needed
 
 
 @Module({
@@ -49,11 +59,19 @@ import { Collection } from './collections/collection.entity';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => (dataSourceOptions),
+      useFactory: (configService: ConfigService) => ({
+        ...dataSourceOptions,
+        entities: [
+          User, Product, Category, Order, OrderDetail, Review, Wishlist, Delivery, Coupon, UserCoupon, Image,
+          Post, PostCatalogue, Collection, CmsContent, Publisher, Tag, Featured, Cart, CartItem, TicketEarningLog,
+          Admin, Role, RolePermission, Permission // <-- Add Permission here
+        ],
+      }),
     }),
     TypeOrmModule.forFeature([
-      User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, Coupon, Image,
-      Post, PostCatalogue, Collection
+      User, Product, Category, Order, OrderDetail, Review, Wishlist, Delivery, Coupon, UserCoupon, Image,
+      Post, PostCatalogue, Collection, CmsContent, Publisher, Tag, Featured, Cart, CartItem, TicketEarningLog,
+      Admin, Role, RolePermission, Permission // <-- Add Permission here
     ]),
     UsersModule,
     AuthModule,
@@ -74,6 +92,7 @@ import { Collection } from './collections/collection.entity';
     ImagesModule,
     RolesModule,
     CollectionsModule,
+    CmsContentModule,
 
   ],
   providers: [

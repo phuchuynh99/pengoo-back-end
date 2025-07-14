@@ -59,4 +59,13 @@ export class PostsService {
       relations: ['catalogue'],
     });
   }
+
+  async findBySlugOrId(slugOrId: string): Promise<Post | undefined> {
+    // Try canonical first
+    let post = await this.postsRepository.findOne({ where: { canonical: slugOrId } });
+    if (!post && !isNaN(Number(slugOrId))) {
+      post = await this.postsRepository.findOne({ where: { id: Number(slugOrId) } });
+    }
+    return post ?? undefined;
+  }
 }

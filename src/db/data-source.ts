@@ -34,10 +34,9 @@ const dataSourceOptions: DataSourceOptions = {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     entities: [
-        User, Product, Category, Order, OrderDetail, Review, Cart, Wishlist, Delivery, CartItem, Publisher, Tag, Image, Featured,
-        Coupon, TicketEarningLog, UserCoupon,
-        Admin, Post, PostCatalogue,
-        Role, RolePermission, Permission, Collection
+        User, Product, Category, Order, OrderDetail, Review, Wishlist, Delivery, Coupon, UserCoupon, Image,
+        Post, PostCatalogue, Collection, Publisher, Tag, Featured, Cart, CartItem, TicketEarningLog,
+        Admin, Role, RolePermission, Permission
     ],
     synchronize: true
 };

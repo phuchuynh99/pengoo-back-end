@@ -10,6 +10,7 @@ import {
   UploadedFiles,
   UseInterceptors,
   Query,
+  NotFoundException
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './create-product.dto';
@@ -150,5 +151,25 @@ export class ProductsController {
   @Public()
   remove(@Param('id') id: number) {
     return this.productsService.remove(id);
+  }
+
+  @Get(':id/cms-content')
+  async getCmsContent(@Param('id') id: number) {
+    let product = await this.productsService.findOneWithCmsContent(Number(id));
+    if (!product) throw new NotFoundException('Product not found');
+    if (!product.cmsContent) {
+      // Create a blank CmsContent if missing
+      product = await this.productsService.createCmsContentForProduct(Number(id));
+    }
+    // Remove circular reference before returning
+    const { product: _omit, ...cmsContentWithoutProduct } = product.cmsContent as any;
+    return cmsContentWithoutProduct;
+  }
+
+  @Put(':id/cms-content')
+  async updateCmsContent(@Param('id') id: number, @Body() body: any) {
+    const updated = await this.productsService.updateCmsContent(Number(id), body);
+    if (!updated) throw new NotFoundException('CMS content not found');
+    return updated;
   }
 }

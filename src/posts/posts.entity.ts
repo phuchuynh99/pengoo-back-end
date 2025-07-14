@@ -44,4 +44,16 @@ export class Post {
 
   @ManyToOne(() => PostCatalogue, catalogue => catalogue.id)
   catalogue: PostCatalogue;
+
+  @Column({ nullable: true })
+  textColor?: string;
+
+  @Column({ nullable: true })
+  bgColor?: string;
+
+  @Column({ nullable: true })
+  fontFamily?: string;
+
+  @Column({ nullable: true })
+  fontSize?: string;
 }

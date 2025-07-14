@@ -2,7 +2,6 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Product } from './product.entity';
-import { Category } from '../categories/category.entity';
 import { CreateProductDto, FeatureDto } from './create-product.dto';
 import { UpdateProductDto } from '../products/update-product.dto';
 import { CategoriesService } from 'src/categories/categories.service';
@@ -13,6 +12,8 @@ import { TagsService } from 'src/tags/tags.service';
 import { Image } from './entities/image.entity';
 import { Featured } from './entities/featured.entity';
 import slugify from 'slugify';
+import { CmsContentService } from '../cms-content/cms-content.service'; // Add this import
+import { CmsContent } from '../cms-content/cms-content.entity'; // <-- Add this line
 
 export class FilterProductDto {
   name?: string;
@@ -42,6 +43,9 @@ export class ProductsService {
     private tagRepo: Repository<Tag>,
     @InjectRepository(Image)
     private imageRepository: Repository<Image>,
+    private readonly cmsContentService: CmsContentService,
+    @InjectRepository(CmsContent) // <-- Add this line
+    private cmsContentRepository: Repository<CmsContent>, // <-- Add this line
   ) { }
 
   async create(
@@ -126,9 +130,16 @@ export class ProductsService {
     newProduct.status = createProductDto.status;
     newProduct.tags = tags;
     newProduct.images = images;
+    // REMOVE this line:
+    // newProduct.cms_content = createProductDto.cms_content || {};
 
     // 5. Save product first
     const savedProduct = await this.productsRepository.save(newProduct);
+
+    // 5.1. Create CMS content if provided
+    if (createProductDto.cms_content) {
+      await this.cmsContentService.create(savedProduct.id, createProductDto.cms_content);
+    }
 
     // 6. Save features (with optional feature images)
     const featureEntities = features.map((f) =>
@@ -199,11 +210,46 @@ export class ProductsService {
   }
 
   async findById(id: number): Promise<Product> {
-    const product = await this.productsRepository.findOne({ where: { id: id }, relations: ['category_ID', 'publisher_ID', 'tags', 'images', 'featured'] });
+    const product = await this.productsRepository.findOne({
+      where: { id: id },
+      relations: [
+        'category_ID',
+        'publisher_ID',
+        'tags',
+        'images',
+        'featured',
+        'cmsContent', // <-- Ensure this is included!
+      ],
+    });
     if (!product) {
       throw new NotFoundException('Product not found');
     }
     return product;
+  }
+
+  async findBySlug(slug: string): Promise<Product> {
+    const product = await this.productsRepository.findOne({
+      where: { slug },
+      relations: [
+        'category_ID',
+        'publisher_ID',
+        'tags',
+        'images',
+        'featured',
+        'cmsContent', // <-- Add this!
+      ],
+    });
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+    return product;
+  }
+
+  async findOneWithCmsContent(id: number): Promise<Product | null> {
+    return this.productsRepository.findOne({
+      where: { id },
+      relations: ['cmsContent'],
+    });
   }
 
   async update(
@@ -296,19 +342,21 @@ export class ProductsService {
 
       product.images.push(...featuredImageEntities);
     }
-    // if (updateProductDto.tags && updateProductDto.tags.length > 0) {
-    //   const tags = await Promise.all(
-    //     updateProductDto.tags.map(async (tagName) => {
-    //       let tag = await this.tagsService.findOneByName(tagName);
-    //       if (!tag) {
-    //         tag = this.tagRepo.create({ name: tagName });
-    //         await this.tagRepo.save(tag);
-    //       }
-    //       return tag;
-    //     })
-    //   );
-    //   product.tags = tags;
-    // }
+    // FIX: Update tags
+    if (updateProductDto.tags && typeof updateProductDto.tags === 'string') {
+      const tagIds = updateProductDto.tags
+        .split(' ')
+        .map(tag => tag.trim())
+        .filter(tag => tag !== '')
+        .map(id => Number(id));
+      if (tagIds.length > 0) {
+        const tags = await this.tagRepo.findBy({ id: In(tagIds) });
+        product.tags = tags;
+      } else {
+        product.tags = [];
+      }
+    }
+
     product.product_name = updateProductDto.product_name ?? product.product_name;
     product.description = updateProductDto.description ?? product.description;
     product.product_price = updateProductDto.product_price ?? product.product_price;
@@ -319,7 +367,16 @@ export class ProductsService {
     product.meta_description = updateProductDto.meta_description ?? product.meta_description;
     product.meta_title = updateProductDto.meta_title ?? product.meta_title;
     product.status = updateProductDto.status ?? product.status;
+    // REMOVE this line:
+    // product.cms_content = updateProductDto.cms_content ?? product.cms_content;
+
+    // Instead, update CMS content if provided
+    if (updateProductDto.cms_content) {
+      await this.cmsContentService.update(product.id, updateProductDto.cms_content);
+    }
+
     const updatedProduct = await this.productsRepository.save(product);
+
     if (features?.length) {
       await this.featuresRepository.delete({ product: { id } });
 
@@ -338,5 +395,29 @@ export class ProductsService {
   async remove(id: number): Promise<void> {
     const product = await this.findById(id);
     await this.productsRepository.remove(product);
+  }
+
+  async updateCmsContent(id: number, data: Partial<CmsContent>): Promise<CmsContent | null> {
+    const product = await this.productsRepository.findOne({
+      where: { id },
+      relations: ['cmsContent'],
+    });
+    if (!product || !product.cmsContent) return null;
+    Object.assign(product.cmsContent, data);
+    await this.cmsContentRepository.save(product.cmsContent);
+    return product.cmsContent;
+  }
+
+  async createCmsContentForProduct(id: number): Promise<Product> {
+    const product = await this.productsRepository.findOne({ where: { id }, relations: ['cmsContent'] });
+    if (!product) throw new NotFoundException('Product not found');
+    if (!product.cmsContent) {
+      const cmsContent = this.cmsContentRepository.create();
+      cmsContent.product = product;
+      await this.cmsContentRepository.save(cmsContent);
+      product.cmsContent = cmsContent;
+      await this.productsRepository.save(product);
+    }
+    return product;
   }
 }

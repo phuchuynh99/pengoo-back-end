@@ -18,13 +18,29 @@ export class PublishersService {
   }
 
   async findAll(): Promise<Publisher[]> {
-    return await this.publishersRepository.find({ relations: ['products'] });
+    return await this.publishersRepository.find({
+      relations: [
+        'products',
+        'products.tags',
+        'products.images',
+        'products.category_ID',
+        'products.publisher_ID',
+        'products.featured'
+      ]
+    });
   }
 
   async findOne(id: number): Promise<Publisher> {
     const publisher = await this.publishersRepository.findOne({
       where: { id },
-      relations: ['products'],
+      relations: [
+        'products',
+        'products.tags',
+        'products.images',
+        'products.category_ID',
+        'products.publisher_ID',
+        'products.featured'
+      ]
     });
     if (!publisher) throw new NotFoundException('Publisher not found');
     return publisher;

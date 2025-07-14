@@ -1,4 +1,4 @@
-import { Controller, Get, Post as HttpPost, Body, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Post as HttpPost, Body, Param, Patch, Delete, NotFoundException } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -85,5 +85,13 @@ export class PostsController {
   async remove(@Param('id') id: number) {
     await this.postsService.remove(+id);
     return { message: 'Post deleted' };
+  }
+
+  @Get(':slug')
+  async getPostBySlug(@Param('slug') slug: string) {
+    // Try to find by canonical first, fallback to id
+    const post = await this.postsService.findBySlugOrId(slug);
+    if (!post) throw new NotFoundException('Post not found');
+    return post;
   }
 }

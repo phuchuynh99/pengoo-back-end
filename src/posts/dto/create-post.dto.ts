@@ -40,4 +40,20 @@ export class CreatePostDto {
 
   @IsNumber()
   catalogueId: number;
+
+  @IsOptional()
+  @IsString()
+  textColor?: string;
+
+  @IsOptional()
+  @IsString()
+  bgColor?: string;
+
+  @IsOptional()
+  @IsString()
+  fontFamily?: string;
+
+  @IsOptional()
+  @IsString()
+  fontSize?: string;
 }
