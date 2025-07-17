@@ -109,8 +109,26 @@ export class AuthService {
       await this.usersService.update(user.id, user);
       await this.notificationsService.sendEmail(
         user.email,
-        'Your Login Confirmation Code',
-        `Your code is: ${code}`
+        'Pengoo - Your Login Confirmation Code',
+        `
+          <div style="font-family: Arial, sans-serif; background: #f8fafc; padding: 32px;">
+            <div style="max-width: 480px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #e2e8f0; padding: 32px;">
+              <h2 style="color: #2563eb; margin-bottom: 16px;">Pengoo Login Verification</h2>
+              <p>Hello <b>${user.full_name || user.email}</b>,</p>
+              <p>We received a request to sign in to your Pengoo account. Please use the code below to verify your login:</p>
+              <div style="font-size: 2rem; font-weight: bold; letter-spacing: 4px; color: #2563eb; background: #f1f5f9; padding: 16px 0; text-align: center; border-radius: 6px; margin: 24px 0;">
+                ${code}
+              </div>
+              <p>This code will expire in <b>5 minutes</b>. If you did not request this, please ignore this email.</p>
+              <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
+              <p style="font-size: 0.95rem; color: #64748b;">
+                <b>Pengoo Corporation</b><br/>
+                130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City<br/>
+                Hotline: 0937314158<br/>
+              </p>
+            </div>
+          </div>
+        `
       );
       return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
     } catch (error) {
@@ -131,8 +149,26 @@ export class AuthService {
     await this.usersService.update(user.id, user);
     await this.notificationsService.sendEmail(
       user.email,
-      'Your Login Confirmation Code',
-      `Your code is: ${code}`
+      'Pengoo - Your Login Confirmation Code',
+      `
+        <div style="font-family: Arial, sans-serif; background: #f8fafc; padding: 32px;">
+          <div style="max-width: 480px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #e2e8f0; padding: 32px;">
+            <h2 style="color: #2563eb; margin-bottom: 16px;">Pengoo Login Verification</h2>
+            <p>Hello <b>${user.full_name || user.email}</b>,</p>
+            <p>We received a request to sign in to your Pengoo account. Please use the code below to verify your login:</p>
+            <div style="font-size: 2rem; font-weight: bold; letter-spacing: 4px; color: #2563eb; background: #f1f5f9; padding: 16px 0; text-align: center; border-radius: 6px; margin: 24px 0;">
+              ${code}
+            </div>
+            <p>This code will expire in <b>5 minutes</b>. If you did not request this, please ignore this email.</p>
+            <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
+            <p style="font-size: 0.95rem; color: #64748b;">
+              <b>Pengoo Corporation</b><br/>
+              130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City<br/>
+              Hotline: 0937314158<br/>
+            </p>
+          </div>
+        </div>
+      `
     );
     return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
   }
@@ -207,8 +243,26 @@ export class AuthService {
       await this.usersService.update(user.id, user);
       await this.notificationsService.sendEmail(
         user.email,
-        'Your Login Confirmation Code',
-        `Your code is: ${code}`
+        'Pengoo - Your Login Confirmation Code',
+        `
+          <div style="font-family: Arial, sans-serif; background: #f8fafc; padding: 32px;">
+            <div style="max-width: 480px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #e2e8f0; padding: 32px;">
+              <h2 style="color: #2563eb; margin-bottom: 16px;">Pengoo Login Verification</h2>
+              <p>Hello <b>${user.full_name || user.email}</b>,</p>
+              <p>We received a request to sign in to your Pengoo account. Please use the code below to verify your login:</p>
+              <div style="font-size: 2rem; font-weight: bold; letter-spacing: 4px; color: #2563eb; background: #f1f5f9; padding: 16px 0; text-align: center; border-radius: 6px; margin: 24px 0;">
+                ${code}
+              </div>
+              <p>This code will expire in <b>5 minutes</b>. If you did not request this, please ignore this email.</p>
+              <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
+              <p style="font-size: 0.95rem; color: #64748b;">
+                <b>Pengoo Corporation</b><br/>
+                130/9 Dien Bien Phu Street, Binh Thanh District, Ho Chi Minh City<br/>
+                Hotline: 0937314158<br/>
+              </p>
+            </div>
+          </div>
+        `
       );
       return { mfaRequired: true, message: 'Check your email for the confirmation code.' };
     } catch (error) {
