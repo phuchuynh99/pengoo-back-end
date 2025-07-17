@@ -160,4 +160,7 @@ export class OrdersService {
     }
     await this.ordersRepository.remove(order);
   }
+  async getDelivery() {
+    return this.deliveryRepository.find();
+  }
 }
