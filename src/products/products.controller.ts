@@ -114,6 +114,12 @@ export class ProductsController {
     return this.productsService.findById(id);
   }
 
+  @Get('slug/:slug')
+  @Public()
+  async findBySlug(@Param('slug') slug: string) {
+    return this.productsService.findBySlug(slug);
+  }
+
   @Put(':id')
   @Public()
   @UseInterceptors(AnyFilesInterceptor())
