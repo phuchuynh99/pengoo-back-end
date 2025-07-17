@@ -68,7 +68,11 @@ export class OrdersController {
   findAllOrders() {
     return this.ordersService.findAll();
   }
-
+  @Get('/delivery')
+  @Public()
+  getDelivery() {
+    return this.ordersService.getDelivery();
+  }
   @Get(':id')
   @Public()
   findOrderById(@Param('id') id: number) {
@@ -96,4 +100,5 @@ export class OrdersController {
   removeOrder(@Param('id') id: number) {
     return this.ordersService.remove(id);
   }
+
 }
