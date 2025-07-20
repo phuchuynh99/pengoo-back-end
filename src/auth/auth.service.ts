@@ -2,9 +2,9 @@ import { Injectable, InternalServerErrorException, UnauthorizedException, BadReq
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/users/user.entity';
+import { User } from '../users/user.entity';
 import { SignInResponseDto } from '../dto/signin-response.dto';
-import { TokenPayloadDto } from 'src/dto/token-payload.dto';
+import { TokenPayloadDto } from '../dto/token-payload.dto';
 import * as admin from 'firebase-admin';
 import { NotificationsService } from '../notifications/notifications.service';
 import fetch from 'node-fetch'; // Add at the top if not present

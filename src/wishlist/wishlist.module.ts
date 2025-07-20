@@ -3,14 +3,14 @@ import { WishlistService } from './wishlist.service';
 import { WishlistController } from './wishlist.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Wishlist } from './wishlist.entity';
-import { User } from 'src/users/user.entity';
-import { Product } from 'src/products/product.entity';
-import { Category } from 'src/categories/category.entity';
-import { CloudinaryModule } from 'src/services/cloudinary/cloudinary.module';
-import { UsersModule } from 'src/users/users.module';
-import { ProductsModule } from 'src/products/products.module';
-import { CategoriesModule } from 'src/categories/categories.module';
-import { OrdersModule } from 'src/orders/orders.module';
+import { User } from '../users/user.entity';
+import { Product } from '../products/product.entity';
+import { Category } from '../categories/category.entity';
+import { CloudinaryModule } from '../services/cloudinary/cloudinary.module';
+import { UsersModule } from '../users/users.module';
+import { ProductsModule } from '../products/products.module';
+import { CategoriesModule } from '../categories/categories.module';
+import { OrdersModule } from '../orders/orders.module';
 
 @Module({
   imports: [

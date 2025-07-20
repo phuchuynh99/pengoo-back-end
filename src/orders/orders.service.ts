@@ -9,7 +9,7 @@ import { ProductsService } from '../products/products.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Delivery } from '../delivery/delivery.entity';
 import { CouponsService } from '../coupons/coupons.service'; // <-- Add this import
-import { PayosService } from 'src/services/payos/payos.service';
+import { PayosService } from '../services/payos/payos.service';
 
 @Injectable()
 export class OrdersService {

@@ -1,8 +1,8 @@
 import { Body, Controller, Post, BadRequestException, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody } from '@nestjs/swagger';
-import { SignInRequestDto } from 'src/dto/signin-request.dto';
-import { VerifyRequestDto } from 'src/dto/verify-request.dto';
+import { SignInRequestDto } from '../dto/signin-request.dto';
+import { VerifyRequestDto } from '../dto/verify-request.dto';
 import { UsersService } from '../users/users.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { JwtAuthGuard } from './jwt-auth.guard';

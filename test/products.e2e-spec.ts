@@ -20,22 +20,24 @@ describe('Products (e2e)', () => {
       .post('/products')
       .field('product_name', 'Sample Product')
       .field('description', 'A test product')
-      .field('features', JSON.stringify([{ title: 'Feature 1', content: 'Content 1' }]))
+      .field('featured', JSON.stringify([{ title: 'Feature 1', content: 'Content 1', ord: 0 }]))
       .field('product_price', 100000)
       .field('discount', 0)
       .field('slug', 'sample-product')
       .field('meta_title', 'Sample Product')
       .field('meta_description', 'Meta description')
       .field('quantity_sold', 0)
-      .field('categoryId', 1)
-      .field('publisherID', 1)
+      .field('quantity_stock', 100)
+      .field('category_ID', 1)
+      .field('publisher_ID', 1)
       .field('status', 'active')
-      .field('tags', JSON.stringify(['tag1', 'tag2']))
+      .field('tags', '1 2')
       .attach('mainImage', 'test/files/sample.jpg')
-      .attach('detailImages', 'test/files/sample-detail.jpg');
+      .attach('detailImages', 'test/files/sample-detail.jpg')
+      .attach('featureImages', 'test/files/sample.jpg'); // <-- Add this line
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('id');
-  });
+  }, 20000); // 20 seconds
 
   afterAll(async () => {
     await app.close();

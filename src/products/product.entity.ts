@@ -1,12 +1,12 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, ManyToMany, JoinTable, OneToOne } from 'typeorm';
 import { Category } from '../categories/category.entity';
-import { Review } from 'src/reviews/review.entity';
+import { Review } from '../reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
-import { Publisher } from 'src/publishers/entities/publisher.entity';
-import { Tag } from 'src/tags/entities/tag.entity';
+import { Publisher } from '../publishers/entities/publisher.entity';
+import { Tag } from '../tags/entities/tag.entity';
 import { Image } from './entities/image.entity';
 import { Featured } from './entities/featured.entity';
-import { Collection } from 'src/collections/collection.entity';
+import { Collection } from '../collections/collection.entity';
 import { CmsContent } from '../cms-content/cms-content.entity';
 
 @Entity('product')

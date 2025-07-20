@@ -5,7 +5,7 @@ import { Coupon, CouponStatus } from './coupon.entity';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UserCoupon } from './user-coupon.entity';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
-import { User } from 'src/users/user.entity';
+import { User } from '../users/user.entity';
 
 @Injectable()
 export class CouponsService {

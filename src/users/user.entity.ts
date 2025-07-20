@@ -1,5 +1,5 @@
-import { Cart } from 'src/cart/cart.entity';
-import { Review } from 'src/reviews/review.entity';
+import { Cart } from '../cart/cart.entity';
+import { Review } from '../reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, } from 'typeorm';
 import { TicketEarningLog } from '../minigame/ticket-earning-log.entity';

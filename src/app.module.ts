@@ -49,6 +49,8 @@ import { Admin } from './admins/admin.entity'; // Adjust the path if needed
 import { Role } from './roles/role.entity'; // Adjust the path if needed
 import { RolePermission } from './roles/role-permission.entity'; // Adjust the path if needed
 import { Permission } from './roles/permission.entity'; // Adjust the path if needed
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 
 @Module({
@@ -101,7 +103,8 @@ import { Permission } from './roles/permission.entity'; // Adjust the path if ne
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
+    AppService, // <-- Add AppService here
   ],
-  controllers: [CategoriesController],
+  controllers: [CategoriesController, AppController], // <-- Add AppController here
 })
 export class AppModule { }
