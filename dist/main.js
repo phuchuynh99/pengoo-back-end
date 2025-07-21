@@ -45,36 +45,14 @@ async function bootstrap() {
 async function handler(req, res) {
     if (!cachedServer) {
         const app = await core_1.NestFactory.create(app_module_1.AppModule, { bodyParser: false });
-        const reflector = app.get(core_2.Reflector);
-        app.useGlobalGuards(new jwt_auth_guard_1.JwtAuthGuard(reflector));
-        app.enableCors({
-            origin: [
-                'http://localhost:3000',
-                'http://localhost:3001',
-                'http://localhost:4000',
-                'https://pengoo-back-end.vercel.app',
-            ],
-            credentials: true,
-        });
-        app.setGlobalPrefix('api', {
-            exclude: [{ path: 'swagger-api', method: common_1.RequestMethod.ALL }],
-        });
-        const config = new swagger_1.DocumentBuilder()
-            .setTitle('Swagger API')
-            .setDescription('UI for API testing')
-            .setVersion('1.0')
-            .addTag('Playmaker')
-            .addBearerAuth({
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT',
-        }, 'jwt')
-            .build();
-        const documentFactory = () => swagger_1.SwaggerModule.createDocument(app, config);
-        swagger_1.SwaggerModule.setup('swagger-api', app, documentFactory);
         await app.init();
         cachedServer = app.getHttpServer();
     }
+    if (req.url.startsWith('/swagger-api')) {
+        cachedServer.emit('request', req, res);
+        return;
+    }
     cachedServer.emit('request', req, res);
 }
+bootstrap();
 //# sourceMappingURL=main.js.map
