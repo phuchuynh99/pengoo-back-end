@@ -1,10 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = handler;
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("./auth/jwt-auth.guard");
 const core_2 = require("@nestjs/core");
+let cachedServer;
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     const reflector = app.get(core_2.Reflector);
@@ -34,6 +36,14 @@ async function bootstrap() {
     console.log("-------------------------------------------");
     console.log("---| http://localhost:3000/swagger-api |---");
     console.log("-------------------------------------------");
+}
+async function handler(req, res) {
+    if (!cachedServer) {
+        const app = await core_1.NestFactory.create(app_module_1.AppModule, { bodyParser: false });
+        await app.init();
+        cachedServer = app.getHttpServer();
+    }
+    cachedServer.emit('request', req, res);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map
