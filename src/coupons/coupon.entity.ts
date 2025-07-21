@@ -21,10 +21,10 @@ export class Coupon {
   @Column('decimal')
   maxOrderValue: number;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'timestamp' })
   startDate: Date;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'timestamp' })
   endDate: Date;
 
   @Column('int')
@@ -37,7 +37,10 @@ export class Coupon {
   status: CouponStatus;
 
   @Column('decimal')
-  discountPercent: number; // Percentage discount (e.g., 10 for 10%)
+  discountPercent: number;
+
+  @Column('text')
+  description?: string;
 
   // Removed product and user restrictions
 

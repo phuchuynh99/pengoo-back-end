@@ -77,9 +77,11 @@ export class CouponsController {
     },
     description: 'Validate a coupon code for a user and order value',
   })
-  validate(@Body() body: { code: string; orderValue: number; userId: number; productIds: number[] }) {
-    return this.couponsService.validateAndApply(body.code, body.orderValue, body.userId, body.productIds);
+  @UseGuards(JwtAuthGuard)
+  validate(@Body() body: { code: string; orderValue: number; productIds: number[] }, @Req() req) {
+    return this.couponsService.validateAndApply(body.code, body.orderValue, 4, body.productIds);
   }
+
 
   @Get('redeem')
   @Public()

@@ -17,7 +17,10 @@ export class CouponsService {
   ) { }
 
   async create(dto: CreateCouponDto): Promise<Coupon> {
-    const coupon = this.couponsRepository.create(dto);
+    const coupon = this.couponsRepository.create({
+      ...dto,
+      status: dto.status
+    });
 
     return this.couponsRepository.save(coupon);
   }
@@ -31,8 +34,8 @@ export class CouponsService {
 
     const now = new Date();
     if (coupon.status !== CouponStatus.Active) throw new BadRequestException('Coupon is not active');
-    // if (now < new Date(coupon.startDate) || now > new Date(coupon.endDate)) throw new BadRequestException('Coupon is not valid at this time');
-    if (orderValue < Number(coupon.minOrderValue) || orderValue > Number(coupon.maxOrderValue)) throw new BadRequestException('Order value not eligible for this coupon');
+    if (now < new Date(coupon.startDate) || now > new Date(coupon.endDate)) throw new BadRequestException('Coupon is not valid at this time');
+    if (orderValue < Number(coupon.minOrderValue)) throw new BadRequestException('Order value not eligible for this coupon');
     if (coupon.usedCount >= coupon.usageLimit) throw new BadRequestException('Coupon usage limit reached');
 
     // If coupon is restricted to certain users
@@ -47,13 +50,15 @@ export class CouponsService {
 
 
     // Calculate discount
-    const discount = (orderValue * Number(coupon.discountPercent)) / 100;
-
-    // Mark as used
-    coupon.usedCount += 1;
-    if (coupon.usedCount >= coupon.usageLimit) {
-      coupon.status = CouponStatus.Inactive;
+    let discount = (orderValue * Number(coupon.discountPercent)) / 100;
+    if (discount > coupon.maxOrderValue) {
+      discount = coupon.maxOrderValue
     }
+    // Mark as used
+    // coupon.usedCount += 1;
+    // if (coupon.usedCount >= coupon.usageLimit) {
+    //   coupon.status = CouponStatus.Inactive;
+    // }
     await this.couponsRepository.save(coupon);
 
     return { coupon, discount };
