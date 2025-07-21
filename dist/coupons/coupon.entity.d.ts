@@ -15,6 +15,7 @@ export declare class Coupon {
     usedCount: number;
     status: CouponStatus;
     discountPercent: number;
+    description?: string;
     userCoupons: UserCoupon[];
     milestonePoints: number | null;
 }

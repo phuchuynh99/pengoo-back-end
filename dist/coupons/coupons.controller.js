@@ -33,8 +33,8 @@ let CouponsController = class CouponsController {
     create(dto) {
         return this.couponsService.create(dto);
     }
-    validate(body) {
-        return this.couponsService.validateAndApply(body.code, body.orderValue, body.userId, body.productIds);
+    validate(body, req) {
+        return this.couponsService.validateAndApply(body.code, body.orderValue, req.user.id, body.productIds);
     }
     async redeemCoupon(token) {
         const userCoupon = await this.userCouponRepo.findOne({ where: { redeemToken: token }, relations: ['coupon', 'user'] });
@@ -132,7 +132,7 @@ __decorate([
             }
         }
     }),
-    (0, public_decorator_1.Public)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiOperation)({ summary: 'Validate and apply a coupon to an order' }),
     (0, swagger_1.ApiBody)({
         schema: {
@@ -146,8 +146,9 @@ __decorate([
         description: 'Validate a coupon code for a user and order value',
     }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], CouponsController.prototype, "validate", null);
 __decorate([

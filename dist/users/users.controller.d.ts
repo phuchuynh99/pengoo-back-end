@@ -14,4 +14,7 @@ export declare class UsersController {
     setStatus(id: number, status: boolean): Promise<import("./user.entity").User>;
     adminResetPassword(id: number, newPassword: string): Promise<import("./user.entity").User>;
     updateRole(id: number, role: string): Promise<import("./user.entity").User>;
+    updatePassword(req: any, body: {
+        newPassword: string;
+    }): Promise<string>;
 }

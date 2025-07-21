@@ -33,6 +33,7 @@ const dataSourceOptions: DataSourceOptions = {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    ssl: { rejectUnauthorized: false },
     entities: [
         User, Product, Category, Order, OrderDetail, Review, Wishlist, Delivery, Coupon, UserCoupon, Image,
         Post, PostCatalogue, Collection, Publisher, Tag, Featured, Cart, CartItem, TicketEarningLog,

@@ -50,6 +50,10 @@ let UsersController = class UsersController {
     async updateRole(id, role) {
         return this.usersService.updateRole(Number(id), role);
     }
+    async updatePassword(req, body) {
+        console.log(req.user.id, body.newPassword);
+        return this.usersService.updatePassword(req.user.id, body.newPassword);
+    }
 };
 exports.UsersController = UsersController;
 __decorate([
@@ -127,6 +131,22 @@ __decorate([
     __metadata("design:paramtypes", [Number, String]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateRole", null);
+__decorate([
+    (0, common_1.Patch)('updatePassword'),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            example: {
+                newPassword: 'editor'
+            }
+        },
+        description: 'Set the new role for the user. Example roles: admin, editor, viewer, user'
+    }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updatePassword", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

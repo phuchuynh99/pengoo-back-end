@@ -26,7 +26,10 @@ let CouponsService = class CouponsService {
         this.userCouponRepo = userCouponRepo;
     }
     async create(dto) {
-        const coupon = this.couponsRepository.create(dto);
+        const coupon = this.couponsRepository.create({
+            ...dto,
+            status: dto.status
+        });
         return this.couponsRepository.save(coupon);
     }
     async validateAndApply(code, orderValue, userId, productIds) {
@@ -35,17 +38,25 @@ let CouponsService = class CouponsService {
         });
         if (!coupon)
             throw new common_1.NotFoundException('Coupon not found');
+        const voucherId = coupon.id;
+        const existing = await this.userCouponRepo.createQueryBuilder("user_coupon")
+            .where("user_coupon.userId = :userId", { userId })
+            .andWhere("user_coupon.couponId = :voucherId", { voucherId })
+            .getOne();
+        if (!existing)
+            throw new common_1.BadRequestException("User hasn't redeem a voucher");
         const now = new Date();
         if (coupon.status !== coupon_entity_1.CouponStatus.Active)
             throw new common_1.BadRequestException('Coupon is not active');
-        if (orderValue < Number(coupon.minOrderValue) || orderValue > Number(coupon.maxOrderValue))
+        if (now < new Date(coupon.startDate) || now > new Date(coupon.endDate))
+            throw new common_1.BadRequestException('Coupon is not valid at this time');
+        if (orderValue < Number(coupon.minOrderValue))
             throw new common_1.BadRequestException('Order value not eligible for this coupon');
         if (coupon.usedCount >= coupon.usageLimit)
             throw new common_1.BadRequestException('Coupon usage limit reached');
-        const discount = (orderValue * Number(coupon.discountPercent)) / 100;
-        coupon.usedCount += 1;
-        if (coupon.usedCount >= coupon.usageLimit) {
-            coupon.status = coupon_entity_1.CouponStatus.Inactive;
+        let discount = (orderValue * Number(coupon.discountPercent)) / 100;
+        if (discount > coupon.maxOrderValue) {
+            discount = coupon.maxOrderValue;
         }
         await this.couponsRepository.save(coupon);
         return { coupon, discount };

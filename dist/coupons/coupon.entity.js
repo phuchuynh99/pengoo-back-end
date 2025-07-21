@@ -29,6 +29,7 @@ let Coupon = class Coupon {
     usedCount;
     status;
     discountPercent;
+    description;
     userCoupons;
     milestonePoints;
 };
@@ -50,11 +51,11 @@ __decorate([
     __metadata("design:type", Number)
 ], Coupon.prototype, "maxOrderValue", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'date' }),
+    (0, typeorm_1.Column)({ type: 'timestamp' }),
     __metadata("design:type", Date)
 ], Coupon.prototype, "startDate", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'date' }),
+    (0, typeorm_1.Column)({ type: 'timestamp' }),
     __metadata("design:type", Date)
 ], Coupon.prototype, "endDate", void 0);
 __decorate([
@@ -73,6 +74,10 @@ __decorate([
     (0, typeorm_1.Column)('decimal'),
     __metadata("design:type", Number)
 ], Coupon.prototype, "discountPercent", void 0);
+__decorate([
+    (0, typeorm_1.Column)('text'),
+    __metadata("design:type", String)
+], Coupon.prototype, "description", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => user_coupon_entity_1.UserCoupon, uc => uc.coupon),
     __metadata("design:type", Array)

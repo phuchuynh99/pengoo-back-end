@@ -11,9 +11,8 @@ export declare class CouponsController {
     validate(body: {
         code: string;
         orderValue: number;
-        userId: number;
         productIds: number[];
-    }): Promise<{
+    }, req: any): Promise<{
         coupon: import("./coupon.entity").Coupon;
         discount: number;
     }>;

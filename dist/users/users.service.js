@@ -104,6 +104,15 @@ let UsersService = class UsersService {
     async remove(id) {
         await this.usersRepository.delete(id);
     }
+    async updatePassword(userId, newPassword) {
+        const user = await this.usersRepository.findOne({ where: { id: userId } });
+        if (!user)
+            throw new common_1.NotFoundException('User not found');
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await this.usersRepository.save(user);
+        return 'Password updated successfully';
+    }
     async setStatus(id, status) {
         const user = await this.usersRepository.findOne({ where: { id } });
         if (!user)
