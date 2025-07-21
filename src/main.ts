@@ -3,6 +3,9 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Reflector } from '@nestjs/core';
+import { Server } from 'http';
+
+let cachedServer: Server;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -42,4 +45,14 @@ async function bootstrap() {
   console.log("-------------------------------------------");
 
 }
+
+export default async function handler(req, res) {
+  if (!cachedServer) {
+    const app = await NestFactory.create(AppModule, { bodyParser: false });
+    await app.init();
+    cachedServer = app.getHttpServer();
+  }
+  cachedServer.emit('request', req, res);
+}
+
 bootstrap();
