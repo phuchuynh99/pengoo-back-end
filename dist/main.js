@@ -6,6 +6,8 @@ const app_module_1 = require("./app.module");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("./auth/jwt-auth.guard");
 const core_2 = require("@nestjs/core");
+const path_1 = require("path");
+const express = require("express");
 let cachedServer;
 async function handler(req, res) {
     if (!cachedServer) {
@@ -21,9 +23,7 @@ async function handler(req, res) {
             credentials: true,
         });
         app.setGlobalPrefix('api');
-        app.getHttpAdapter().getInstance().get('/', (req, res) => {
-            res.send('NestJS API is running!');
-        });
+        app.use('/swagger-api', express.static((0, path_1.join)(__dirname, '../node_modules/swagger-ui-dist')));
         const config = new swagger_1.DocumentBuilder()
             .setTitle('Swagger API')
             .setDescription('UI for API testing')

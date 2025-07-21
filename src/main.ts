@@ -4,7 +4,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Reflector } from '@nestjs/core';
 import { Server } from 'http';
-import { Request, Response } from 'express';
+import { join } from 'path';
+import * as express from 'express';
 
 let cachedServer: Server;
 
@@ -25,10 +26,11 @@ export default async function handler(req, res) {
 
     app.setGlobalPrefix('api');
 
-    // Add a root route for "/"
-    app.getHttpAdapter().getInstance().get('/', (req: Request, res: Response) => {
-      res.send('NestJS API is running!');
-    });
+    // Serve Swagger UI static files
+    app.use(
+      '/swagger-api',
+      express.static(join(__dirname, '../node_modules/swagger-ui-dist')),
+    );
 
     const config = new DocumentBuilder()
       .setTitle('Swagger API')
