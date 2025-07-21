@@ -16,6 +16,7 @@ async function bootstrap() {
             'http://localhost:3000',
             'http://localhost:3001',
             'http://localhost:4000',
+            'https://pengoo-back-end.vercel.app',
         ],
         credentials: true,
     });
@@ -43,6 +44,10 @@ async function handler(req, res) {
         const app = await core_1.NestFactory.create(app_module_1.AppModule, { bodyParser: false });
         await app.init();
         cachedServer = app.getHttpServer();
+    }
+    if (req.url.startsWith('/swagger-api')) {
+        cachedServer.emit('request', req, res);
+        return;
     }
     cachedServer.emit('request', req, res);
 }
