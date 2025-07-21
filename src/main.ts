@@ -21,6 +21,8 @@ async function bootstrap() {
     credentials: true,
   });
 
+  app.setGlobalPrefix('api'); // <--- Add this line
+
   const config = new DocumentBuilder()
     .setTitle('Swagger API')
     .setDescription('UI for API testing')
