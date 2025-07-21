@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Put, Delete, UseGuards, Patch } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put, Delete, UseGuards, Patch, Req } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './create-user.dto';
@@ -83,5 +83,23 @@ export class UsersController {
     @Body('role') role: string
   ) {
     return this.usersService.updateRole(Number(id), role);
+  }
+
+  @Patch('updatePassword')
+  // @Roles('admin')
+  @ApiBody({
+    schema: {
+      example: {
+        newPassword: 'editor'
+      }
+    },
+    description: 'Set the new role for the user. Example roles: admin, editor, viewer, user'
+  })
+  async updatePassword(
+    @Req() req,
+    @Body() body: { newPassword: string }
+  ) {
+    console.log(req.user.id, body.newPassword)
+    return this.usersService.updatePassword(req.user.id, body.newPassword);
   }
 }
