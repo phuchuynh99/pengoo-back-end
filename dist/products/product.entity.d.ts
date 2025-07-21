@@ -1,0 +1,33 @@
+import { Category } from '../categories/category.entity';
+import { Review } from '../reviews/review.entity';
+import { Wishlist } from '../wishlist/wishlist.entity';
+import { Publisher } from '../publishers/entities/publisher.entity';
+import { Tag } from '../tags/entities/tag.entity';
+import { Image } from './entities/image.entity';
+import { Featured } from './entities/featured.entity';
+import { Collection } from '../collections/collection.entity';
+import { CmsContent } from '../cms-content/cms-content.entity';
+export declare class Product {
+    id: number;
+    product_name: string;
+    description: string;
+    product_price: number;
+    slug: string;
+    status: string;
+    discount: number;
+    meta_title: string;
+    meta_description: string;
+    quantity_sold: number;
+    quantity_stock: number;
+    category_ID: Category;
+    publisher_ID: Publisher;
+    tags: Tag[];
+    reviews: Review[];
+    wishlists: Wishlist[];
+    images: Image[];
+    featured: Featured[];
+    collection: Collection | null;
+    created_at: Date;
+    updated_at: Date;
+    cmsContent: CmsContent;
+}
