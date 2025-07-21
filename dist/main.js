@@ -6,6 +6,7 @@ const app_module_1 = require("./app.module");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("./auth/jwt-auth.guard");
 const core_2 = require("@nestjs/core");
+const common_1 = require("@nestjs/common");
 let cachedServer;
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
@@ -20,7 +21,9 @@ async function bootstrap() {
         ],
         credentials: true,
     });
-    app.setGlobalPrefix('api');
+    app.setGlobalPrefix('api', {
+        exclude: [{ path: 'swagger-api', method: common_1.RequestMethod.ALL }],
+    });
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Swagger API')
         .setDescription('UI for API testing')

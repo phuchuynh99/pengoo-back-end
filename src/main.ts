@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Reflector } from '@nestjs/core';
 import { Server } from 'http';
+import { RequestMethod } from '@nestjs/common';
 
 let cachedServer: Server;
 
@@ -17,12 +18,15 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://localhost:3001',
       'http://localhost:4000',
-      'https://pengoo-back-end.vercel.app', // <-- Add Vercel frontend origin
+      'https://pengoo-back-end.vercel.app',
     ],
     credentials: true,
   });
 
-  app.setGlobalPrefix('api');
+  // Set global prefix, but exclude swagger
+  app.setGlobalPrefix('api', {
+    exclude: [{ path: 'swagger-api', method: RequestMethod.ALL }],
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Swagger API')
