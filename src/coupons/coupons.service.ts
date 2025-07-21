@@ -31,7 +31,12 @@ export class CouponsService {
       // relations: ['products', 'users'],
     });
     if (!coupon) throw new NotFoundException('Coupon not found');
-
+    const voucherId = coupon.id
+    const existing = await this.userCouponRepo.createQueryBuilder("user_coupon")
+      .where("user_coupon.userId = :userId", { userId })
+      .andWhere("user_coupon.couponId = :voucherId", { voucherId })
+      .getOne();
+    if (!existing) throw new BadRequestException("User hasn't redeem a voucher");
     const now = new Date();
     if (coupon.status !== CouponStatus.Active) throw new BadRequestException('Coupon is not active');
     if (now < new Date(coupon.startDate) || now > new Date(coupon.endDate)) throw new BadRequestException('Coupon is not valid at this time');
