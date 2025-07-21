@@ -10,6 +10,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { Delivery } from '../delivery/delivery.entity';
 import { CouponsService } from '../coupons/coupons.service'; // <-- Add this import
 import { PayosService } from '../services/payos/payos.service';
+import { CouponStatus } from 'src/coupons/coupon.entity';
 
 @Injectable()
 export class OrdersService {
@@ -76,6 +77,10 @@ export class OrdersService {
       total_price = total_price - discount;
       coupon_id = coupon.id;
       coupon_code = coupon.code;
+      // coupon.usedCount += 1;
+      // if (coupon.usedCount >= coupon.usageLimit) {
+      //   coupon.status = CouponStatus.Inactive;
+      // }
     }
     let order_code: any = null
     let checkout_url: any = null

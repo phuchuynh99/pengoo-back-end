@@ -64,7 +64,7 @@ export class CouponsController {
       }
     }
   })
-  @Public()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Validate and apply a coupon to an order' })
   @ApiBody({
     schema: {
@@ -77,9 +77,10 @@ export class CouponsController {
     },
     description: 'Validate a coupon code for a user and order value',
   })
-  validate(@Body() body: { code: string; orderValue: number; userId: number; productIds: number[] }) {
-    return this.couponsService.validateAndApply(body.code, body.orderValue, body.userId, body.productIds);
+  validate(@Body() body: { code: string; orderValue: number; productIds: number[] }, @Req() req) {
+    return this.couponsService.validateAndApply(body.code, body.orderValue, req.user.id, body.productIds);
   }
+
 
   @Get('redeem')
   @Public()
