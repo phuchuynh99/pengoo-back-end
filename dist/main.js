@@ -21,6 +21,9 @@ async function handler(req, res) {
             credentials: true,
         });
         app.setGlobalPrefix('api');
+        app.getHttpAdapter().getInstance().get('/', (req, res) => {
+            res.send('NestJS API is running!');
+        });
         const config = new swagger_1.DocumentBuilder()
             .setTitle('Swagger API')
             .setDescription('UI for API testing')
