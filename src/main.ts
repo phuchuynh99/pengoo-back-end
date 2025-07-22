@@ -17,6 +17,8 @@ async function bootstrap() {
       'http://localhost:3000', // <-- Add this line for Swagger UI
       'http://localhost:3001', // main site
       'http://localhost:4000', // admin dashboard
+      'https://pengoo.vercel.app', // production site
+      'https://pengoo-admin.vercel.app', // production admin dashboard
     ],
     credentials: true,
   });
