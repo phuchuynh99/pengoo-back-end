@@ -4,7 +4,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Reflector } from '@nestjs/core';
 import { Server } from 'http';
-import { RequestMethod } from '@nestjs/common';
 
 let cachedServer: Server;
 
@@ -15,17 +14,11 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:4000',
-      'https://pengoo-back-end.vercel.app',
+      'http://localhost:3000', // <-- Add this line for Swagger UI
+      'http://localhost:3001', // main site
+      'http://localhost:4000', // admin dashboard
     ],
     credentials: true,
-  });
-
-  // Set global prefix, but exclude swagger
-  app.setGlobalPrefix('api', {
-    exclude: [{ path: 'swagger-api', method: RequestMethod.ALL }],
   });
 
   const config = new DocumentBuilder()
@@ -39,7 +32,7 @@ async function bootstrap() {
         scheme: 'bearer',
         bearerFormat: 'JWT',
       },
-      'jwt',
+      'jwt', // this name is used later in @ApiBearerAuth('jwt')
     )
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
@@ -50,21 +43,15 @@ async function bootstrap() {
   console.log("-------------------------------------------");
   console.log("---| http://localhost:3000/swagger-api |---")
   console.log("-------------------------------------------");
+
 }
 
-// Vercel handler: allow direct access to /swagger-api
 export default async function handler(req, res) {
   if (!cachedServer) {
     const app = await NestFactory.create(AppModule, { bodyParser: false });
     await app.init();
     cachedServer = app.getHttpServer();
   }
-  // If request is for /swagger-api, serve it directly
-  if (req.url.startsWith('/swagger-api')) {
-    cachedServer.emit('request', req, res);
-    return;
-  }
-  // Otherwise, route to /api
   cachedServer.emit('request', req, res);
 }
 
