@@ -6,7 +6,6 @@ const app_module_1 = require("./app.module");
 const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("./auth/jwt-auth.guard");
 const core_2 = require("@nestjs/core");
-const common_1 = require("@nestjs/common");
 let cachedServer;
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
@@ -17,12 +16,8 @@ async function bootstrap() {
             'http://localhost:3000',
             'http://localhost:3001',
             'http://localhost:4000',
-            'https://pengoo-back-end.vercel.app',
         ],
         credentials: true,
-    });
-    app.setGlobalPrefix('api', {
-        exclude: [{ path: 'swagger-api', method: common_1.RequestMethod.ALL }],
     });
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Swagger API')
@@ -47,10 +42,6 @@ async function handler(req, res) {
         const app = await core_1.NestFactory.create(app_module_1.AppModule, { bodyParser: false });
         await app.init();
         cachedServer = app.getHttpServer();
-    }
-    if (req.url.startsWith('/swagger-api')) {
-        cachedServer.emit('request', req, res);
-        return;
     }
     cachedServer.emit('request', req, res);
 }
