@@ -50,9 +50,7 @@ const cms_content_module_1 = require("./cms-content/cms-content.module");
 const cms_content_entity_1 = require("./cms-content/cms-content.entity");
 const publisher_entity_1 = require("./publishers/entities/publisher.entity");
 const tag_entity_1 = require("./tags/entities/tag.entity");
-const featured_entity_1 = require("./products/entities/featured.entity");
 const user_coupon_entity_1 = require("./coupons/user-coupon.entity");
-const cart_entity_1 = require("./cart/cart.entity");
 const ticket_earning_log_entity_1 = require("./minigame/ticket-earning-log.entity");
 const admin_entity_1 = require("./admins/admin.entity");
 const role_entity_1 = require("./roles/role.entity");
@@ -76,14 +74,14 @@ exports.AppModule = AppModule = __decorate([
                     ...data_source_1.default,
                     entities: [
                         user_entity_1.User, product_entity_1.Product, category_entity_1.Category, order_entity_1.Order, order_entity_1.OrderDetail, review_entity_1.Review, wishlist_entity_1.Wishlist, delivery_entity_1.Delivery, coupon_entity_1.Coupon, user_coupon_entity_1.UserCoupon, image_entity_1.Image,
-                        posts_entity_1.Post, post_catalogue_entity_1.PostCatalogue, collection_entity_1.Collection, cms_content_entity_1.CmsContent, publisher_entity_1.Publisher, tag_entity_1.Tag, featured_entity_1.Featured, cart_entity_1.Cart, cart_entity_1.CartItem, ticket_earning_log_entity_1.TicketEarningLog,
+                        posts_entity_1.Post, post_catalogue_entity_1.PostCatalogue, collection_entity_1.Collection, cms_content_entity_1.CmsContent, publisher_entity_1.Publisher, tag_entity_1.Tag, ticket_earning_log_entity_1.TicketEarningLog,
                         admin_entity_1.Admin, role_entity_1.Role, role_permission_entity_1.RolePermission, permission_entity_1.Permission
                     ],
                 }),
             }),
             typeorm_1.TypeOrmModule.forFeature([
                 user_entity_1.User, product_entity_1.Product, category_entity_1.Category, order_entity_1.Order, order_entity_1.OrderDetail, review_entity_1.Review, wishlist_entity_1.Wishlist, delivery_entity_1.Delivery, coupon_entity_1.Coupon, user_coupon_entity_1.UserCoupon, image_entity_1.Image,
-                posts_entity_1.Post, post_catalogue_entity_1.PostCatalogue, collection_entity_1.Collection, cms_content_entity_1.CmsContent, publisher_entity_1.Publisher, tag_entity_1.Tag, featured_entity_1.Featured, cart_entity_1.Cart, cart_entity_1.CartItem, ticket_earning_log_entity_1.TicketEarningLog,
+                posts_entity_1.Post, post_catalogue_entity_1.PostCatalogue, collection_entity_1.Collection, cms_content_entity_1.CmsContent, publisher_entity_1.Publisher, tag_entity_1.Tag, ticket_earning_log_entity_1.TicketEarningLog,
                 admin_entity_1.Admin, role_entity_1.Role, role_permission_entity_1.RolePermission, permission_entity_1.Permission
             ]),
             users_module_1.UsersModule,

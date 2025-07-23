@@ -17,7 +17,6 @@ const wishlist_entity_1 = require("../wishlist/wishlist.entity");
 const publisher_entity_1 = require("../publishers/entities/publisher.entity");
 const tag_entity_1 = require("../tags/entities/tag.entity");
 const image_entity_1 = require("./entities/image.entity");
-const featured_entity_1 = require("./entities/featured.entity");
 const collection_entity_1 = require("../collections/collection.entity");
 const cms_content_entity_1 = require("../cms-content/cms-content.entity");
 let Product = class Product {
@@ -38,7 +37,6 @@ let Product = class Product {
     reviews;
     wishlists;
     images;
-    featured;
     collection;
     created_at;
     updated_at;
@@ -114,10 +112,6 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => image_entity_1.Image, (image) => image.product, { cascade: true }),
     __metadata("design:type", Array)
 ], Product.prototype, "images", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => featured_entity_1.Featured, (feature) => feature.product, { cascade: true }),
-    __metadata("design:type", Array)
-], Product.prototype, "featured", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => collection_entity_1.Collection, (collection) => collection.products, { onDelete: 'SET NULL' }),
     __metadata("design:type", Object)

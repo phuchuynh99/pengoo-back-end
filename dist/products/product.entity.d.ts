@@ -4,7 +4,6 @@ import { Wishlist } from '../wishlist/wishlist.entity';
 import { Publisher } from '../publishers/entities/publisher.entity';
 import { Tag } from '../tags/entities/tag.entity';
 import { Image } from './entities/image.entity';
-import { Featured } from './entities/featured.entity';
 import { Collection } from '../collections/collection.entity';
 import { CmsContent } from '../cms-content/cms-content.entity';
 export declare class Product {
@@ -25,7 +24,6 @@ export declare class Product {
     reviews: Review[];
     wishlists: Wishlist[];
     images: Image[];
-    featured: Featured[];
     collection: Collection | null;
     created_at: Date;
     updated_at: Date;

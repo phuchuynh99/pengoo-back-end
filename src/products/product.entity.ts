@@ -5,7 +5,6 @@ import { Wishlist } from '../wishlist/wishlist.entity';
 import { Publisher } from '../publishers/entities/publisher.entity';
 import { Tag } from '../tags/entities/tag.entity';
 import { Image } from './entities/image.entity';
-import { Featured } from './entities/featured.entity';
 import { Collection } from '../collections/collection.entity';
 import { CmsContent } from '../cms-content/cms-content.entity';
 
@@ -62,9 +61,6 @@ export class Product {
 
   @OneToMany(() => Image, (image) => image.product, { cascade: true })
   images: Image[];
-
-  @OneToMany(() => Featured, (feature) => feature.product, { cascade: true })
-  featured: Featured[];
 
   @ManyToOne(() => Collection, (collection) => collection.products, { onDelete: 'SET NULL' })
   collection: Collection | null;

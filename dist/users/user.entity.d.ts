@@ -1,4 +1,3 @@
-import { Cart } from '../cart/cart.entity';
 import { Review } from '../reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
 import { TicketEarningLog } from '../minigame/ticket-earning-log.entity';
@@ -20,7 +19,6 @@ export declare class User {
     resetPasswordExpires: Date | null;
     reviews: Review[];
     wishlists: Wishlist[];
-    carts: Cart[];
     ticketEarningLogs: TicketEarningLog[];
     userCoupons: UserCoupon[];
     lastFreeTicketClaim: Date | null;

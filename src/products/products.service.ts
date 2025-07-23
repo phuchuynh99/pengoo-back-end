@@ -10,7 +10,7 @@ import { Tag } from '../tags/entities/tag.entity';
 import { PublishersService } from '../publishers/publishers.service';
 import { TagsService } from '../tags/tags.service';
 import { Image } from './entities/image.entity';
-import { Featured } from './entities/featured.entity';
+// import { Featured } from './entities/featured.entity';
 import slugify from 'slugify';
 import { CmsContentService } from '../cms-content/cms-content.service'; // Add this import
 import { CmsContent } from '../cms-content/cms-content.entity'; // <-- Add this line
@@ -33,8 +33,8 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
-    @InjectRepository(Featured)
-    private featuresRepository: Repository<Featured>,
+    // @InjectRepository(Featured)
+    // private featuresRepository: Repository<Featured>,
     private readonly publishersService: PublishersService,
     private readonly categoriesService: CategoriesService,
     private readonly cloudinaryService: CloudinaryService,
@@ -142,14 +142,14 @@ export class ProductsService {
     }
 
     // 6. Save features (with optional feature images)
-    const featureEntities = features.map((f) =>
-      this.featuresRepository.create({
-        title: f.title,
-        content: f.content,
-        product: savedProduct,
-      })
-    );
-    await this.featuresRepository.save(featureEntities);
+    // const featureEntities = features.map((f) =>
+    //   this.featuresRepository.create({
+    //     title: f.title,
+    //     content: f.content,
+    //     product: savedProduct,
+    //   })
+    // );
+    // await this.featuresRepository.save(featureEntities);
     return savedProduct;
   }
 
@@ -377,18 +377,6 @@ export class ProductsService {
 
     const updatedProduct = await this.productsRepository.save(product);
 
-    if (features?.length) {
-      await this.featuresRepository.delete({ product: { id } });
-
-      const newFeatures = features.map((f) =>
-        this.featuresRepository.create({
-          title: f.title,
-          content: f.content,
-          product,
-        })
-      );
-      await this.featuresRepository.save(newFeatures);
-    }
     return updatedProduct;
   }
 

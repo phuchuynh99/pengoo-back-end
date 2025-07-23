@@ -10,7 +10,6 @@ import { TagsService } from '../tags/tags.service';
 import { PublishersService } from '../publishers/publishers.service';
 import { Tag } from '../tags/entities/tag.entity';
 import { Publisher } from '../publishers/entities/publisher.entity';
-import { Featured } from '../products/entities/featured.entity';
 import { Image } from '../products/entities/image.entity';
 import { ImagesService } from '../images/images.service';
 import { Collection } from '../collections/collection.entity';
@@ -20,7 +19,7 @@ import { CmsContent } from '../cms-content/cms-content.entity';
 @Module({
   providers: [ProductsService, ImagesService, CategoriesService, TagsService, PublishersService],
   controllers: [ProductsController],
-  imports: [TypeOrmModule.forFeature([Product, Category, Tag, Publisher, Featured, Image, Collection, CmsContent]), CloudinaryModule, CmsContentModule],
+  imports: [TypeOrmModule.forFeature([Product, Category, Tag, Publisher, Image, Collection, CmsContent]), CloudinaryModule, CmsContentModule],
   exports: [ProductsService]
 })
 export class ProductsModule { }

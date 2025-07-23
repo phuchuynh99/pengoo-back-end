@@ -41,9 +41,7 @@ import { CmsContentModule } from './cms-content/cms-content.module';
 import { CmsContent } from './cms-content/cms-content.entity';
 import { Publisher } from './publishers/entities/publisher.entity';
 import { Tag } from './tags/entities/tag.entity';
-import { Featured } from './products/entities/featured.entity'; // <-- Add this import
 import { UserCoupon } from './coupons/user-coupon.entity'; // Adjust the path if needed
-import { Cart, CartItem } from './cart/cart.entity'; // Adjust the path if needed
 import { TicketEarningLog } from './minigame/ticket-earning-log.entity';
 import { Admin } from './admins/admin.entity'; // Adjust the path if needed
 import { Role } from './roles/role.entity'; // Adjust the path if needed
@@ -65,14 +63,14 @@ import { AppService } from './app.service';
         ...dataSourceOptions,
         entities: [
           User, Product, Category, Order, OrderDetail, Review, Wishlist, Delivery, Coupon, UserCoupon, Image,
-          Post, PostCatalogue, Collection, CmsContent, Publisher, Tag, Featured, Cart, CartItem, TicketEarningLog,
+          Post, PostCatalogue, Collection, CmsContent, Publisher, Tag, TicketEarningLog,
           Admin, Role, RolePermission, Permission // <-- Add Permission here
         ],
       }),
     }),
     TypeOrmModule.forFeature([
       User, Product, Category, Order, OrderDetail, Review, Wishlist, Delivery, Coupon, UserCoupon, Image,
-      Post, PostCatalogue, Collection, CmsContent, Publisher, Tag, Featured, Cart, CartItem, TicketEarningLog,
+      Post, PostCatalogue, Collection, CmsContent, Publisher, Tag, TicketEarningLog,
       Admin, Role, RolePermission, Permission // <-- Add Permission here
     ]),
     UsersModule,

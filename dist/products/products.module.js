@@ -19,7 +19,6 @@ const tags_service_1 = require("../tags/tags.service");
 const publishers_service_1 = require("../publishers/publishers.service");
 const tag_entity_1 = require("../tags/entities/tag.entity");
 const publisher_entity_1 = require("../publishers/entities/publisher.entity");
-const featured_entity_1 = require("../products/entities/featured.entity");
 const image_entity_1 = require("../products/entities/image.entity");
 const images_service_1 = require("../images/images.service");
 const collection_entity_1 = require("../collections/collection.entity");
@@ -32,7 +31,7 @@ exports.ProductsModule = ProductsModule = __decorate([
     (0, common_1.Module)({
         providers: [products_service_1.ProductsService, images_service_1.ImagesService, categories_service_1.CategoriesService, tags_service_1.TagsService, publishers_service_1.PublishersService],
         controllers: [products_controller_1.ProductsController],
-        imports: [typeorm_1.TypeOrmModule.forFeature([product_entity_1.Product, category_entity_1.Category, tag_entity_1.Tag, publisher_entity_1.Publisher, featured_entity_1.Featured, image_entity_1.Image, collection_entity_1.Collection, cms_content_entity_1.CmsContent]), cloudinary_module_1.CloudinaryModule, cms_content_module_1.CmsContentModule],
+        imports: [typeorm_1.TypeOrmModule.forFeature([product_entity_1.Product, category_entity_1.Category, tag_entity_1.Tag, publisher_entity_1.Publisher, image_entity_1.Image, collection_entity_1.Collection, cms_content_entity_1.CmsContent]), cloudinary_module_1.CloudinaryModule, cms_content_module_1.CmsContentModule],
         exports: [products_service_1.ProductsService]
     })
 ], ProductsModule);

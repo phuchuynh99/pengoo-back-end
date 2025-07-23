@@ -10,7 +10,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
-const cart_entity_1 = require("../cart/cart.entity");
 const review_entity_1 = require("../reviews/review.entity");
 const wishlist_entity_1 = require("../wishlist/wishlist.entity");
 const typeorm_1 = require("typeorm");
@@ -33,7 +32,6 @@ let User = class User {
     resetPasswordExpires;
     reviews;
     wishlists;
-    carts;
     ticketEarningLogs;
     userCoupons;
     lastFreeTicketClaim;
@@ -106,10 +104,6 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => wishlist_entity_1.Wishlist, wishlist => wishlist.user),
     __metadata("design:type", Array)
 ], User.prototype, "wishlists", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => cart_entity_1.Cart, cart => cart.user),
-    __metadata("design:type", Array)
-], User.prototype, "carts", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => ticket_earning_log_entity_1.TicketEarningLog, log => log.user),
     __metadata("design:type", Array)

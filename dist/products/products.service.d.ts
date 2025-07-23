@@ -8,7 +8,6 @@ import { Tag } from '../tags/entities/tag.entity';
 import { PublishersService } from '../publishers/publishers.service';
 import { TagsService } from '../tags/tags.service';
 import { Image } from './entities/image.entity';
-import { Featured } from './entities/featured.entity';
 import { CmsContentService } from '../cms-content/cms-content.service';
 import { CmsContent } from '../cms-content/cms-content.entity';
 export declare class FilterProductDto {
@@ -25,7 +24,6 @@ export declare class FilterProductDto {
 }
 export declare class ProductsService {
     private productsRepository;
-    private featuresRepository;
     private readonly publishersService;
     private readonly categoriesService;
     private readonly cloudinaryService;
@@ -34,7 +32,7 @@ export declare class ProductsService {
     private imageRepository;
     private readonly cmsContentService;
     private cmsContentRepository;
-    constructor(productsRepository: Repository<Product>, featuresRepository: Repository<Featured>, publishersService: PublishersService, categoriesService: CategoriesService, cloudinaryService: CloudinaryService, tagsService: TagsService, tagRepo: Repository<Tag>, imageRepository: Repository<Image>, cmsContentService: CmsContentService, cmsContentRepository: Repository<CmsContent>);
+    constructor(productsRepository: Repository<Product>, publishersService: PublishersService, categoriesService: CategoriesService, cloudinaryService: CloudinaryService, tagsService: TagsService, tagRepo: Repository<Tag>, imageRepository: Repository<Image>, cmsContentService: CmsContentService, cmsContentRepository: Repository<CmsContent>);
     create(createProductDto: CreateProductDto, mainImage: Express.Multer.File, detailImages: Express.Multer.File[], features: FeatureDto[], featureImages: Express.Multer.File[]): Promise<Product>;
     searchAndFilter(filter: FilterProductDto): Promise<Product[]>;
     findById(id: number): Promise<Product>;

@@ -4,7 +4,6 @@ import { OrdersController } from './orders.controller';
 import { Order, OrderDetail } from './order.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersService } from '../users/users.service';
-import { ProductsService } from '../products/products.service';
 import { User } from '../users/user.entity';
 import { Product } from '../products/product.entity';
 import { Category } from '../categories/category.entity';
@@ -14,7 +13,6 @@ import { CloudinaryModule } from '../services/cloudinary/cloudinary.module';
 import { TagsModule } from '../tags/tags.module';
 import { Tag } from '../tags/entities/tag.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
-import { Featured } from '../products/entities/featured.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { CouponsModule } from '../coupons/coupons.module';
 import { Image } from '../products/entities/image.entity';
@@ -38,7 +36,6 @@ import { ProductsModule } from '../products/products.module';
       Product,
       Category,
       Tag,
-      Featured,
       Delivery,
       Image,
     ]),

@@ -1,4 +1,4 @@
-import { Cart } from '../cart/cart.entity';
+
 import { Review } from '../reviews/review.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, } from 'typeorm';
@@ -56,10 +56,6 @@ export class User {
 
   @OneToMany(() => Wishlist, wishlist => wishlist.user)
   wishlists: Wishlist[];
-
-  @OneToMany(() => Cart, cart => cart.user)
-  carts: Cart[];
-
 
   @OneToMany(() => TicketEarningLog, log => log.user)
   ticketEarningLogs: TicketEarningLog[];

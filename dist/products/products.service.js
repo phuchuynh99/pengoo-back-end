@@ -23,7 +23,6 @@ const tag_entity_1 = require("../tags/entities/tag.entity");
 const publishers_service_1 = require("../publishers/publishers.service");
 const tags_service_1 = require("../tags/tags.service");
 const image_entity_1 = require("./entities/image.entity");
-const featured_entity_1 = require("./entities/featured.entity");
 const slugify_1 = require("slugify");
 const cms_content_service_1 = require("../cms-content/cms-content.service");
 const cms_content_entity_1 = require("../cms-content/cms-content.entity");
@@ -42,7 +41,6 @@ class FilterProductDto {
 exports.FilterProductDto = FilterProductDto;
 let ProductsService = class ProductsService {
     productsRepository;
-    featuresRepository;
     publishersService;
     categoriesService;
     cloudinaryService;
@@ -51,9 +49,8 @@ let ProductsService = class ProductsService {
     imageRepository;
     cmsContentService;
     cmsContentRepository;
-    constructor(productsRepository, featuresRepository, publishersService, categoriesService, cloudinaryService, tagsService, tagRepo, imageRepository, cmsContentService, cmsContentRepository) {
+    constructor(productsRepository, publishersService, categoriesService, cloudinaryService, tagsService, tagRepo, imageRepository, cmsContentService, cmsContentRepository) {
         this.productsRepository = productsRepository;
-        this.featuresRepository = featuresRepository;
         this.publishersService = publishersService;
         this.categoriesService = categoriesService;
         this.cloudinaryService = cloudinaryService;
@@ -129,12 +126,6 @@ let ProductsService = class ProductsService {
         if (createProductDto.cms_content) {
             await this.cmsContentService.create(savedProduct.id, createProductDto.cms_content);
         }
-        const featureEntities = features.map((f) => this.featuresRepository.create({
-            title: f.title,
-            content: f.content,
-            product: savedProduct,
-        }));
-        await this.featuresRepository.save(featureEntities);
         return savedProduct;
     }
     async searchAndFilter(filter) {
@@ -319,15 +310,6 @@ let ProductsService = class ProductsService {
             await this.cmsContentService.update(product.id, updateProductDto.cms_content);
         }
         const updatedProduct = await this.productsRepository.save(product);
-        if (features?.length) {
-            await this.featuresRepository.delete({ product: { id } });
-            const newFeatures = features.map((f) => this.featuresRepository.create({
-                title: f.title,
-                content: f.content,
-                product,
-            }));
-            await this.featuresRepository.save(newFeatures);
-        }
         return updatedProduct;
     }
     async remove(id) {
@@ -363,12 +345,10 @@ exports.ProductsService = ProductsService;
 exports.ProductsService = ProductsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(product_entity_1.Product)),
-    __param(1, (0, typeorm_1.InjectRepository)(featured_entity_1.Featured)),
-    __param(6, (0, typeorm_1.InjectRepository)(tag_entity_1.Tag)),
-    __param(7, (0, typeorm_1.InjectRepository)(image_entity_1.Image)),
-    __param(9, (0, typeorm_1.InjectRepository)(cms_content_entity_1.CmsContent)),
+    __param(5, (0, typeorm_1.InjectRepository)(tag_entity_1.Tag)),
+    __param(6, (0, typeorm_1.InjectRepository)(image_entity_1.Image)),
+    __param(8, (0, typeorm_1.InjectRepository)(cms_content_entity_1.CmsContent)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
-        typeorm_2.Repository,
         publishers_service_1.PublishersService,
         categories_service_1.CategoriesService,
         cloudinary_service_1.CloudinaryService,

@@ -7,7 +7,6 @@ import { User } from '../users/user.entity';
 import { Product } from '../products/product.entity';
 import { Category } from '../categories/category.entity';
 import { Tag } from '../tags/entities/tag.entity';
-import { Featured } from '../products/entities/featured.entity'; 
 import { PublishersModule } from '../publishers/publishers.module';
 import { CloudinaryModule } from '../services/cloudinary/cloudinary.module';
 import { TagsModule } from '../tags/tags.module';
@@ -25,7 +24,6 @@ import { ProductsModule } from '../products/products.module';
       Order,
       Category,
       Tag,
-      Featured,
     ]),
     PublishersModule,
     CloudinaryModule,

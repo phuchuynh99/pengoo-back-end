@@ -16,7 +16,6 @@ const user_entity_1 = require("../users/user.entity");
 const product_entity_1 = require("../products/product.entity");
 const category_entity_1 = require("../categories/category.entity");
 const tag_entity_1 = require("../tags/entities/tag.entity");
-const featured_entity_1 = require("../products/entities/featured.entity");
 const publishers_module_1 = require("../publishers/publishers.module");
 const cloudinary_module_1 = require("../services/cloudinary/cloudinary.module");
 const tags_module_1 = require("../tags/tags.module");
@@ -37,7 +36,6 @@ exports.ReviewsModule = ReviewsModule = __decorate([
                 order_entity_1.Order,
                 category_entity_1.Category,
                 tag_entity_1.Tag,
-                featured_entity_1.Featured,
             ]),
             publishers_module_1.PublishersModule,
             cloudinary_module_1.CloudinaryModule,

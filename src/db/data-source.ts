@@ -5,12 +5,10 @@ import { User } from '../users/user.entity';
 import { DataSourceOptions } from 'typeorm';
 import { Order, OrderDetail } from '../orders/order.entity';
 import { Review } from '../reviews/review.entity';
-import { Cart, CartItem } from '../cart/cart.entity';
 import { Wishlist } from '../wishlist/wishlist.entity';
 import { Publisher } from '../publishers/entities/publisher.entity';
 import { Tag } from '../tags/entities/tag.entity';
 import { Image } from '../products/entities/image.entity';
-import { Featured } from '../products/entities/featured.entity';
 import { Delivery } from '../delivery/delivery.entity';
 import { Coupon } from '../coupons/coupon.entity';
 import { TicketEarningLog } from '../minigame/ticket-earning-log.entity';
@@ -36,7 +34,7 @@ const dataSourceOptions: DataSourceOptions = {
     ssl: { rejectUnauthorized: false },
     entities: [
         User, Product, Category, Order, OrderDetail, Review, Wishlist, Delivery, Coupon, UserCoupon, Image,
-        Post, PostCatalogue, Collection, Publisher, Tag, Featured, Cart, CartItem, TicketEarningLog,
+        Post, PostCatalogue, Collection, Publisher, Tag, TicketEarningLog,
         Admin, Role, RolePermission, Permission
     ],
     synchronize: true
