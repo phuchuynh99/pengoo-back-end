@@ -18,6 +18,7 @@ async function bootstrap() {
             'http://localhost:4000',
             'https://pengoo.vercel.app',
             'https://pengoo-admin.vercel.app',
+            'http://103.173.227.176:4000/',
         ],
         credentials: true,
     });

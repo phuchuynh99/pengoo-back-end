@@ -19,6 +19,7 @@ async function bootstrap() {
       'http://localhost:4000', // admin dashboard
       'https://pengoo.vercel.app', // production site
       'https://pengoo-admin.vercel.app', // production admin dashboard
+      'http://103.173.227.176:4000/',//main site
     ],
     credentials: true,
   });
