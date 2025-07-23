@@ -47,6 +47,7 @@ let UsersService = class UsersService {
             newUser.address = createUserDto.address;
             newUser.role = createUserDto.role || 'USER';
             newUser.status = true;
+            newUser.provider = createUserDto.provider || 'local';
             return this.usersRepository.save(newUser);
         }
         catch (error) {

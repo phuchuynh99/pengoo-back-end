@@ -26,4 +26,6 @@ export class CreateUserDto {
   address: string | '';
   @ApiProperty()
   role: string;
+  @ApiProperty({ default: 'local', required: false })
+  provider?: string;
 }

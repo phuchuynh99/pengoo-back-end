@@ -75,4 +75,7 @@ export class User {
 
   @Column({ type: 'timestamp', nullable: true })
   mfaCodeExpires: Date | null;
+
+  @Column({ length: 20, default: 'local' })
+  provider: string;
 }

@@ -90,6 +90,7 @@ let AuthService = class AuthService {
                     phone_number: '',
                     address: '',
                     role: 'user',
+                    provider: 'google',
                 });
             }
             if (skipMfa) {

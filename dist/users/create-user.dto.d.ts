@@ -7,4 +7,5 @@ export declare class CreateUserDto {
     avatar_url: string | '';
     address: string | '';
     role: string;
+    provider?: string;
 }
