@@ -39,6 +39,7 @@ let User = class User {
     lastFreeTicketClaim;
     mfaCode;
     mfaCodeExpires;
+    provider;
 };
 exports.User = User;
 __decorate([
@@ -129,6 +130,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'timestamp', nullable: true }),
     __metadata("design:type", Object)
 ], User.prototype, "mfaCodeExpires", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ length: 20, default: 'local' }),
+    __metadata("design:type", String)
+], User.prototype, "provider", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)('user')
 ], User);

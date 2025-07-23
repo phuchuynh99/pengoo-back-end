@@ -21,6 +21,7 @@ class CreateUserDto {
     avatar_url;
     address;
     role;
+    provider;
 }
 exports.CreateUserDto = CreateUserDto;
 __decorate([
@@ -63,4 +64,8 @@ __decorate([
     (0, swagger_1.ApiProperty)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "role", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ default: 'local', required: false }),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "provider", void 0);
 //# sourceMappingURL=create-user.dto.js.map

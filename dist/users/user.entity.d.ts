@@ -26,4 +26,5 @@ export declare class User {
     lastFreeTicketClaim: Date | null;
     mfaCode: string | null;
     mfaCodeExpires: Date | null;
+    provider: string;
 }
