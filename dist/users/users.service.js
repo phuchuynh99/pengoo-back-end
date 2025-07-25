@@ -105,11 +105,14 @@ let UsersService = class UsersService {
     async remove(id) {
         await this.usersRepository.delete(id);
     }
-    async updatePassword(userId, newPassword) {
+    async updatePassword(userId, dto) {
         const user = await this.usersRepository.findOne({ where: { id: userId } });
         if (!user)
             throw new common_1.NotFoundException('User not found');
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
+        if (!isMatch)
+            throw new common_1.BadRequestException('Mật khẩu hiện tại không đúng');
+        const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
         user.password = hashedPassword;
         await this.usersRepository.save(user);
         return 'Password updated successfully';

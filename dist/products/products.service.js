@@ -134,7 +134,6 @@ let ProductsService = class ProductsService {
             .leftJoinAndSelect('product.publisher_ID', 'publisher')
             .leftJoinAndSelect('product.tags', 'tags')
             .leftJoinAndSelect('product.images', 'images')
-            .leftJoinAndSelect('product.featured', 'featured')
             .leftJoinAndSelect('product.collection', 'collection');
         if (filter.name) {
             query.andWhere('product.product_name ILIKE :name', { name: `%${filter.name}%` });
@@ -184,7 +183,6 @@ let ProductsService = class ProductsService {
                 'publisher_ID',
                 'tags',
                 'images',
-                'featured',
                 'cmsContent',
             ],
         });
@@ -201,7 +199,6 @@ let ProductsService = class ProductsService {
                 'publisher_ID',
                 'tags',
                 'images',
-                'featured',
                 'cmsContent',
             ],
         });
@@ -219,7 +216,7 @@ let ProductsService = class ProductsService {
     async update(id, updateProductDto, mainImage, detailImages, features, featureImages, deleteImages) {
         const product = await this.productsRepository.findOne({
             where: { id },
-            relations: ['tags', 'category_ID', 'publisher_ID', 'images', "featured"],
+            relations: ['tags', 'category_ID', 'publisher_ID', 'images'],
         });
         if (!product) {
             throw new common_1.NotFoundException(`Product with ID ${id} not found`);

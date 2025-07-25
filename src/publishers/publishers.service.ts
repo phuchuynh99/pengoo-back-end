@@ -24,8 +24,7 @@ export class PublishersService {
         'products.tags',
         'products.images',
         'products.category_ID',
-        'products.publisher_ID',
-        'products.featured'
+        'products.publisher_ID'
       ]
     });
   }
@@ -38,8 +37,7 @@ export class PublishersService {
         'products.tags',
         'products.images',
         'products.category_ID',
-        'products.publisher_ID',
-        'products.featured'
+        'products.publisher_ID'
       ]
     });
     if (!publisher) throw new NotFoundException('Publisher not found');

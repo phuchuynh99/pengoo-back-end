@@ -33,8 +33,7 @@ let PublishersService = class PublishersService {
                 'products.tags',
                 'products.images',
                 'products.category_ID',
-                'products.publisher_ID',
-                'products.featured'
+                'products.publisher_ID'
             ]
         });
     }
@@ -46,8 +45,7 @@ let PublishersService = class PublishersService {
                 'products.tags',
                 'products.images',
                 'products.category_ID',
-                'products.publisher_ID',
-                'products.featured'
+                'products.publisher_ID'
             ]
         });
         if (!publisher)

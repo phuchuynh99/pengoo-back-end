@@ -159,7 +159,6 @@ export class ProductsService {
       .leftJoinAndSelect('product.publisher_ID', 'publisher')
       .leftJoinAndSelect('product.tags', 'tags')
       .leftJoinAndSelect('product.images', 'images')
-      .leftJoinAndSelect('product.featured', 'featured')
       .leftJoinAndSelect('product.collection', 'collection');
 
     if (filter.name) {
@@ -217,8 +216,7 @@ export class ProductsService {
         'publisher_ID',
         'tags',
         'images',
-        'featured',
-        'cmsContent', // <-- Ensure this is included!
+        'cmsContent', // 'featured' removed
       ],
     });
     if (!product) {
@@ -235,8 +233,7 @@ export class ProductsService {
         'publisher_ID',
         'tags',
         'images',
-        'featured',
-        'cmsContent', // <-- Add this!
+        'cmsContent', // 'featured' removed
       ],
     });
     if (!product) {
@@ -263,7 +260,7 @@ export class ProductsService {
   ): Promise<Product> {
     const product = await this.productsRepository.findOne({
       where: { id },
-      relations: ['tags', 'category_ID', 'publisher_ID', 'images', "featured"],
+      relations: ['tags', 'category_ID', 'publisher_ID', 'images'], // "featured" removed
     });
 
     if (!product) {
