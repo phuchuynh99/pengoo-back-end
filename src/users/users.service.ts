@@ -120,7 +120,7 @@ export class UsersService {
     user.password = hashedPassword;
     await this.usersRepository.save(user);
 
-    return 'Password updated successfully';
+    return 'Đổi password thành công';
   }
   async setStatus(id: number, status: boolean): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });

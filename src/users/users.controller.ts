@@ -97,9 +97,8 @@ export class UsersController {
   })
   async updatePassword(
     @Req() req,
-    @Body() body: { newPassword: string }
+    @Body() body: { newPassword: string, oldPassword: string }
   ) {
-    console.log(req.user.id, body.newPassword)
-    return this.usersService.updatePassword(req.user.id, body.newPassword);
+    return this.usersService.updatePassword(req.user.id, body);
   }
 }
