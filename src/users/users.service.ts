@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -109,11 +109,14 @@ export class UsersService {
     await this.usersRepository.delete(id);
   }
 
-  async updatePassword(userId: number, newPassword): Promise<string> {
+  async updatePassword(userId: number, dto): Promise<string> {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
+    if (!isMatch) throw new BadRequestException('Mật khẩu hiện tại không đúng');
+
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
     user.password = hashedPassword;
     await this.usersRepository.save(user);
 
