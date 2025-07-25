@@ -86,18 +86,18 @@ export class UsersController {
   }
 
   @Patch('updatePassword')
-  // @Roles('admin')
   @ApiBody({
     schema: {
       example: {
-        newPassword: 'editor'
+        oldPassword: 'current_password',
+        newPassword: 'new_password'
       }
     },
-    description: 'Set the new role for the user. Example roles: admin, editor, viewer, user'
+    description: 'Update password: requires oldPassword and newPassword'
   })
   async updatePassword(
     @Req() req,
-    @Body() body: { newPassword: string, oldPassword: string }
+    @Body() body: { oldPassword: string, newPassword: string }
   ) {
     return this.usersService.updatePassword(req.user.id, body);
   }
